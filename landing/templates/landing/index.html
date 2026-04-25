@@ -67,8 +67,13 @@
         <a href="#" class="nav-link text-xl" data-tab="initiatives" onclick="switchTab('initiatives')">Initiatives</a>
         <div class="flex flex-col gap-3 mt-6">
             {% if request.user.is_authenticated %}
-                <span class="text-center text-sm text-cyan-400">Welcome, {{ request.session.display_name|default:request.user.username }}</span>
-                {% if request.session.user_role == 'admin' %}
+                <div class="flex flex-col items-center mb-2">
+                    <span class="text-center text-sm font-semibold text-cyan-400">Welcome, {{ request.user.club_profile.display_name|default:request.user.username }}</span>
+                    {% if request.user.club_profile %}
+                    <span class="text-center text-xs text-gray-400 mt-1 uppercase tracking-wider">{{ request.user.club_profile.get_role_display }}</span>
+                    {% endif %}
+                </div>
+                {% if request.user.club_profile.is_faculty or request.user.club_profile.is_club_head or request.user.is_staff or request.user.is_superuser %}
                     <a href="/admin/" class="btn-gradient text-center" target="_blank">Master Admin</a>
                 {% endif %}
                 <a href="{% url 'landing:logout' %}" class="btn-outline text-center" style="border-color: #ef4444; color: #ef4444;">Logout</a>
@@ -104,8 +109,13 @@
                 <!-- Desktop CTA Buttons -->
                 <div class="hidden lg:flex items-center gap-3" id="desktop-cta">
                     {% if request.user.is_authenticated %}
-                        <span class="text-sm font-semibold text-cyan-400 mr-2">Welcome, {{ request.session.display_name|default:request.user.username }}</span>
-                        {% if request.session.user_role == 'admin' %}
+                        <div class="flex flex-col items-end mr-3">
+                            <span class="text-sm font-semibold text-cyan-400">Welcome, {{ request.user.club_profile.display_name|default:request.user.username }}</span>
+                            {% if request.user.club_profile %}
+                            <span class="text-xs text-gray-400 uppercase tracking-wider" style="font-size: 0.65rem;">{{ request.user.club_profile.get_role_display }}</span>
+                            {% endif %}
+                        </div>
+                        {% if request.user.club_profile.is_faculty or request.user.club_profile.is_club_head or request.user.is_staff or request.user.is_superuser %}
                             <a href="/admin/" class="btn-gradient btn-sm" target="_blank">Master Admin</a>
                         {% endif %}
                         <a href="{% url 'landing:logout' %}" class="btn-outline btn-sm" style="border-color: #ef4444; color: #ef4444;">Logout</a>

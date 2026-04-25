@@ -164,3 +164,42 @@ class ProjectSubmissionForm(forms.ModelForm):
         if raw:
             return [t.strip() for t in raw.split(',') if t.strip()]
         return []
+
+# ==============================================================================
+# USER REGISTRATION FORM
+# ==============================================================================
+
+class UserRegistrationForm(forms.ModelForm):
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'login-input',
+        'placeholder': 'Password',
+    }))
+    password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'login-input',
+        'placeholder': 'Confirm Password',
+    }))
+    
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'login-input', 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'login-input', 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': 'login-input', 'placeholder': 'Email Address'}),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email')
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("An account with this email already exists.")
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError("Passwords do not match.")
+        
+        return cleaned_data

@@ -14,7 +14,7 @@ from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification, TeamMember
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
-from .forms import UnifiedLoginForm, ProjectSubmissionForm
+from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm
 from .services import categorize_project_level
 
 logger = logging.getLogger(__name__)
@@ -133,6 +133,33 @@ def auth_portal(request):
     return render(request, 'landing/auth_portal.html', {
         'login_form': form,
         'page_title': 'Login — CECP Access Portal',
+    })
+
+
+def register_view(request):
+    if request.user.is_authenticated:
+        return redirect('landing:index')
+        
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = form.cleaned_data['email']  # Use email as username
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            # Note: The post_save signal in signals.py automatically creates the ClubMember
+            # profile with role='member' for this new user.
+            
+            messages.success(request, 'Registration successful! Please log in.')
+            return redirect('landing:login')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = UserRegistrationForm()
+
+    return render(request, 'landing/register.html', {
+        'register_form': form,
+        'page_title': 'Join CECP Club',
     })
 
 

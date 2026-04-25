@@ -89,7 +89,7 @@ if _database_url:
         'default': dj_database_url.config(
             default=_database_url,
             conn_max_age=600,
-            ssl_require=True,
+            ssl_require=False,
         )
     }
 else:
@@ -133,7 +133,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # --- Authentication Redirects --------------------------------------------------
 LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/dashboard/'
+LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
 # --- Custom Authentication Backends -------------------------------------------
@@ -149,30 +149,36 @@ AUTHENTICATION_BACKENDS = [
 SITE_ID = 1
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_UNIQUE_EMAIL = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
+SOCIALACCOUNT_ADAPTER = 'landing.adapters.CECPSocialAccountAdapter'
 
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
         'APP': {
-            'client_id': 'dummy-client-id',
-            'secret': 'dummy-secret',
+            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
             'key': ''
         }
     },
     'github': {
         'SCOPE': ['user:email', 'read:user'],
         'APP': {
-            'client_id': 'dummy-client-id',
-            'secret': 'dummy-secret',
+            'client_id': os.environ.get('GITHUB_CLIENT_ID', 'dummy-client-id'),
+            'secret': os.environ.get('GITHUB_CLIENT_SECRET', 'dummy-secret'),
             'key': ''
         }
     },
     'microsoft': {
         'SCOPE': ['User.Read'],
         'APP': {
-            'client_id': 'dummy-client-id',
-            'secret': 'dummy-secret',
+            'client_id': os.environ.get('MICROSOFT_CLIENT_ID', 'dummy-client-id'),
+            'secret': os.environ.get('MICROSOFT_CLIENT_SECRET', 'dummy-secret'),
             'key': ''
         }
     }

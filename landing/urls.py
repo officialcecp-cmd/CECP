@@ -13,6 +13,7 @@ urlpatterns = [
 
     # Authentication
     path('login/', views.auth_portal, name='login'),
+    path('register/', views.register_view, name='register'),
     path('logout/', views.member_logout, name='logout'),
 
     # Dashboards
