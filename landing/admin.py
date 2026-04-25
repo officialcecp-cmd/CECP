@@ -40,6 +40,7 @@ class ProjectAdmin(admin.ModelAdmin):
     readonly_fields = ('level', 'created_at', 'updated_at')
     raw_id_fields = ('submitted_by', 'approved_by')
     filter_horizontal = ('team_members',)
+    actions = ['approve_projects', 'reject_projects']
 
     fieldsets = (
         ('Project Info', {
@@ -68,7 +69,23 @@ class ProjectAdmin(admin.ModelAdmin):
         # AI auto-categorization on spec change
         if obj.spec and (not obj.level or (change and 'spec' in form.changed_data)):
             obj.level = categorize_project_level(obj.spec)
+
+        # ✅ Auto-approve when a superuser or staff adds a project via admin
+        if not change and request.user.is_staff and obj.approval_status == 'pending':
+            obj.approval_status = 'approved'
+
         super().save_model(request, obj, form, change)
+
+    @admin.action(description='✅ Approve selected projects (publish to website)')
+    def approve_projects(self, request, queryset):
+        updated = queryset.update(approval_status='approved')
+        self.message_user(request, f'{updated} project(s) approved and published to the website.')
+
+    @admin.action(description='❌ Reject selected projects')
+    def reject_projects(self, request, queryset):
+        updated = queryset.update(approval_status='rejected')
+        self.message_user(request, f'{updated} project(s) rejected.')
+
 
 
 # --- Initiative Admin ---------------------------------------------------------
