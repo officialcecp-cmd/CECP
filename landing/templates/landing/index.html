@@ -238,7 +238,7 @@
                         <div class="flex items-center justify-center gap-6 sm:gap-12 mt-10"
                             style="animation: fadeInUp 0.8s ease-out 0.9s both;">
                             <div class="hud-stat-card">
-                                <div class="hud-stat-value" data-count="25">0</div>
+                                <div class="hud-stat-value" data-count="{{ stats.total_projects }}">0</div>
                                 <div class="hud-stat-label">
                                     <span class="hud-dot bg-cyan-400"></span>
                                     PROJECTS
@@ -246,7 +246,7 @@
                             </div>
                             <div class="hud-stat-divider"></div>
                             <div class="hud-stat-card">
-                                <div class="hud-stat-value" data-count="50">0</div>
+                                <div class="hud-stat-value" data-count="{{ stats.active_members }}">0</div>
                                 <div class="hud-stat-label">
                                     <span class="hud-dot bg-blue-400"></span>
                                     MEMBERS
@@ -488,7 +488,7 @@
                                     </div>
                                     <div
                                         class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
-                                        <span class="counter" data-target="50">0</span>+</div>
+                                        <span class="counter" data-target="{{ stats.active_members }}">0</span>+</div>
                                     <div
                                         class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
                                         Active Members</div>
@@ -510,7 +510,7 @@
                                     </div>
                                     <div
                                         class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
-                                        <span class="counter" data-target="10">0</span>+</div>
+                                        <span class="counter" data-target="{{ stats.categories }}">0</span>+</div>
                                     <div
                                         class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
                                         Workshops Hosted</div>
@@ -532,7 +532,7 @@
                                     </div>
                                     <div
                                         class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
-                                        <span class="counter" data-target="20">0</span>+</div>
+                                        <span class="counter" data-target="{{ stats.total_projects }}">0</span>+</div>
                                     <div
                                         class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
                                         Core Projects</div>
