@@ -77,28 +77,28 @@ TEMPLATES = [
 WSGI_APPLICATION = 'cecp_project.wsgi.application'
 
 # --- Database ------------------------------------------------------------------
-# Uses SQLite by default for local dev. Switch to Supabase PostgreSQL via
-# DATABASE_URL env var for staging/production.
-# Example: DATABASE_URL=postgresql://user:pass@db.xxx.supabase.co:5432/postgres
+# Always connects to the live Supabase PostgreSQL database via DATABASE_URL.
+# Every team member MUST have DATABASE_URL set in their .env file.
+# Copy .env.example → .env and fill in the shared Supabase credentials.
+
+import dj_database_url as _dj_db_url
 
 _database_url = os.environ.get('DATABASE_URL')
 
-if _database_url:
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.config(
-            default=_database_url,
-            conn_max_age=600,
-            ssl_require=False,
-        )
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+if not _database_url:
+    raise RuntimeError(
+        "\n\n❌  DATABASE_URL is not set!\n"
+        "    Please add it to your .env file.\n"
+        "    Copy .env.example → .env and fill in the Supabase connection string.\n"
+    )
+
+DATABASES = {
+    'default': _dj_db_url.config(
+        default=_database_url,
+        conn_max_age=600,
+        ssl_require=False,
+    )
+}
 
 # --- Supabase Client Config (for API-level integration) -----------------------
 SUPABASE_URL = os.environ.get('SUPABASE_URL', '')
