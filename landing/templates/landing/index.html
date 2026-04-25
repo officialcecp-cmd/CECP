@@ -1,0 +1,1792 @@
+<!-- CHANGELOG: Overhauled #tab-about section with parallax campus hero, floating glass counter stats, split mission/vision panels, domain pillar grids, and values marquee. -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <!-- ===================================================================
+         CECP — Centre for Electronics & Coding Projects
+         Roorkee Institute of Technology
+         Tab-Based Landing Page (IIT Indore Inspired)
+         =================================================================== -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="{{ page_description }}" />
+    <meta name="keywords"
+        content="CECP, electronics club, coding projects, Roorkee Institute of Technology, RIT Roorkee" />
+    <meta name="author" content="CECP — Roorkee Institute of Technology" />
+
+    <title>{{ page_title }}</title>
+
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+                    },
+                    colors: {
+                        cecp: {
+                            black: '#020617',
+                            dark: '#0f172a',
+                            slate: '#1e293b',
+                            cyan: '#06b6d4',
+                            'cyan-light': '#22d3ee',
+                            blue: '#3b82f6',
+                            indigo: '#6366f1',
+                            purple: '#8b5cf6',
+                        }
+                    },
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+</head>
+
+<body class="bg-cecp-black text-slate-200 font-sans antialiased overflow-hidden h-screen">
+
+    <!-- ===================================================================
+         MOBILE MENU (Off-canvas overlay)
+         =================================================================== -->
+    <div id="mobile-menu" class="mobile-menu">
+        <a href="#" class="nav-link text-xl" data-tab="home" onclick="switchTab('home')">Home</a>
+        <a href="#" class="nav-link text-xl" data-tab="about" onclick="switchTab('about')">About Us</a>
+        <a href="#" class="nav-link text-xl" data-tab="blogs" onclick="switchTab('blogs')">Blogs</a>
+        <a href="#" class="nav-link text-xl" data-tab="projects" onclick="switchTab('projects')">Projects</a>
+        <a href="#" class="nav-link text-xl" data-tab="team" onclick="switchTab('team')">Team</a>
+        <a href="#" class="nav-link text-xl" data-tab="initiatives" onclick="switchTab('initiatives')">Initiatives</a>
+        <div class="flex flex-col gap-3 mt-6">
+            {% if request.user.is_authenticated %}
+                <span class="text-center text-sm text-cyan-400">Welcome, {{ request.session.display_name|default:request.user.username }}</span>
+                {% if request.session.user_role == 'admin' %}
+                    <a href="/admin/" class="btn-gradient text-center" target="_blank">Master Admin</a>
+                {% endif %}
+                <a href="{% url 'landing:logout' %}" class="btn-outline text-center" style="border-color: #ef4444; color: #ef4444;">Logout</a>
+            {% else %}
+                <a href="{% url 'landing:login' %}" class="btn-outline text-center">Login</a>
+                <a href="#" class="btn-gradient text-center" onclick="switchTab('about')">Contact Us</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ===================================================================
+         NAVBAR — Glassmorphism Fixed Header (Tab Buttons)
+         =================================================================== -->
+    <header id="navbar" class="navbar-glass fixed top-0 left-0 right-0 z-50 transition-all duration-300 scrolled">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+
+                <!-- Logo -->
+                <a href="#" class="cecp-logo" onclick="switchTab('home')">CECP</a>
+
+                <!-- Desktop Tab Navigation -->
+                <nav class="hidden lg:flex items-center gap-8" id="desktop-nav" aria-label="Main navigation">
+                    <a href="#" class="nav-link tab-link active" data-tab="home" onclick="switchTab('home')">Home</a>
+                    <a href="#" class="nav-link tab-link" data-tab="about" onclick="switchTab('about')">About Us</a>
+                    <a href="#" class="nav-link tab-link" data-tab="blogs" onclick="switchTab('blogs')">Blogs</a>
+                    <a href="#" class="nav-link tab-link" data-tab="projects"
+                        onclick="switchTab('projects')">Projects</a>
+                    <a href="#" class="nav-link tab-link" data-tab="team" onclick="switchTab('team')">Team</a>
+                    <a href="#" class="nav-link tab-link" data-tab="initiatives"
+                        onclick="switchTab('initiatives')">Initiatives</a>
+                </nav>
+
+                <!-- Desktop CTA Buttons -->
+                <div class="hidden lg:flex items-center gap-3" id="desktop-cta">
+                    {% if request.user.is_authenticated %}
+                        <span class="text-sm font-semibold text-cyan-400 mr-2">Welcome, {{ request.session.display_name|default:request.user.username }}</span>
+                        {% if request.session.user_role == 'admin' %}
+                            <a href="/admin/" class="btn-gradient btn-sm" target="_blank">Master Admin</a>
+                        {% endif %}
+                        <a href="{% url 'landing:logout' %}" class="btn-outline btn-sm" style="border-color: #ef4444; color: #ef4444;">Logout</a>
+                    {% else %}
+                        <a href="{% url 'landing:login' %}" class="btn-outline btn-sm" id="btn-login">Login</a>
+                        <a href="#" class="btn-gradient btn-sm" id="btn-contact" onclick="switchTab('about')">Contact Us</a>
+                    {% endif %}
+                </div>
+
+                <!-- Hamburger (Mobile) -->
+                <button id="hamburger" class="hamburger lg:hidden" aria-label="Toggle mobile menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================================================================
+         MAIN CONTENT AREA — All tabs layered, shown/hidden via JS
+         =================================================================== -->
+    <main class="pt-16 lg:pt-20 h-full">
+
+        <!-- ===================================================================
+             FLOATING SOCIAL LINKS
+             =================================================================== -->
+        <div
+            class="fixed right-0 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-3 p-3 bg-cecp-black/60 backdrop-blur-md border border-r-0 border-slate-800/80 rounded-l-2xl shadow-2xl">
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 hover:text-cyan-400 text-white transition-all duration-300"
+                title="LinkedIn">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path
+                        d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+            </a>
+            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+                class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 hover:text-pink-400 text-white transition-all duration-300"
+                title="Instagram">
+                <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                    <path
+                        d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
+                </svg>
+            </a>
+        </div>
+
+        <!-- =============================================================
+             TAB 1: HOME — Hero + About Preview (IIT Indore Style)
+             ============================================================= -->
+        <section id="tab-home" class="tab-content active-tab h-full overflow-y-auto">
+            <div class="flex flex-col">
+
+                <!-- HERO — Full Viewport -->
+                <div
+                    class="hero-section relative min-h-[calc(100vh-5rem)] flex items-center justify-center overflow-hidden">
+
+                    <!-- tsParticles Canvas Container -->
+                    <div id="tsparticles" class="absolute inset-0 z-0"></div>
+
+                    <!-- Ambient Background Orbs -->
+                    <div class="ambient-orb orb-cyan" style="width: 500px; height: 500px; top: -150px; right: -100px;">
+                    </div>
+                    <div class="ambient-orb orb-indigo" style="width: 400px; height: 400px; bottom: 10%; left: -80px;">
+                    </div>
+                    <div class="ambient-orb orb-purple" style="width: 350px; height: 350px; top: 40%; right: 15%;">
+                    </div>
+
+                    <!-- Bottom gradient fade -->
+                    <div
+                        class="absolute bottom-0 left-0 right-0 h-48 bg-gradient-to-t from-cecp-black to-transparent z-[2] pointer-events-none">
+                    </div>
+
+                    <!-- Hero Content — IIT Indore Style Layout -->
+                    <div class="relative z-10 text-center px-4 sm:px-6 max-w-5xl mx-auto"
+                        style="animation: fadeInUp 1s ease-out;">
+
+                        <!-- Welcome Pill Badge -->
+                        <div class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full mb-8
+                                bg-gradient-to-r from-cyan-500/15 to-indigo-500/15
+                                border border-cyan-400/30 backdrop-blur-sm"
+                            style="animation: fadeIn 1s ease-out 0.3s both;">
+                            <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+                            <span class="text-cyan-300 font-semibold text-sm sm:text-base tracking-wide">
+                                Welcome to CECP Club
+                            </span>
+                        </div>
+
+                        <!-- CECP Logo Image -->
+                        <div class="mb-8" style="animation: fadeInUp 0.8s ease-out 0.4s both;">
+                            <img src="{% static 'images/cecp-logo.jpg' %}"
+                                alt="CECP — Centre for Electronics Coding and Project Club" class="mx-auto w-40 h-40 sm:w-52 sm:h-52 lg:w-60 lg:h-60 object-contain rounded-2xl
+                                    drop-shadow-[0_0_30px_rgba(6,182,212,0.3)]
+                                    hover:drop-shadow-[0_0_50px_rgba(6,182,212,0.5)]
+                                    transition-all duration-500" />
+                        </div>
+
+                        <!-- "Electronics Club" Large Text -->
+                        <h1 style="animation: fadeInUp 0.8s ease-out 0.6s both;">
+                            <span
+                                class="block text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight">
+                                Electronics Club
+                            </span>
+                            <!-- "RIT Roorkee" with accent -->
+                            <span
+                                class="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold mt-2 tracking-tight">
+                                <span class="text-white">RIT </span>
+                                <span class="gradient-text">Roorkee</span>
+                            </span>
+                        </h1>
+
+                        <!-- Subtext -->
+                        <p class="mt-6 text-base sm:text-lg text-slate-400 max-w-2xl mx-auto leading-relaxed"
+                            style="animation: fadeInUp 0.8s ease-out 0.8s both;">
+                            Centre for Electronics and Coding Projects — Building next-gen solutions in
+                            defense, automation, AI, and industrial engineering.
+                        </p>
+
+                        <!-- HUD Stats Row -->
+                        <div class="flex items-center justify-center gap-6 sm:gap-12 mt-10"
+                            style="animation: fadeInUp 0.8s ease-out 0.9s both;">
+                            <div class="hud-stat-card">
+                                <div class="hud-stat-value" data-count="25">0</div>
+                                <div class="hud-stat-label">
+                                    <span class="hud-dot bg-cyan-400"></span>
+                                    PROJECTS
+                                </div>
+                            </div>
+                            <div class="hud-stat-divider"></div>
+                            <div class="hud-stat-card">
+                                <div class="hud-stat-value" data-count="50">0</div>
+                                <div class="hud-stat-label">
+                                    <span class="hud-dot bg-blue-400"></span>
+                                    MEMBERS
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA Buttons -->
+                        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8"
+                            style="animation: fadeInUp 0.8s ease-out 1s both;">
+                            <a href="#" class="btn-gradient" onclick="switchTab('about')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                                </svg>
+                                Contact Us
+                            </a>
+                            <a href="#" class="btn-outline" onclick="switchTab('projects')">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                    stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                        d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+                                </svg>
+                                Explore Projects
+                            </a>
+                        </div>
+
+                        <!-- Scrolling Marquee / Techfest Terminal Ticker -->
+                        <div class="w-full max-w-4xl mx-auto overflow-hidden whitespace-nowrap mt-10 p-3 bg-cecp-black/40 border border-slate-800/60 rounded-xl"
+                            style="animation: fadeInUp 0.8s ease-out 1.2s both; mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);">
+                            <div class="inline-flex items-center text-[11px] font-mono text-cyan-400/80 gap-8 tracking-wider"
+                                style="animation: marquee 25s linear infinite;">
+                                <span
+                                    class="font-black text-white px-2 py-1 bg-cyan-500/20 rounded border border-cyan-500/30">CORE_TECH:</span>
+                                <span>ARDUINO</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>RASPBERRY_PI</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>PCB_DESIGN</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>IOT_NETWORKS</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>FPGA_HDL</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>EMBEDDED_C</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>PYTHON_CV</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>EDGE_AI</span>
+
+                                <!-- Duplicate sequence for continuous scroll -->
+                                <span
+                                    class="font-black text-white px-2 py-1 bg-cyan-500/20 rounded border border-cyan-500/30 ml-8">CORE_TECH:</span>
+                                <span>ARDUINO</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>RASPBERRY_PI</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>PCB_DESIGN</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>IOT_NETWORKS</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>FPGA_HDL</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>EMBEDDED_C</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>PYTHON_CV</span>
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-700"></span>
+                                <span>EDGE_AI</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Who We Are Section -->
+                <div
+                    class="relative bg-cecp-black px-4 sm:px-6 lg:px-8 py-16 lg:py-24 border-t border-slate-800/60 z-10 w-full animate-on-scroll">
+                    <div class="max-w-7xl mx-auto">
+                        <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+                            <!-- Text -->
+                            <div>
+                                <p class="section-label">// Who We Are</p>
+                                <h2 class="section-title text-white">
+                                    Engineering the <span class="gradient-text">Next Generation</span>
+                                </h2>
+                                <p class="section-subtitle mt-6 leading-relaxed text-left">
+                                    We are a community of hardware enthusiasts, software developers, and engineering
+                                    innovators. CECP serves as the bridge between theoretical concepts and real-world
+                                    industrial applications, fostering an ecosystem of high-level R&D for engineering
+                                    undergraduates at Roorkee Institute of Technology.
+                                </p>
+                                <p class="text-slate-400 mt-4 leading-relaxed text-sm text-left">
+                                    From embedded systems and defense prototyping to AI-powered computer vision
+                                    pipelines, our members work on projects that push the boundaries of what's
+                                    possible in student-led engineering. We compete at national-level hackathons,
+                                    contribute to open source, and build tools that solve real industrial challenges.
+                                </p>
+                            </div>
+
+                            <!-- Visual (Holographic Card) -->
+                            <div class="delay-2">
+                                <div class="holo-card p-2 group">
+                                    <div class="holo-card-border"></div>
+                                    <div
+                                        class="relative aspect-[4/3] bg-gradient-to-br from-[#050d1a] to-[#0a1628] rounded-xl overflow-hidden flex items-center justify-center">
+                                        <div class="card-scan-overlay absolute inset-0 z-10"></div>
+                                        <div class="absolute inset-0 opacity-20"
+                                            style="background-image: radial-gradient(circle at 1px 1px, rgba(6,182,212,0.4) 1px, transparent 0); background-size: 30px 30px;">
+                                        </div>
+                                        <div class="relative z-20 text-center p-8">
+                                            <div
+                                                class="w-24 h-24 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-indigo-500/20 border border-cyan-500/40 flex items-center justify-center shadow-[0_0_30px_rgba(6,182,212,0.2)] group-hover:shadow-[0_0_50px_rgba(6,182,212,0.4)] transition-shadow duration-500">
+                                                <svg class="w-12 h-12 text-cyan-400" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24" stroke-width="1.5">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
+                                                </svg>
+                                            </div>
+                                            <div class="inline-flex items-center gap-2 tech-chip mb-2">
+                                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                                                CECP R&D LAB
+                                            </div>
+                                            <p class="text-xs text-slate-500 mt-1 uppercase tracking-widest">Roorkee
+                                                Institute of Technology</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- HOME — Bottom Stats & Technologies Footer -->
+                <div class="relative bg-cecp-black border-t border-slate-800/60 pt-10 pb-4">
+
+                    <!-- Bottom spacer since elements moved -->
+
+                    <!-- Footer Simple -->
+                    <footer class="py-6 mt-4">
+                        <div class="max-w-7xl mx-auto px-4 text-center">
+                            <p class="text-xs text-slate-600">
+                                &copy; {% now "Y" %} CECP — Roorkee Institute of Technology
+                            </p>
+                        </div>
+                    </footer>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- =============================================================
+             TAB 2: ABOUT US — Detailed About Page
+             ============================================================= -->
+        <section id="tab-about" class="tab-content h-full overflow-y-auto relative bg-cecp-black about-parallax-bg"
+            style="background-image: url('{% static 'images/about-bg.jpg' %}');" aria-label="About CECP">
+
+            <!-- Global Overlay for the entire Background Image -->
+            <div class="min-h-full w-full"
+                style="background: linear-gradient(180deg, rgba(2,6,23,0.55) 0%, rgba(2,6,23,0.85) 30%, rgba(2,6,23,0.92) 100%);">
+
+                <!-- 1. HERO BLOCK -->
+                <div class="relative w-full min-h-[90vh] flex flex-col items-center justify-center pt-32 pb-32">
+
+                    <!-- Centered Hero Content -->
+                    <div class="relative z-10 max-w-4xl mx-auto px-4 text-center animate-in">
+                        <!-- Glassmorphic Card Container -->
+                        <div
+                            class="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl hero-float">
+
+                            <!-- Kicker Pill -->
+                            <div
+                                class="inline-block px-4 py-1.5 rounded-full bg-white/5 backdrop-blur border border-cyan-400/30 mb-8">
+                                <span
+                                    class="uppercase tracking-[0.3em] text-[var(--cecp-cyan-light)] text-xs font-bold">ROORKEE
+                                    INSTITUTE OF TECHNOLOGY</span>
+                            </div>
+
+                            <!-- Massive Headline -->
+                            <h2 class="text-6xl md:text-8xl font-black text-white leading-tight mb-8">
+                                About <span
+                                    class="bg-gradient-to-r from-cyan-400 via-cyan-300 to-blue-500 bg-clip-text text-transparent">Us</span>
+                            </h2>
+
+                            <!-- Circular Club Logo -->
+                            <div
+                                class="relative w-[120px] h-[120px] mx-auto mb-8 rounded-full p-[2px] bg-gradient-to-tr from-cyan-400 to-indigo-500 shadow-[0_0_60px_rgba(34,211,238,0.45)]">
+                                <div class="w-full h-full bg-cecp-black rounded-full overflow-hidden">
+                                    <img src="{% static 'images/cecp-logo.jpg' %}" alt="CECP Logo"
+                                        class="w-full h-full object-cover" />
+                                </div>
+                            </div>
+
+                            <!-- Sub-title -->
+                            <h3 class="text-2xl md:text-3xl font-bold text-white mb-6">Centre for Electronics & Coding
+                                Projects</h3>
+
+                            <!-- Tagline -->
+                            <p class="max-w-2xl mx-auto text-slate-300 leading-relaxed">
+                                We are a passionate community of innovators from RIT Roorkee, exploring and building the
+                                future with electronics and code. From microcontrollers and PCB design to full-stack web
+                                apps and AI, we thrive on curiosity, innovation, and hands-on learning.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Subtle scroll-down chevron -->
+                    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce z-10 opacity-70">
+                        <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                            stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- Foreground Content Container -->
+                <div class="relative z-10 w-full text-slate-100 pb-20">
+
+                    <!-- 2. STATS STRIP (Holographic Upgrade) -->
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20 animate-in">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Stat 1 -->
+                            <div
+                                class="holo-card p-[1px] group text-center hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_10px_30px_rgba(6,182,212,0.2)]">
+                                <div class="holo-card-border"></div>
+                                <div class="relative bg-[#0a1628]/90 backdrop-blur-xl rounded-2xl p-8 h-full">
+                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                    <div class="relative z-10 text-cyan-400 mb-4 flex justify-center">
+                                        <svg class="w-10 h-10" fill="none" stroke="url(#cyan-blue-grad)"
+                                            viewBox="0 0 24 24" stroke-width="1.5">
+                                            <defs>
+                                                <linearGradient id="cyan-blue-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                                                    <stop offset="0%" stop-color="#06b6d4" />
+                                                    <stop offset="100%" stop-color="#3b82f6" />
+                                                </linearGradient>
+                                            </defs>
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
+                                        <span class="counter" data-target="50">0</span>+</div>
+                                    <div
+                                        class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
+                                        Active Members</div>
+                                </div>
+                            </div>
+
+                            <!-- Stat 2 -->
+                            <div
+                                class="holo-card p-[1px] group text-center hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_10px_30px_rgba(6,182,212,0.2)]">
+                                <div class="holo-card-border"></div>
+                                <div class="relative bg-[#0a1628]/90 backdrop-blur-xl rounded-2xl p-8 h-full">
+                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                    <div class="relative z-10 text-cyan-400 mb-4 flex justify-center">
+                                        <svg class="w-10 h-10" fill="none" stroke="url(#cyan-blue-grad)"
+                                            viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M11.42 15.17L17.25 21A2.652 2.652 0 0021 17.25l-5.877-5.877M11.42 15.17l2.496-3.03c.317-.384.74-.626 1.208-.766M11.42 15.17l-4.655 5.653a2.548 2.548 0 11-3.586-3.586l6.837-5.63m5.108-.233c.55-.164 1.163-.188 1.743-.14a4.5 4.5 0 004.486-6.336l-3.276 3.277a3.004 3.004 0 01-2.25-2.25l3.276-3.276a4.5 4.5 0 00-6.336 4.486c.091 1.076-.071 2.264-.904 2.95l-.102.085m-1.745 1.437L5.909 7.5H4.5L2.25 3.75l1.5-1.5L7.5 4.5v1.409l4.26 4.26m-1.745 1.437l1.745-1.437" />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
+                                        <span class="counter" data-target="10">0</span>+</div>
+                                    <div
+                                        class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
+                                        Workshops Hosted</div>
+                                </div>
+                            </div>
+
+                            <!-- Stat 3 -->
+                            <div
+                                class="holo-card p-[1px] group text-center hover:-translate-y-2 transition-all duration-500 shadow-xl hover:shadow-[0_10px_30px_rgba(6,182,212,0.2)]">
+                                <div class="holo-card-border"></div>
+                                <div class="relative bg-[#0a1628]/90 backdrop-blur-xl rounded-2xl p-8 h-full">
+                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                    <div class="relative z-10 text-cyan-400 mb-4 flex justify-center">
+                                        <svg class="w-10 h-10" fill="none" stroke="url(#cyan-blue-grad)"
+                                            viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.433 4.433 0 002.736-2.736m5.936-3.05a16.275 16.275 0 00-3.904-3.905" />
+                                        </svg>
+                                    </div>
+                                    <div
+                                        class="relative z-10 text-4xl sm:text-5xl font-black text-white mb-2 font-mono">
+                                        <span class="counter" data-target="20">0</span>+</div>
+                                    <div
+                                        class="relative z-10 text-cyan-400/80 uppercase tracking-widest text-[10px] font-bold">
+                                        Core Projects</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. JOURNEY & VISION -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32 animate-in">
+                    <div class="mb-12">
+                        <h2
+                            class="text-3xl md:text-5xl font-bold text-white inline-block relative border-b-2 border-transparent pb-3">
+                            Our Journey & Vision 🚀
+                            <div
+                                class="absolute bottom-0 left-0 h-[3px] w-full bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-500 rounded-full">
+                            </div>
+                        </h2>
+                    </div>
+
+                    <div class="grid lg:grid-cols-2 gap-10 text-left">
+                        <!-- Mission -->
+                        <div
+                            class="holo-card p-[1px] group transition-all shadow-lg hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]">
+                            <div class="holo-card-border"></div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-2xl p-8 border-l-4 border-l-cyan-400 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-cyan-400/10 flex items-center justify-center mb-6 border border-cyan-400/20 group-hover:bg-cyan-400/20 transition-colors">
+                                    <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                                    </svg>
+                                </div>
+                                <h3
+                                    class="relative z-10 text-2xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors">
+                                    Our Mission</h3>
+                                <p class="relative z-10 text-slate-300 leading-relaxed font-light mb-4 md:text-lg">
+                                    To cultivate an elite environment where engineering concepts transcend academic
+                                    theory. We empower RIT Roorkee students to design, test, and deploy robust hardware
+                                    and software architectures.
+                                </p>
+                                <p class="relative z-10 text-slate-300 leading-relaxed font-light md:text-lg">
+                                    From low-level bare-metal programming and multi-layer PCB routing to fully
+                                    functional robotics and computer vision pipelines, CECP is where ambitious ideas hit
+                                    the workbench and become working prototypes.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Vision -->
+                        <div
+                            class="holo-card p-[1px] group transition-all shadow-lg hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4));">
+                            </div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-2xl p-8 border-l-4 border-l-purple-500 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center mb-6 border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
+                                    <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor"
+                                        viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178zM15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    </svg>
+                                </div>
+                                <h3
+                                    class="relative z-10 text-2xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors">
+                                    Our Vision</h3>
+                                <p class="relative z-10 text-slate-300 leading-relaxed font-light mb-4 md:text-lg">
+                                    To establish CECP as the premier, industry-aligned student-run electronics and
+                                    coding hub of Uttarakhand. We operate with a singular focus on achieving technical
+                                    excellence and producing top-tier developers.
+                                </p>
+                                <p class="relative z-10 text-slate-300 leading-relaxed font-light md:text-lg">
+                                    We aim to dominate technical symposiums, contribute meaningfully to global
+                                    open-source projects, and graduate deeply skilled, industry-ready engineers who
+                                    actually ship real products.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. WHAT WE DO -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-32 animate-in text-center">
+                    <h2 class="text-3xl md:text-5xl font-bold text-white mb-16">What We Do</h2>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Card 1 -->
+                        <div
+                            class="holo-card p-[1px] group relative rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                            <div class="holo-card-border"></div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-[15px] p-6 text-left flex flex-col items-start pt-8 pb-8 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-cyan-900/30 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mb-5 group-hover:bg-cyan-900/50 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V6.75a2.25 2.25 0 00-2.25-2.25H6.75A2.25 2.25 0 004.5 6.75v10.5a2.25 2.25 0 002.25 2.25zm.75-12h9v9h-9v-9z" />
+                                    </svg>
+                                </div>
+                                <h4
+                                    class="relative z-10 text-xl font-bold text-white mb-3 group-hover:text-cyan-300 transition-colors">
+                                    Electronics & PCB</h4>
+                                <p class="relative z-10 text-slate-400 text-sm leading-relaxed">Mastering analog
+                                    circuits, IC design theory, and precise multi-layer PCB layout using Altium and
+                                    KiCad.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div
+                            class="holo-card p-[1px] group relative rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(59,130,246,0.4), rgba(6,182,212,0.2), rgba(59,130,246,0.4));">
+                            </div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-[15px] p-6 text-left flex flex-col items-start pt-8 pb-8 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-blue-900/30 border border-blue-500/20 text-blue-400 flex items-center justify-center mb-5 group-hover:bg-blue-900/50 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0V12a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 12V5.25" />
+                                    </svg>
+                                </div>
+                                <h4
+                                    class="relative z-10 text-xl font-bold text-white mb-3 group-hover:text-blue-300 transition-colors">
+                                    Embedded & IoT</h4>
+                                <p class="relative z-10 text-slate-400 text-sm leading-relaxed">Programming STM32,
+                                    ESP32. Connecting the physical world to cloud architectures through MQTT and HTTP.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div
+                            class="holo-card p-[1px] group relative rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(99,102,241,0.4), rgba(59,130,246,0.2), rgba(99,102,241,0.4));">
+                            </div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-[15px] p-6 text-left flex flex-col items-start pt-8 pb-8 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-indigo-900/30 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-5 group-hover:bg-indigo-900/50 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z" />
+                                    </svg>
+                                </div>
+                                <h4
+                                    class="relative z-10 text-xl font-bold text-white mb-3 group-hover:text-indigo-300 transition-colors">
+                                    Robotics</h4>
+                                <p class="relative z-10 text-slate-400 text-sm leading-relaxed">Developing autonomous
+                                    movement, PID controllers, sensor fusion, and mechanical integration.</p>
+                            </div>
+                        </div>
+
+                        <!-- Card 4 -->
+                        <div
+                            class="holo-card p-[1px] group relative rounded-2xl overflow-hidden hover:scale-[1.02] transition-transform duration-300">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4));">
+                            </div>
+                            <div
+                                class="relative h-full bg-[rgba(10,15,26,0.9)] backdrop-blur-md rounded-[15px] p-6 text-left flex flex-col items-start pt-8 pb-8 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <div
+                                    class="relative z-10 w-12 h-12 rounded-xl bg-purple-900/30 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-5 group-hover:bg-purple-900/50 transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                                    </svg>
+                                </div>
+                                <h4
+                                    class="relative z-10 text-xl font-bold text-white mb-3 group-hover:text-purple-300 transition-colors">
+                                    Full-Stack & AI</h4>
+                                <p class="relative z-10 text-slate-400 text-sm leading-relaxed">Writing efficient
+                                    backend APIs and integrating ML pipelines using YOLO, OpenCV, and PyTorch.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. CORE VALUES MARQUEE -->
+                <div class="mt-32 w-full overflow-hidden animate-in">
+                    <div class="marquee-wrapper py-6">
+                        <div class="marquee-track">
+                            <!-- Duplicate the list to create an infinite loop effect -->
+                            <div class="chip-item">Innovation</div>
+                            <div class="chip-item">Collaboration</div>
+                            <div class="chip-item">Curiosity</div>
+                            <div class="chip-item">Hands-On Learning</div>
+                            <div class="chip-item">Open Source</div>
+                            <div class="chip-item">Mentorship</div>
+                            <div class="chip-item">Excellence</div>
+                            <div class="chip-item">Community</div>
+
+                            <div class="chip-item">Innovation</div>
+                            <div class="chip-item">Collaboration</div>
+                            <div class="chip-item">Curiosity</div>
+                            <div class="chip-item">Hands-On Learning</div>
+                            <div class="chip-item">Open Source</div>
+                            <div class="chip-item">Mentorship</div>
+                            <div class="chip-item">Excellence</div>
+                            <div class="chip-item">Community</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. CTA FOOTER STRIP -->
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 mt-32 mb-20 animate-in">
+                    <div
+                        class="bg-gradient-to-br from-slate-800/60 to-cecp-black border border-white/10 rounded-3xl p-10 md:p-16 text-center backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                        <h2 class="text-3xl md:text-4xl font-bold text-white mb-8">Ready to build the future with
+                            us?</h2>
+                        <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                            <button
+                                class="btn-gradient px-8 py-3 w-full sm:w-auto shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105"
+                                onclick="switchTab('contact')">
+                                Join the Club
+                            </button>
+                            <button
+                                class="px-8 py-3 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto"
+                                onclick="switchTab('projects')">
+                                Explore Projects
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="border-t border-slate-800/40 text-center py-8">
+                    <p class="text-xs text-slate-500 tracking-widest uppercase">&copy; {% now "Y" %} CECP • Roorkee
+                        Institute of Technology</p>
+                </footer>
+            </div>
+            <!-- Global Overlay Close -->
+            </div>
+        </section>
+
+        <!-- =============================================================
+             TAB 3: INITIATIVES — Full Initiative Cards
+             ============================================================= -->
+        <section id="tab-initiatives" class="tab-content h-full overflow-y-auto">
+            <div class="relative min-h-[calc(100vh-5rem)]">
+                <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; bottom: -100px; right: -150px;">
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+
+                    <div class="text-center mb-16 animate-on-scroll">
+                        <p class="section-label">// What We Do</p>
+                        <h2 class="section-title text-white">
+                            Core <span class="gradient-text">Initiatives</span>
+                        </h2>
+                        <p class="section-subtitle mx-auto">
+                            Three verticals driving innovation across hardware, software, and competitive engineering.
+                        </p>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+                        {% for initiative in initiatives %}
+                        <div class="holo-card p-[1px] group animate-on-scroll delay-{{ forloop.counter }} hover:-translate-y-2 transition-all duration-500 shadow-xl"
+                            id="initiative-card-{{ forloop.counter }}">
+                            <!-- Dynamic Holographic Border Colors Based on Loop Index -->
+                            {% if forloop.counter == 1 %}
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(59,130,246,0.2), rgba(6,182,212,0.4));">
+                            </div>
+                            {% elif forloop.counter == 2 %}
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(59,130,246,0.4), rgba(99,102,241,0.2), rgba(59,130,246,0.4));">
+                            </div>
+                            {% else %}
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(59,130,246,0.2), rgba(168,85,247,0.4));">
+                            </div>
+                            {% endif %}
+
+                            <div
+                                class="relative h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0 opacity-50"></div>
+
+                                <div
+                                    class="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border transition-all duration-500
+                                    {% if forloop.counter == 1 %}bg-cyan-500/10 text-cyan-400 border-cyan-500/20 group-hover:bg-cyan-500/20 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.3)]
+                                    {% elif forloop.counter == 2 %}bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]
+                                    {% else %}bg-purple-500/10 text-purple-400 border-purple-500/20 group-hover:bg-purple-500/20 group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)]{% endif %}">
+                                    {% if initiative.icon == 'chip' or forloop.counter == 1 %}
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
+                                    </svg>
+                                    {% elif initiative.icon == 'eye' or forloop.counter == 2 %}
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                                    </svg>
+                                    {% elif initiative.icon == 'code' or forloop.counter == 3 %}
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                                        stroke-width="1.5">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
+                                    </svg>
+                                    {% endif %}
+                                </div>
+                                <h3
+                                    class="relative z-10 text-xl font-bold text-white mb-3 transition-colors duration-300
+                                    {% if forloop.counter == 1 %}group-hover:text-cyan-300{% elif forloop.counter == 2 %}group-hover:text-blue-300{% else %}group-hover:text-purple-300{% endif %}">
+                                    {{ initiative.title }}
+                                </h3>
+                                <p
+                                    class="relative z-10 text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
+                                    {{ initiative.description }}
+                                </p>
+                                <div
+                                    class="relative z-10 mt-6 flex items-center gap-2 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300
+                                    {% if forloop.counter == 1 %}text-cyan-400{% elif forloop.counter == 2 %}text-blue-400{% else %}text-purple-400{% endif %}">
+                                    <span class="text-[10px] font-mono tracking-widest uppercase font-bold">Initialize
+                                        Sequence</span>
+                                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
+                                        fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- ▓▓▓ OUR EVENTS SECTION ▓▓▓ -->
+                    <div class="mt-32 animate-on-scroll">
+                        <div class="text-center mb-16">
+                            <div
+                                class="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-purple-500/30 bg-purple-500/10 mb-6">
+                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
+                                <span
+                                    class="text-[10px] font-mono font-bold text-purple-400 uppercase tracking-widest">Event
+                                    Telemetry</span>
+                            </div>
+                            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight glitch-title uppercase"
+                                data-text="Our Events">
+                                Our <span
+                                    class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Events</span>
+                            </h2>
+                            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base font-mono">
+                                High-impact hackathons, workshops, and industry collaborations.
+                            </p>
+                        </div>
+
+                        <!-- Featured Event: CHIP Nirman -->
+                        <div
+                            class="holo-card p-[1px] group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)]">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(168,85,247,0.6), rgba(6,182,212,0.6), rgba(168,85,247,0.6));">
+                            </div>
+
+                            <div
+                                class="relative flex flex-col md:flex-row bg-[#0a1628]/95 backdrop-blur-xl h-full w-full z-10 rounded-[15px] overflow-hidden">
+                                <!-- Image Section -->
+                                <div
+                                    class="w-full md:w-2/5 relative h-64 md:h-auto border-b md:border-b-0 md:border-r border-slate-700/50 overflow-hidden">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-br from-purple-900/40 to-blue-900/40 z-10">
+                                    </div>
+                                    <div
+                                        class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105">
+                                    </div>
+                                    <div class="absolute top-4 left-4 z-20">
+                                        <span
+                                            class="inline-flex items-center px-2.5 py-1 rounded bg-green-500/20 border border-green-500/30 text-[10px] font-mono font-bold text-green-400 uppercase tracking-widest">
+                                            Successfully Conducted
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Content Section -->
+                                <div class="w-full md:w-3/5 p-8 md:p-12 relative flex flex-col justify-center">
+                                    <div class="card-scan-overlay absolute inset-0 z-0 opacity-50"></div>
+                                    <div class="relative z-10">
+                                        <div class="flex items-center gap-3 mb-4">
+                                            <span
+                                                class="text-sm font-mono text-purple-400 font-bold uppercase tracking-widest">Chipo
+                                                Nirman</span>
+                                            <span class="text-slate-600">x</span>
+                                            <span
+                                                class="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 rounded">5TRUCHIP</span>
+                                        </div>
+                                        <h3
+                                            class="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all duration-300">
+                                            VLSI & Chip Design Hackathon
+                                        </h3>
+                                        <p class="text-slate-400 leading-relaxed mb-8 font-mono text-sm">
+                                            In an exclusive collaboration with industry leader TRUECHIP, the CECP club
+                                            hosted the Chipo Nirman Hackathon. Students engaged in cutting-edge VLSI
+                                            challenges, designing efficient chip architectures and competing for top
+                                            honors.
+                                        </p>
+
+                                        <div
+                                            class="grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 border-t border-slate-700/50">
+                                            <div>
+                                                <div
+                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
+                                                    Status</div>
+                                                <div class="text-white font-bold tracking-wide">Completed</div>
+                                            </div>
+                                            <div>
+                                                <div
+                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
+                                                    Participants</div>
+                                                <div class="text-white font-bold tracking-wide text-cyan-400">120+
+                                                    Hackers</div>
+                                            </div>
+                                            <div class="col-span-2 md:col-span-1">
+                                                <div
+                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
+                                                    Outcome</div>
+                                                <div
+                                                    class="text-white font-bold tracking-wide text-purple-400 flex items-center gap-2">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                        viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
+                                                    </svg>
+                                                    Winners Crowned
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <footer class="border-t border-slate-800/50 py-8">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <p class="text-xs text-slate-600">&copy; {% now "Y" %} CECP — Roorkee Institute of Technology
+                        </p>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+        <!-- =============================================================
+             TAB 4: PROJECTS — TECHFEST-LEVEL CYBERPUNK SHOWCASE
+             ============================================================= -->
+        <section id="tab-projects" class="tab-content h-full overflow-y-auto">
+            <div class="relative min-h-[calc(100vh-5rem)] projects-universe" id="projects-universe">
+
+                <!-- ▓▓▓ PARTICLE CANVAS BACKGROUND ▓▓▓ -->
+                <canvas id="projectsParticleCanvas" class="absolute inset-0 w-full h-full pointer-events-none"
+                    style="z-index:0;"></canvas>
+
+
+
+                <!-- ▓▓▓ CINEMATIC HERO SECTION ▓▓▓ -->
+                <div class="relative py-24 lg:py-32 overflow-hidden" style="z-index:2;">
+                    <!-- Ambient Glow Orbs -->
+                    <div
+                        class="absolute w-[600px] h-[600px] rounded-full bg-cyan-500/8 blur-[150px] top-[-200px] left-[-200px]">
+                    </div>
+                    <div
+                        class="absolute w-[500px] h-[500px] rounded-full bg-purple-600/8 blur-[130px] bottom-[-150px] right-[-200px]">
+                    </div>
+                    <div
+                        class="absolute w-[300px] h-[300px] rounded-full bg-blue-500/6 blur-[100px] top-[40%] left-[50%] transform -translate-x-1/2">
+                    </div>
+
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative">
+                        <!-- Glitch Title -->
+                        <div class="mb-4 animate-on-scroll">
+                            <span
+                                class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-[0.2em]"
+                                style="background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(139,92,246,0.1)); border: 1px solid rgba(6,182,212,0.25); color: #67e8f9;">
+                                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                                Project Command Center
+                            </span>
+                        </div>
+
+                        <h1 class="project-hero-title animate-on-scroll delay-1" data-text="OUR PROJECTS">
+                            <span class="block text-5xl sm:text-6xl lg:text-8xl font-black tracking-tight">
+                                <span class="text-white">OUR </span><span class="hero-gradient-text">PROJECTS</span>
+                            </span>
+                        </h1>
+
+                        <p
+                            class="text-slate-400 text-base sm:text-lg max-w-2xl mx-auto mt-6 mb-8 leading-relaxed animate-on-scroll delay-2">
+                            Engineering tomorrow's defense, automation & AI systems.
+                            <span class="text-cyan-400">Every prototype. Every line of code. Battle-tested.</span>
+                        </p>
+
+                        {% if user.is_authenticated %}
+                        <div class="flex justify-center mb-10 animate-on-scroll delay-2">
+                            <a href="{% url 'landing:dashboard' %}" class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider transition-all duration-300 hover:-translate-y-1" style="background: linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.15)); border: 1px solid rgba(6,182,212,0.4); color: #22d3ee; box-shadow: 0 0 20px rgba(6,182,212,0.1);">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12.75V12A2.25 2.25 0 0 1 4.5 9.75h15A2.25 2.25 0 0 1 21.75 12v.75m-8.69-6.44-2.12-2.12a1.5 1.5 0 0 0-1.061-.44H4.5A2.25 2.25 0 0 0 2.25 6v12a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 18V9a2.25 2.25 0 0 0-2.25-2.25h-5.379a1.5 1.5 0 0 1-1.06-.44Z" /></svg>
+                                See My Projects
+                            </a>
+                        </div>
+                        {% endif %}
+
+                        <!-- HUD Stats Dashboard -->
+                        <div class="flex items-center justify-center gap-6 sm:gap-12 animate-on-scroll delay-3">
+                            <div class="hud-stat-card">
+                                <div class="hud-stat-value" data-count="{{ stats.total_projects }}">0</div>
+                                <div class="hud-stat-label">
+                                    <span class="hud-dot bg-cyan-400"></span>
+                                    PROJECTS
+                                </div>
+                            </div>
+                            <div class="hud-stat-divider"></div>
+                            <div class="hud-stat-card">
+                                <div class="hud-stat-value" data-count="{{ stats.active_members }}">0</div>
+                                <div class="hud-stat-label">
+                                    <span class="hud-dot bg-blue-400"></span>
+                                    ENGINEERS
+                                </div>
+                            </div>
+                            <div class="hud-stat-divider"></div>
+                            <div class="hud-stat-card">
+                                <div class="hud-stat-value" data-count="{{ stats.categories }}">0</div>
+                                <div class="hud-stat-label">
+                                    <span class="hud-dot bg-purple-400"></span>
+                                    DOMAINS
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ▓▓▓ FILTER COMMAND BAR ▓▓▓ -->
+                <div class="sticky top-16 z-30 py-3 filter-command-bar" id="filterBar">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                            <button onclick="filterProjects('all')" class="filter-chip active" data-filter="all">
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 6h16M4 12h16M4 18h16" />
+                                </svg>
+                                ALL
+                            </button>
+                            <button onclick="filterProjects('Beginner')" class="filter-chip" data-filter="Beginner">
+                                <span class="chip-dot bg-emerald-400"></span>
+                                BEGINNER
+                            </button>
+                            <button onclick="filterProjects('Intermediate')" class="filter-chip"
+                                data-filter="Intermediate">
+                                <span class="chip-dot bg-blue-400"></span>
+                                INTERMEDIATE
+                            </button>
+                            <button onclick="filterProjects('Pro')" class="filter-chip" data-filter="Pro">
+                                <span class="chip-dot bg-fuchsia-400"></span>
+                                PRO
+                            </button>
+                            <div class="filter-divider"></div>
+                            {% for cat in categories %}
+                            <button onclick="filterProjects('cat-{{ cat.slug }}')" class="filter-chip"
+                                data-filter="cat-{{ cat.slug }}">
+                                {{ cat.name|upper }}
+                            </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ▓▓▓ PROJECTS GRID ▓▓▓ -->
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 relative" style="z-index:2;">
+
+                    <!-- ── COMPLETED PROJECTS ── -->
+                    <div class="mb-20" id="completed-section">
+                        <div class="flex items-center gap-4 mb-10">
+                            <div class="section-marker completed"></div>
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">COMPLETED</h2>
+                                <p class="text-xs text-slate-500 uppercase tracking-[0.15em] mt-0.5">Successfully
+                                    Delivered & Deployed</p>
+                            </div>
+                            <div class="flex-1 h-px bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" id="completed-grid">
+                            {% for project in projects %}
+                            {% if project.status == 'completed' %}
+                            <div class="holo-card group" data-level="{{ project.level }}"
+                                data-category="cat-{{ project.category.slug|default:'uncategorized' }}">
+
+                                <!-- Card Glow Border (animated) -->
+                                <div class="holo-card-border"></div>
+
+                                <!-- Image Section -->
+                                <div class="relative h-52 sm:h-56 w-full overflow-hidden">
+                                    {% if project.image %}
+                                    <img src="{{ project.image.url }}" alt="{{ project.title }}"
+                                        class="w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.15]">
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center"
+                                        style="background: linear-gradient(135deg, #0c1222 0%, #0a192f 50%, #0d1117 100%);">
+                                        <div class="relative">
+                                            <svg class="w-16 h-16 text-slate-800" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <div
+                                                class="absolute inset-0 animate-pulse bg-cyan-500/5 rounded-lg blur-xl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Level Badge — Holographic -->
+                                    {% if project.level %}
+                                    <div class="absolute top-3 left-3 level-badge-holo
+                                            {% if project.level == 'Beginner' %}level-beginner
+                                            {% elif project.level == 'Intermediate' %}level-intermediate
+                                            {% else %}level-pro{% endif %}">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                        </svg>
+                                        {{ project.level|upper }}
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Category Tag -->
+                                    {% if project.category %}
+                                    <div class="absolute top-3 right-3 category-tag-holo">
+                                        {{ project.category.name|upper }}
+                                    </div>
+                                    {% endif %}
+
+
+
+                                    <!-- Bottom gradient -->
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0a0f1a] to-transparent">
+                                    </div>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="p-5 pt-4 relative flex flex-col flex-grow">
+                                    <h3 class="text-[20px] font-bold text-cyan-400 mb-2 leading-tight">
+                                        {{ project.title }}
+                                    </h3>
+                                    <p class="text-[13px] text-slate-300 leading-relaxed mb-5 line-clamp-2 min-h-[40px]">
+                                        {{ project.description }}
+                                    </p>
+
+                                    <!-- Year and Members Badges -->
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e293b]/60 border border-slate-700/50 text-cyan-400 text-xs font-semibold tracking-wide shadow-inner">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                            </svg>
+                                            {{ project.created_at|date:"Y" }}
+                                        </div>
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e293b]/60 border border-slate-700/50 text-cyan-400 text-xs font-semibold tracking-wide shadow-inner">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                            </svg>
+                                            {{ project.team_members.count }} members
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Owner -->
+                                    {% if project.submitted_by %}
+                                    <div class="flex items-center gap-2 mb-6">
+                                        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
+                                        <span class="text-sm text-slate-300 font-medium">{{ project.submitted_by.user.get_full_name|default:project.submitted_by.user.username }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- View Details Button -->
+                                    <div class="mt-auto pt-2">
+                                        <a href="{% url 'landing:project_detail' project.id %}" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-cyan-500/40 text-white text-sm font-bold tracking-wide hover:bg-cyan-500/20 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] group/btn" style="background: linear-gradient(90deg, rgba(15,23,42,0.8) 0%, rgba(8,145,178,0.3) 100%);">
+                                            View Details
+                                            <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                                        </a>
+                                    </div>
+
+                                    <!-- Bottom Accent Line -->
+                                    <div class="absolute bottom-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- ── ONGOING PROJECTS ── -->
+                    <div id="ongoing-section">
+                        <div class="flex items-center gap-4 mb-10">
+                            <div class="section-marker active"></div>
+                            <div>
+                                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">IN PROGRESS</h2>
+                                <p class="text-xs text-slate-500 uppercase tracking-[0.15em] mt-0.5">Currently Under
+                                    Development</p>
+                            </div>
+                            <div class="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" id="ongoing-grid">
+                            {% for project in projects %}
+                            {% if project.status == 'active' %}
+                            <div class="holo-card group" data-level="{{ project.level }}"
+                                data-category="cat-{{ project.category.slug|default:'uncategorized' }}">
+
+                                <div class="holo-card-border"></div>
+
+                                <!-- Image Section -->
+                                <div class="relative h-52 sm:h-56 w-full overflow-hidden">
+                                    {% if project.image %}
+                                    <img src="{{ project.image.url }}" alt="{{ project.title }}"
+                                        class="w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.15]">
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center"
+                                        style="background: linear-gradient(135deg, #0c1222 0%, #0a192f 50%, #0d1117 100%);">
+                                        <div class="relative">
+                                            <svg class="w-16 h-16 text-slate-800" fill="none" viewBox="0 0 24 24"
+                                                stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="0.8"
+                                                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                            </svg>
+                                            <div
+                                                class="absolute inset-0 animate-pulse bg-cyan-500/5 rounded-lg blur-xl">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Level Badge — Holographic -->
+                                    {% if project.level %}
+                                    <div class="absolute top-3 left-3 level-badge-holo
+                                            {% if project.level == 'Beginner' %}level-beginner
+                                            {% elif project.level == 'Intermediate' %}level-intermediate
+                                            {% else %}level-pro{% endif %}">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24">
+                                            <path
+                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                        </svg>
+                                        {{ project.level|upper }}
+                                    </div>
+                                    {% endif %}
+
+                                    {% if project.category %}
+                                    <div class="absolute top-3 right-3 category-tag-holo">
+                                        {{ project.category.name|upper }}
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Active Pulse Indicator -->
+                                    <div
+                                        class="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 rounded-full active-indicator">
+                                        <span
+                                            class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-lg shadow-cyan-500/50"></span>
+                                        <span class="text-[10px] text-cyan-200 font-bold uppercase tracking-wider">Live
+                                            Dev</span>
+                                    </div>
+
+
+                                    <div
+                                        class="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#0a0f1a] to-transparent">
+                                    </div>
+                                </div>
+
+                                <!-- Content -->
+                                <div class="p-5 pt-4 relative flex flex-col flex-grow">
+                                    <h3 class="text-[20px] font-bold text-cyan-400 mb-2 leading-tight">
+                                        {{ project.title }}
+                                    </h3>
+                                    <p class="text-[13px] text-slate-300 leading-relaxed mb-5 line-clamp-2 min-h-[40px]">
+                                        {{ project.description }}
+                                    </p>
+
+                                    <!-- Year and Members Badges -->
+                                    <div class="flex items-center gap-3 mb-5">
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e293b]/60 border border-slate-700/50 text-cyan-400 text-xs font-semibold tracking-wide shadow-inner">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" />
+                                            </svg>
+                                            {{ project.created_at|date:"Y" }}
+                                        </div>
+                                        <div class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1e293b]/60 border border-slate-700/50 text-cyan-400 text-xs font-semibold tracking-wide shadow-inner">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+                                            </svg>
+                                            {{ project.team_members.count }} members
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Owner -->
+                                    {% if project.submitted_by %}
+                                    <div class="flex items-center gap-2 mb-6">
+                                        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
+                                        <span class="text-sm text-slate-300 font-medium">{{ project.submitted_by.user.get_full_name|default:project.submitted_by.user.username }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- View Details Button -->
+                                    <div class="mt-auto pt-2">
+                                        <a href="{% url 'landing:project_detail' project.id %}" class="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-cyan-500/40 text-white text-sm font-bold tracking-wide hover:bg-cyan-500/20 hover:border-cyan-400 transition-all shadow-[0_0_15px_rgba(6,182,212,0.15)] group/btn" style="background: linear-gradient(90deg, rgba(15,23,42,0.8) 0%, rgba(8,145,178,0.3) 100%);">
+                                            View Details
+                                            <svg class="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+                                        </a>
+                                    </div>
+
+                                    <div class="absolute bottom-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <footer class="border-t border-slate-800/30 py-8 relative" style="z-index:2;">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <p class="text-xs text-slate-600 font-mono tracking-wider">&copy; {% now "Y" %} CECP — ROORKEE
+                            INSTITUTE OF TECHNOLOGY</p>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+        <!-- =============================================================
+             TAB 5: TEAM — Team Members
+             ============================================================= -->
+        <section id="tab-team" class="tab-content h-full overflow-y-auto relative">
+            <div class="relative min-h-[calc(100vh-5rem)] z-10">
+                <div class="ambient-orb orb-indigo" style="width: 400px; height: 400px; top: 15%; right: -120px;"></div>
+
+                <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
+
+                    <div class="text-center mb-20 animate-on-scroll">
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-cyan-500/30 bg-cyan-500/10 mb-6">
+                            <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                            <span
+                                class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">Network
+                                Architecture</span>
+                        </div>
+                        <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight uppercase"
+                            style="font-family: 'JetBrains Mono', monospace;">
+                            Core <span
+                                class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Personnel</span>
+                        </h2>
+                        <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base font-mono">
+                            The command structure behind the Centre for Electronics & Coding Projects.
+                        </p>
+                    </div>
+
+                    <!-- TIER 1: FACULTY ADVISORS -->
+                    <div class="mb-20 animate-on-scroll">
+                        <div class="text-center mb-12">
+                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Faculty Coordinator</h3>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            <!-- HOD -->
+                            <div
+                                class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
+                                <div class="holo-card-border"
+                                    style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(168,85,247,0.5));">
+                                </div>
+                                <div
+                                    class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
+                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                    <div
+                                        class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full p-1 bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-400 group-hover:to-pink-500 transition-all duration-500">
+                                        <div
+                                            class="w-full h-full rounded-full bg-[#050b14] flex items-center justify-center overflow-hidden border border-purple-500/30 relative">
+                                            <div
+                                                class="absolute inset-0 bg-[url('{% static 'images/cecp-logo.jpg' %}')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-500">
+                                            </div>
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent -translate-y-full group-hover:animate-[scan_2s_ease-in-out_infinite]">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relative z-10 mb-3">
+                                        <span
+                                            class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">Head
+                                            of Department</span>
+                                    </div>
+                                    <h4
+                                        class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">
+                                        Dr. Pankaj Singh Tomar</h4>
+                                    <p
+                                        class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono uppercase tracking-widest">
+                                        Supreme Authority</p>
+                                </div>
+                            </div>
+
+                            <!-- Faculty Coordinator -->
+                            <div
+                                class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
+                                <div class="holo-card-border"
+                                    style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(59,130,246,0.5));">
+                                </div>
+                                <div
+                                    class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
+                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                    <div
+                                        class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full p-1 bg-gradient-to-br from-purple-500/20 to-blue-500/20 group-hover:from-purple-400 group-hover:to-blue-500 transition-all duration-500">
+                                        <div
+                                            class="w-full h-full rounded-full bg-[#050b14] flex items-center justify-center overflow-hidden border border-blue-500/30 relative">
+                                            <div
+                                                class="absolute inset-0 bg-[url('{% static 'images/cecp-logo.jpg' %}')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-500">
+                                            </div>
+                                            <div
+                                                class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent -translate-y-full group-hover:animate-[scan_2s_ease-in-out_infinite]">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relative z-10 mb-3">
+                                        <span
+                                            class="inline-block px-3 py-1 rounded border border-blue-500/20 bg-blue-500/10 text-[10px] font-mono tracking-widest text-blue-400 uppercase">Faculty
+                                            Coordinator</span>
+                                    </div>
+                                    <h4
+                                        class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">
+                                        Dr. Saurabh Raj</h4>
+                                    <p
+                                        class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono uppercase tracking-widest">
+                                        Operational Oversight</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TIER 2: CLUB HEADS -->
+                    <div class="mb-20 animate-on-scroll">
+                        <div class="text-center mb-12">
+                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Head</h3>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                            {% for member in team_members %}
+                            {% if member.role == 'lead' or member.role == 'co_lead' or member.role == 'head' or member.role == 'treasurer' %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
+                                <!-- Profile Image with bright cyan border -->
+                                <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
+                                    {% if member.image %}
+                                    <img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                    <div class="w-full h-full bg-[#111827] flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Name -->
+                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.name }}</h3>
+                                
+                                <!-- Role -->
+                                <p class="text-cyan-400 font-medium text-[15px] mb-5 tracking-wide">{{ member.get_role_display }}</p>
+                                
+                                <!-- Quote / Title -->
+                                <p class="text-slate-400 italic text-[13px] mb-8 uppercase tracking-wider">"{{ member.title|default:'POTENTIAL TO POWER' }}"</p>
+                                
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center gap-5 mt-auto">
+                                    {% if member.email %}
+                                    <a href="mailto:{{ member.email }}" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Email">
+                                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75m19.5 0v.243m0 0a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.github_url %}
+                                    <a href="{{ member.github_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.linkedin_url %}
+                                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- TIER 3: MEMBERS -->
+                    <div class="animate-on-scroll">
+                        <div class="text-center mb-12">
+                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Core Members</h3>
+                        </div>
+
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {% for member in team_members %}
+                            {% if member.role == 'member' or member.role == 'alumni' %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
+                                <!-- Profile Image with bright cyan border -->
+                                <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
+                                    {% if member.image %}
+                                    <img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                    <div class="w-full h-full bg-[#111827] flex items-center justify-center">
+                                        <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                                    </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Name -->
+                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.name }}</h3>
+                                
+                                <!-- Role -->
+                                <p class="text-cyan-400 font-medium text-[15px] mb-5 tracking-wide">{{ member.get_role_display }}</p>
+                                
+                                <!-- Quote / Title -->
+                                <p class="text-slate-400 italic text-[13px] mb-8 uppercase tracking-wider">"{{ member.title|default:'POTENTIAL TO POWER' }}"</p>
+                                
+                                <!-- Social Icons -->
+                                <div class="flex items-center justify-center gap-5 mt-auto">
+                                    {% if member.email %}
+                                    <a href="mailto:{{ member.email }}" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Email">
+                                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75m19.5 0v.243m0 0a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.github_url %}
+                                    <a href="{{ member.github_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.linkedin_url %}
+                                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
+                                        </svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                </div>
+
+                <footer class="border-t border-slate-800/50 py-8">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <p class="text-xs text-slate-600">&copy; {% now "Y" %} CECP — Roorkee Institute of Technology
+                        </p>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+        <!-- =============================================================
+             TAB 6: BLOGS — Research & Articles
+             ============================================================= -->
+        <section id="tab-blogs" class="tab-content h-full overflow-y-auto">
+            <div class="relative min-h-[calc(100vh-5rem)] flex flex-col">
+                <div class="ambient-orb orb-purple" style="width: 450px; height: 450px; top: 10%; right: -100px;"></div>
+                <div class="ambient-orb orb-cyan" style="width: 400px; height: 400px; bottom: 10%; left: -100px;"></div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24 flex-grow w-full">
+                    <div class="text-center mb-16 animate-on-scroll">
+                        <p class="section-label">// Research & Articles</p>
+                        <h2 class="section-title text-white">
+                            Our <span class="gradient-text">Blogs</span>
+                        </h2>
+                        <p class="section-subtitle mx-auto">
+                            Deep dives into our latest research, projects, and technical explorations.
+                        </p>
+                    </div>
+
+                    <!-- Masonry / Large Card Grid -->
+                    <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
+
+                        <!-- Blog Post 1 -->
+                        <article
+                            class="holo-card p-[1px] group animate-on-scroll rounded-2xl flex flex-col h-full hover:shadow-[0_10px_40px_rgba(6,182,212,0.15)] transition-all duration-500">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(59,130,246,0.2), rgba(6,182,212,0.4));">
+                            </div>
+                            <div
+                                class="relative flex flex-col h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <!-- Large Image -->
+                                <div class="relative w-full h-72 sm:h-80 overflow-hidden bg-slate-800">
+                                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                        alt="Research Topic 1"
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent opacity-90">
+                                    </div>
+                                    <div class="absolute top-4 right-4 z-20">
+                                        <span
+                                            class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-300 bg-cyan-900/50 backdrop-blur-md rounded-full border border-cyan-400/30">AI
+                                            & Vision</span>
+                                    </div>
+                                </div>
+
+                                <!-- Content -->
+                                <div
+                                    class="p-8 sm:p-10 flex flex-col flex-grow relative z-10 -mt-16 bg-[#0f172a]/80 backdrop-blur-xl rounded-t-3xl border-t border-white/5">
+                                    <div class="flex items-center gap-3 text-xs font-mono text-cyan-400 mb-4">
+                                        <span>Apr 22, 2026</span>
+                                        <span class="w-1 h-1 rounded-full bg-cyan-600"></span>
+                                        <span>5 min read</span>
+                                    </div>
+                                    <h3
+                                        class="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors leading-tight">
+                                        Optimizing Edge Inference for Real-Time Object Detection
+                                    </h3>
+                                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 flex-grow">
+                                        A deep dive into our methodology for achieving 60+ FPS on embedded devices. We
+                                        explore quantization techniques, ONNX runtime optimizations, and the trade-offs
+                                        between accuracy and speed in production environments.
+                                    </p>
+
+                                    <div
+                                        class="flex items-center justify-between mt-auto pt-6 border-t border-slate-800/60">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg">
+                                                JD
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-sm text-white font-medium">John Doe</span>
+                                                <span class="text-xs text-slate-500">Computer Vision Lead</span>
+                                            </div>
+                                        </div>
+                                        <a href="#"
+                                            class="text-cyan-400 hover:text-cyan-300 text-sm font-semibold flex items-center gap-2 group/btn bg-cyan-400/10 hover:bg-cyan-400/20 px-4 py-2 rounded-lg transition-colors">
+                                            Read
+                                            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> <!-- Close holo-card wrapper -->
+                        </article>
+
+                        <!-- Blog Post 2 -->
+                        <article
+                            class="holo-card p-[1px] group animate-on-scroll rounded-2xl flex flex-col h-full hover:shadow-[0_10px_40px_rgba(139,92,246,0.15)] transition-all duration-500 delay-100">
+                            <div class="holo-card-border"
+                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4));">
+                            </div>
+                            <div
+                                class="relative flex flex-col h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] overflow-hidden">
+                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
+                                <!-- Large Image -->
+                                <div class="relative w-full h-72 sm:h-80 overflow-hidden bg-slate-800">
+                                    <img src="https://images.unsplash.com/photo-1555664424-778a1e5e1b48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                                        alt="Research Topic 2"
+                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent opacity-90">
+                                    </div>
+                                    <div class="absolute top-4 right-4 z-20">
+                                        <span
+                                            class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-900/50 backdrop-blur-md rounded-full border border-purple-400/30">Embedded
+                                            Systems</span>
+                                    </div>
+                                </div>
+
+                                <!-- Content -->
+                                <div
+                                    class="p-8 sm:p-10 flex flex-col flex-grow relative z-10 -mt-16 bg-[#0f172a]/80 backdrop-blur-xl rounded-t-3xl border-t border-white/5">
+                                    <div class="flex items-center gap-3 text-xs font-mono text-purple-400 mb-4">
+                                        <span>Apr 18, 2026</span>
+                                        <span class="w-1 h-1 rounded-full bg-purple-600"></span>
+                                        <span>8 min read</span>
+                                    </div>
+                                    <h3
+                                        class="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors leading-tight">
+                                        Designing Custom RTOS Architectures for UAVs
+                                    </h3>
+                                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 flex-grow">
+                                        Exploring the challenges of deterministic behavior in flight controllers. This
+                                        paper covers our approach to task scheduling, interrupt latency management, and
+                                        memory safety in C++ environments.
+                                    </p>
+
+                                    <div
+                                        class="flex items-center justify-between mt-auto pt-6 border-t border-slate-800/60">
+                                        <div class="flex items-center gap-3">
+                                            <div
+                                                class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg">
+                                                AS
+                                            </div>
+                                            <div class="flex flex-col">
+                                                <span class="text-sm text-white font-medium">Alice Smith</span>
+                                                <span class="text-xs text-slate-500">Embedded Lead</span>
+                                            </div>
+                                        </div>
+                                        <a href="#"
+                                            class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2 group/btn bg-purple-400/10 hover:bg-purple-400/20 px-4 py-2 rounded-lg transition-colors">
+                                            Read
+                                            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                                            </svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div> <!-- Close holo-card wrapper -->
+                        </article>
+
+                    </div>
+                </div>
+
+                <footer class="border-t border-slate-800/50 py-8 mt-auto w-full">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+                        <p class="text-xs text-slate-600">&copy; {% now "Y" %} CECP — Roorkee Institute of Technology
+                        </p>
+                    </div>
+                </footer>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ===================================================================
+         SCRIPTS
+         =================================================================== -->
+    <!-- tsParticles Engine (Slim Bundle — CDN) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/slim@3/tsparticles.slim.bundle.min.js"></script>
+
+    <!-- Particle Config (Anti-Gravity Network) -->
+    <script src="{% static 'js/particles-config.js' %}"></script>
+
+    <!-- Tab Navigation + UI Engine -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+</body>
+
+</html>

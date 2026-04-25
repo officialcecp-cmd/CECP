@@ -1,0 +1,273 @@
+# ==============================================================================
+# Landing App — Data Models
+# ==============================================================================
+# Professional-grade models for the CECP club website.
+# Implements: Role-based ClubMember system, Project approval workflow,
+# Category taxonomy, and in-app Notifications.
+# ==============================================================================
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+
+# ==============================================================================
+# CLUB MEMBER — Role-based access control
+# ==============================================================================
+
+class ClubMember(models.Model):
+    """
+    Links a Django User to a CECP club role.
+    Role hierarchy: HOD > Faculty > Club Head > Member
+    """
+    ROLE_CHOICES = [
+        ('hod', 'HOD / Faculty Coordinator'),
+        ('faculty', 'Faculty Coordinator'),
+        ('club_head', 'Club Head'),
+        ('member', 'Club Member'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='club_profile')
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
+    member_id = models.CharField(
+        max_length=20, unique=True, blank=True,
+        help_text="Unique member ID (e.g., CECP-2025-001)"
+    )
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    bio = models.TextField(blank=True, help_text="Short bio or specialization")
+    phone = models.CharField(max_length=15, blank=True)
+    linkedin_url = models.URLField(blank=True)
+    github_url = models.URLField(blank=True)
+    joined_at = models.DateField(default=timezone.now)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['role', 'user__first_name']
+
+    def __str__(self):
+        return f"{self.user.get_full_name() or self.user.username} — {self.get_role_display()}"
+
+    @property
+    def is_club_head(self):
+        return self.role == 'club_head'
+
+    @property
+    def is_faculty(self):
+        return self.role in ('hod', 'faculty')
+
+    @property
+    def can_approve_projects(self):
+        """Club Head and HOD can approve projects."""
+        return self.role in ('club_head', 'hod')
+
+    @property
+    def display_name(self):
+        return self.user.get_full_name() or self.user.username
+
+
+# ==============================================================================
+# PROJECT CATEGORY — Dynamic taxonomy
+# ==============================================================================
+
+class ProjectCategory(models.Model):
+    """
+    Dynamic project categories (IoT, Robotics, AI/ML, Audio, etc.)
+    """
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=100, unique=True)
+    color = models.CharField(
+        max_length=7, default='#06b6d4',
+        help_text="Hex color for the category badge (e.g., #06b6d4)"
+    )
+    icon_class = models.CharField(max_length=50, blank=True, help_text="Optional icon identifier")
+    display_order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ['display_order', 'name']
+        verbose_name_plural = 'Project Categories'
+
+    def __str__(self):
+        return self.name
+
+
+# ==============================================================================
+# PROJECT — Full project with approval workflow
+# ==============================================================================
+
+class Project(models.Model):
+    """
+    Represents a club project with full approval workflow.
+    Members submit → Club Head approves → appears on live site.
+    """
+    STATUS_CHOICES = [
+        ('active', 'Active / Ongoing'),
+        ('completed', 'Completed'),
+        ('archived', 'Archived'),
+    ]
+
+    APPROVAL_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    LEVEL_CHOICES = [
+        ('Beginner', 'Beginner'),
+        ('Intermediate', 'Intermediate'),
+        ('Pro', 'Pro'),
+    ]
+
+    # --- Core Fields ---
+    title = models.CharField(max_length=200, help_text="Project title")
+    codename = models.CharField(max_length=100, blank=True, help_text="Internal codename")
+    description = models.TextField(help_text="Brief project description (shown on card)")
+    spec = models.TextField(blank=True, help_text="Full technical specification (for AI categorization)")
+
+    # --- Media ---
+    image = models.ImageField(upload_to='projects/', blank=True, null=True, help_text="Project thumbnail")
+
+    # --- Classification ---
+    category = models.ForeignKey(
+        ProjectCategory, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='projects'
+    )
+    tech_stack = models.JSONField(default=list, blank=True, help_text="Technologies used (JSON array)")
+    level = models.CharField(
+        max_length=50, choices=LEVEL_CHOICES, blank=True,
+        help_text="Auto-assigned by AI based on spec"
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+
+    # --- Approval Workflow ---
+    approval_status = models.CharField(
+        max_length=20, choices=APPROVAL_CHOICES, default='pending',
+        help_text="Approval status in the review pipeline"
+    )
+    submitted_by = models.ForeignKey(
+        ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='submitted_projects',
+        help_text="Member who submitted this project"
+    )
+    approved_by = models.ForeignKey(
+        ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='approved_projects',
+        help_text="Club Head / HOD who approved this project"
+    )
+    rejection_reason = models.TextField(blank=True, help_text="Reason if project was rejected")
+
+    # --- Team ---
+    team_members = models.ManyToManyField(
+        ClubMember, blank=True, related_name='projects',
+        help_text="Members who worked on this project"
+    )
+
+    # --- External Links ---
+    github_url = models.URLField(blank=True, help_text="GitHub repository URL")
+    demo_url = models.URLField(blank=True, help_text="Live demo or video URL")
+    documentation_url = models.URLField(blank=True, help_text="Documentation or report URL")
+
+    # --- Ordering & Display ---
+    display_order = models.PositiveIntegerField(default=0)
+    is_featured = models.BooleanField(default=False, help_text="Feature on the landing page")
+
+    # --- Timestamps ---
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.title} ({self.get_approval_status_display()})"
+
+    @property
+    def is_live(self):
+        """Project is visible on the public site only if approved."""
+        return self.approval_status == 'approved'
+
+
+# ==============================================================================
+# NOTIFICATION — In-app notification system
+# ==============================================================================
+
+class Notification(models.Model):
+    """
+    Simple in-app notification for the approval workflow.
+    """
+    TYPE_CHOICES = [
+        ('submission', 'New Project Submission'),
+        ('approved', 'Project Approved'),
+        ('rejected', 'Project Rejected'),
+        ('info', 'General Info'),
+    ]
+
+    recipient = models.ForeignKey(
+        ClubMember, on_delete=models.CASCADE, related_name='notifications'
+    )
+    notification_type = models.CharField(max_length=20, choices=TYPE_CHOICES, default='info')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    related_project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, null=True, blank=True
+    )
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"[{self.get_notification_type_display()}] {self.title}"
+
+
+# ==============================================================================
+# INITIATIVE — Preserved from original
+# ==============================================================================
+
+class Initiative(models.Model):
+    """Represents a core initiative/vertical of the CECP club."""
+    title = models.CharField(max_length=200, help_text="Initiative title")
+    description = models.TextField(help_text="Detailed description of the initiative")
+    icon_class = models.CharField(max_length=100, blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['display_order']
+        verbose_name_plural = 'Initiatives'
+
+    def __str__(self):
+        return self.title
+
+
+# ==============================================================================
+# TEAM MEMBER — Preserved from original
+# ==============================================================================
+
+class TeamMember(models.Model):
+    """Represents a club team member for the public Team page."""
+    ROLE_CHOICES = [
+        ('lead', 'Club Lead'),
+        ('co_lead', 'Co-Lead'),
+        ('head', 'Department Head'),
+        ('treasurer', 'Treasurer'),
+        ('member', 'Core Member'),
+        ('alumni', 'Alumni'),
+    ]
+
+    name = models.CharField(max_length=150)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
+    title = models.CharField(max_length=200, blank=True, help_text="e.g., 'Head of AI/CV Division'")
+    image = models.ImageField(upload_to='team/', blank=True, null=True, help_text="Upload team member photo")
+    email = models.EmailField(blank=True, help_text="Contact email address")
+    linkedin_url = models.URLField(blank=True)
+    github_url = models.URLField(blank=True)
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['display_order']
+
+    def __str__(self):
+        return f"{self.name} — {self.get_role_display()}"

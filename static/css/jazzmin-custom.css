@@ -1,0 +1,60 @@
+/* CECP Admin Branding Override */
+:root {
+    --primary: #1E3989 !important;
+    --secondary: #D32F2F !important;
+    --info: #00D4FF !important;
+}
+
+/* Sidebar and Navbar branding */
+.main-header {
+    background-color: #1E3989 !important;
+    border-bottom-color: #1a3070 !important;
+}
+.main-header .nav-link {
+    color: #ffffff !important;
+}
+.main-header .nav-link:hover {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+.main-sidebar {
+    background-color: #1E3989 !important;
+}
+.brand-link {
+    background-color: #1a3070 !important;
+    color: #ffffff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Primary buttons */
+.btn-primary,
+.bg-primary {
+    background-color: #D32F2F !important;
+    border-color: #b71c1c !important;
+    color: #ffffff !important;
+}
+.btn-primary:hover {
+    background-color: #b71c1c !important;
+    border-color: #9a0007 !important;
+}
+
+/* Sidebar links */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, 
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #D32F2F !important;
+    color: #ffffff !important;
+}
+
+/* Ensure logo background blends in */
+.brand-image {
+    background: transparent !important;
+    border-radius: 4px;
+    box-shadow: none !important;
+}
+
+/* Fix massive login logo */
+.login-logo img {
+    max-width: 200px !important;
+    max-height: 150px !important;
+    object-fit: contain;
+}

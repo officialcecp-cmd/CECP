@@ -1,0 +1,272 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uplink - {{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cecp: { black: '#020617', dark: '#0f172a', slate: '#1e293b', cyan: '#06b6d4' }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+        
+        .login-card {
+            background: rgba(10, 15, 26, 0.8);
+            backdrop-filter: blur(24px);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(6,182,212,0.1), transparent, rgba(139,92,246,0.1));
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            border-radius: 4px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 10;
+        }
+        .form-input:focus {
+            border-color: #06b6d4;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2), inset 0 2px 4px rgba(0,0,0,0.3);
+            background: rgba(6, 182, 212, 0.05);
+        }
+        .form-input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+        
+        .btn-login {
+            position: relative;
+            width: 100%;
+            padding: 14px;
+            background: transparent;
+            color: #22d3ee;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 4px;
+            border: 1px solid #06b6d4;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 10;
+        }
+        
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2));
+            z-index: -1;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-login:hover {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); 
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+            border-color: #22d3ee;
+        }
+        
+        .btn-login:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 10px 14px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            position: relative;
+            z-index: 10;
+        }
+
+        .glitch-title {
+            position: relative;
+            color: white;
+            display: inline-block;
+        }
+        .glitch-title::before, .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch-title::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch-title::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(70px, 9999px, 71px, 0); }
+            20% { clip: rect(29px, 9999px, 28px, 0); }
+            40% { clip: rect(74px, 9999px, 49px, 0); }
+            60% { clip: rect(65px, 9999px, 2px, 0); }
+            80% { clip: rect(10px, 9999px, 60px, 0); }
+            100% { clip: rect(3px, 9999px, 30px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            20% { clip: rect(20px, 9999px, 80px, 0); }
+            40% { clip: rect(40px, 9999px, 10px, 0); }
+            60% { clip: rect(80px, 9999px, 60px, 0); }
+            80% { clip: rect(10px, 9999px, 20px, 0); }
+            100% { clip: rect(50px, 9999px, 40px, 0); }
+        }
+    </style>
+</head>
+<body class="bg-[#020617] min-h-screen flex items-center justify-center px-4 relative overflow-hidden">
+
+    <!-- Global Scan Line -->
+    <div class="absolute inset-0 pointer-events-none z-0">
+        <div class="w-full h-[2px] bg-gradient-to-r from-transparent via-cyan-500/80 to-transparent absolute top-0 shadow-[0_0_20px_rgba(6,182,212,0.5)] animate-[scanDown_8s_linear_infinite]"></div>
+    </div>
+    
+    <!-- Cyber Grid Pattern -->
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSg2LCAxODIsIDIxMiwgMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-40 z-0 pointer-events-none"></div>
+
+    <!-- Ambient Orbs -->
+    <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; top: -100px; right: -200px; z-index: 0;"></div>
+    <div class="ambient-orb orb-cyan" style="width: 400px; height: 400px; bottom: -150px; left: -100px; z-index: 0;"></div>
+
+    <div class="w-full max-w-md relative z-10">
+        <!-- Logo -->
+        <div class="text-center mb-8">
+            <a href="/" class="text-4xl font-black tracking-tighter glitch-title" data-text="CECP_SYS">
+                <span class="bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">CECP_SYS</span>
+            </a>
+            <p class="text-cyan-600 font-mono text-[10px] uppercase tracking-widest mt-2 flex items-center justify-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-pulse"></span>
+                Secure Member Uplink
+            </p>
+        </div>
+
+        <!-- Login Card -->
+        <div class="login-card rounded-[15px] p-8 holo-card p-[1px] group">
+            <div class="holo-card-border" style="background: linear-gradient(135deg, rgba(6,182,212,0.4), transparent, rgba(168,85,247,0.4));"></div>
+            
+            <div class="relative bg-[#0a1120]/90 backdrop-blur-xl rounded-[15px] p-8 h-full">
+                <div class="card-scan-overlay absolute inset-0 z-0 pointer-events-none opacity-50"></div>
+                
+                <div class="relative z-10">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-cyan-400 font-mono text-xs">AWAITING CREDENTIALS</span>
+                        <div class="flex-1 border-b border-cyan-900/50"></div>
+                    </div>
+                    <p class="text-slate-400 text-sm mb-6">Authenticate to access the command portal.</p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="error-msg flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if form.errors %}
+                        <div class="error-msg flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            Invalid credentials. Connection refused.
+                        </div>
+                    {% endif %}
+
+                    <form method="post" action="{% url 'landing:login' %}">
+                        {% csrf_token %}
+
+                        <div class="mb-4 relative">
+                            <label class="flex items-center gap-2 text-[10px] font-bold text-cyan-500 mb-1.5 uppercase tracking-widest font-mono">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                                Identification
+                            </label>
+                            {{ form.username }}
+                        </div>
+
+                        <div class="mb-8 relative">
+                            <label class="flex items-center gap-2 text-[10px] font-bold text-cyan-500 mb-1.5 uppercase tracking-widest font-mono">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                Access Code
+                            </label>
+                            {{ form.password }}
+                        </div>
+
+                        <button type="submit" class="btn-login">Initialize Handshake</button>
+                    </form>
+
+                    <div class="mt-6 pt-4 border-t border-cyan-900/30 text-center">
+                        <a href="/" class="text-cyan-600 font-mono text-[10px] uppercase tracking-widest hover:text-cyan-400 transition-colors flex items-center justify-center gap-2">
+                            <svg class="w-3 h-3 transform rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                            Abort Connection
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <p class="text-center text-slate-600 font-mono text-[10px] uppercase tracking-widest mt-6 bg-[#020617]/80 inline-block px-4 py-1 rounded-sm border border-slate-800/50 mx-auto w-max block">
+            UNAUTHORIZED ACCESS IS STRICTLY PROHIBITED.
+        </p>
+    </div>
+
+    <script>
+        // Make sure django inputs get the right classes
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input[type="text"], input[type="password"]');
+            inputs.forEach(input => {
+                if (!input.classList.contains('form-input')) {
+                    input.classList.add('form-input');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

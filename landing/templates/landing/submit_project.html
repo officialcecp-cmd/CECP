@@ -1,0 +1,454 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - CECP Command Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        cecp: { black: '#020617', dark: '#0f172a', slate: '#1e293b', cyan: '#06b6d4' }
+                    },
+                    fontFamily: {
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+        
+        /* Cyberpunk Form Elements */
+        .cyber-input-group {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-input, .form-input select, .form-card select {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(10, 15, 26, 0.6);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            transition: all 0.3s ease;
+            outline: none;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .form-input:focus, .form-card select:focus { 
+            border-color: #06b6d4; 
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2), inset 0 2px 4px rgba(0,0,0,0.3); 
+            background: rgba(6, 182, 212, 0.05);
+        }
+        
+        .form-input::placeholder { color: #475569; font-family: 'Inter', sans-serif; }
+        textarea.form-input { resize: vertical; min-height: 100px; }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #22d3ee;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .form-hint {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 6px;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        /* Neon Buttons */
+        .btn-submit {
+            position: relative;
+            padding: 14px 32px;
+            background: transparent;
+            color: #22d3ee;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-radius: 4px;
+            border: 1px solid #06b6d4;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            overflow: hidden;
+            z-index: 1;
+        }
+        
+        .btn-submit::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2));
+            z-index: -1;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .btn-submit:hover { 
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4); 
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.8);
+            border-color: #22d3ee;
+        }
+        
+        .btn-submit:hover::before {
+            transform: scaleX(1);
+            transform-origin: left;
+        }
+        
+        .btn-back {
+            padding: 14px 32px;
+            border: 1px solid rgba(100, 116, 139, 0.3);
+            color: #94a3b8;
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: 'JetBrains Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-back:hover { 
+            border-color: #ef4444; 
+            color: #ef4444; 
+            background: rgba(239, 68, 68, 0.05);
+        }
+        
+        /* Advanced AI Badge */
+        .ai-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 10px;
+            background: rgba(168, 85, 247, 0.1);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 4px;
+            color: #d8b4fe;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+            animation: pulse-purple 2s infinite;
+        }
+        
+        @keyframes pulse-purple {
+            0%, 100% { box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(168, 85, 247, 0.5); }
+        }
+
+        /* Glitch text effect for the header */
+        .glitch-title {
+            position: relative;
+            color: white;
+        }
+        .glitch-title::before, .glitch-title::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch-title::before {
+            left: 2px;
+            text-shadow: -1px 0 red;
+            clip: rect(24px, 550px, 90px, 0);
+            animation: glitch-anim-2 3s infinite linear alternate-reverse;
+        }
+        .glitch-title::after {
+            left: -2px;
+            text-shadow: -1px 0 blue;
+            clip: rect(85px, 550px, 140px, 0);
+            animation: glitch-anim 2.5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(70px, 9999px, 71px, 0); }
+            20% { clip: rect(29px, 9999px, 28px, 0); }
+            40% { clip: rect(74px, 9999px, 49px, 0); }
+            60% { clip: rect(65px, 9999px, 2px, 0); }
+            80% { clip: rect(10px, 9999px, 60px, 0); }
+            100% { clip: rect(3px, 9999px, 30px, 0); }
+        }
+        @keyframes glitch-anim-2 {
+            0% { clip: rect(65px, 9999px, 100px, 0); }
+            20% { clip: rect(20px, 9999px, 80px, 0); }
+            40% { clip: rect(40px, 9999px, 10px, 0); }
+            60% { clip: rect(80px, 9999px, 60px, 0); }
+            80% { clip: rect(10px, 9999px, 20px, 0); }
+            100% { clip: rect(50px, 9999px, 40px, 0); }
+        }
+
+        /* Scanning line across the background */
+        .scan-container {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .scan-line-global {
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(to right, transparent, rgba(6,182,212,0.8), transparent);
+            position: absolute;
+            top: 0;
+            animation: scan 8s linear infinite;
+            box-shadow: 0 0 20px rgba(6,182,212,0.5);
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-[#020617] text-slate-200 min-h-screen relative overflow-x-hidden">
+
+    <!-- Cyberpunk Background Elements -->
+    <div class="scan-container fixed">
+        <div class="scan-line-global"></div>
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSA0MCAwIEwgMCAwIDAgNDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0icmdiYSg2LCAxODIsIDIxMiwgMC4wMykiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-50 z-0"></div>
+    </div>
+    
+    <div class="ambient-orb orb-indigo" style="width: 600px; height: 600px; top: -200px; left: -200px; z-index: 0;"></div>
+    <div class="ambient-orb orb-cyan" style="width: 500px; height: 500px; bottom: -100px; right: -100px; z-index: 0;"></div>
+
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-50 border-b border-cyan-900/30 bg-[#020617]/80 backdrop-blur-xl">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between relative z-10">
+            <div class="flex items-center gap-4">
+                <a href="/" class="text-xl font-black tracking-tighter" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CECP_SYS</a>
+                <span class="text-cyan-900 font-mono">|</span>
+                <span class="text-xs font-mono text-cyan-400 tracking-widest uppercase">Project_Uplink</span>
+            </div>
+            <a href="{% url 'landing:dashboard' %}" class="text-xs font-mono text-slate-500 hover:text-cyan-400 transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Abort & Return
+            </a>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
+
+        <!-- Header Section -->
+        <div class="mb-12 text-center">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-cyan-500/30 bg-cyan-500/10 mb-6">
+                <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
+                <span class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">Secure Uplink Established</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight glitch-title uppercase" data-text="Initialize Project">
+                Initialize <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Project</span>
+            </h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+                Upload your technical specifications to the mainframe. The onboard AI will automatically evaluate your architecture and assign a difficulty tier.
+            </p>
+        </div>
+
+        {% if messages %}
+            <div class="space-y-4 mb-8 max-w-4xl mx-auto">
+            {% for message in messages %}
+                <div class="p-4 rounded-lg font-mono text-xs uppercase tracking-wider flex items-center gap-3 border
+                    {% if message.tags == 'error' %}bg-red-500/10 border-red-500/30 text-red-400
+                    {% else %}bg-green-500/10 border-green-500/30 text-green-400{% endif %}">
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        {% if message.tags == 'error' %}
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        {% else %}
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        {% endif %}
+                    </svg>
+                    {{ message }}
+                </div>
+            {% endfor %}
+            </div>
+        {% endif %}
+
+        <!-- Main Form inside Holo-Card -->
+        <div class="max-w-4xl mx-auto holo-card p-[1px] group">
+            <div class="holo-card-border" style="background: linear-gradient(135deg, rgba(6,182,212,0.5), rgba(59,130,246,0.1), rgba(6,182,212,0.5));"></div>
+            
+            <form method="post" enctype="multipart/form-data" class="relative bg-[#0a1120]/95 backdrop-blur-2xl rounded-[15px] p-6 sm:p-10 border-t border-white/5">
+                <div class="card-scan-overlay absolute inset-0 z-0 rounded-[15px] pointer-events-none opacity-40"></div>
+                {% csrf_token %}
+
+                <div class="relative z-10 space-y-8">
+                    
+                    <!-- Section 1: Identification -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-6 border-b border-cyan-900/40 pb-2">
+                            <span class="text-cyan-400 font-mono text-sm">01 //</span>
+                            <h2 class="text-lg font-bold text-white tracking-wide uppercase">Core Identification</h2>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="cyber-input-group">
+                                <label class="form-label">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                    Project Title *
+                                </label>
+                                {{ form.title }}
+                            </div>
+                            <div class="cyber-input-group">
+                                <label class="form-label">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" /></svg>
+                                    Codename
+                                </label>
+                                {{ form.codename }}
+                                <p class="form-hint">Internal designation (e.g., "Project Sentinel")</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Details & AI Evaluation -->
+                    <div>
+                        <div class="flex items-center justify-between border-b border-cyan-900/40 pb-2 mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="text-cyan-400 font-mono text-sm">02 //</span>
+                                <h2 class="text-lg font-bold text-white tracking-wide uppercase">Specs & Evaluation</h2>
+                            </div>
+                            <span class="ai-badge hidden sm:inline-flex">
+                                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                AI Processing Engine Active
+                            </span>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="cyber-input-group">
+                                <label class="form-label">Brief Overview *</label>
+                                {{ form.description }}
+                                <p class="form-hint">Public-facing summary for the main display grid.</p>
+                            </div>
+
+                            <div class="cyber-input-group relative">
+                                <div class="absolute right-3 top-0 transform -translate-y-1/2 bg-[#0a1120] px-2 z-20">
+                                    <span class="ai-badge">Neural Evaluation Target</span>
+                                </div>
+                                <label class="form-label text-purple-400">Technical Specification *</label>
+                                {{ form.spec }}
+                                <p class="form-hint text-purple-400/60">Warning: The AI evaluates this block to determine project complexity. Be precise regarding architecture, algorithms, and hardware constraints.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Metadata -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-6 border-b border-cyan-900/40 pb-2">
+                            <span class="text-cyan-400 font-mono text-sm">03 //</span>
+                            <h2 class="text-lg font-bold text-white tracking-wide uppercase">Classification & Assets</h2>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="cyber-input-group">
+                                <label class="form-label">Primary Category</label>
+                                {{ form.category }}
+                            </div>
+                            <div class="cyber-input-group">
+                                <label class="form-label">Development Status</label>
+                                {{ form.status }}
+                            </div>
+                        </div>
+
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="cyber-input-group">
+                                <label class="form-label">Tech Stack</label>
+                                {{ form.tech_stack_input }}
+                                <p class="form-hint">Comma-separated (e.g., Python, OpenCV, Arduino)</p>
+                            </div>
+                            <div class="cyber-input-group">
+                                <label class="form-label">Visual Asset</label>
+                                <input type="file" name="image" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:uppercase file:tracking-wider file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 file:transition-colors file:cursor-pointer border border-cyan-900/30 rounded-lg p-1 bg-[#050b14]">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: External Links -->
+                    <div>
+                        <div class="flex items-center gap-3 mb-6 border-b border-cyan-900/40 pb-2">
+                            <span class="text-cyan-400 font-mono text-sm">04 //</span>
+                            <h2 class="text-lg font-bold text-white tracking-wide uppercase">External Telemetry</h2>
+                        </div>
+
+                        <div class="grid md:grid-cols-3 gap-6">
+                            <div class="cyber-input-group">
+                                <label class="form-label">Repository</label>
+                                {{ form.github_url }}
+                            </div>
+                            <div class="cyber-input-group">
+                                <label class="form-label">Live Demo</label>
+                                {{ form.demo_url }}
+                            </div>
+                            <div class="cyber-input-group">
+                                <label class="form-label">Docs / Paper</label>
+                                {{ form.documentation_url }}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="relative z-10 mt-10 pt-6 border-t border-cyan-900/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    {% if not member.can_approve_projects %}
+                    <p class="text-slate-500 font-mono text-[10px] uppercase tracking-widest max-w-xs text-center sm:text-left">
+                        <span class="text-yellow-500 block mb-1">Authorization Level Insufficient</span>
+                        Project requires manual review by Command Lead before deployment.
+                    </p>
+                    {% else %}
+                    <p class="text-cyan-500 font-mono text-[10px] uppercase tracking-widest max-w-xs text-center sm:text-left">
+                        <span class="text-cyan-400 block mb-1">Admin Override Active</span>
+                        Project will bypass manual review and deploy immediately.
+                    </p>
+                    {% endif %}
+
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <a href="{% url 'landing:dashboard' %}" class="btn-back text-center w-full sm:w-auto">Abort</a>
+                        <button type="submit" class="btn-submit w-full sm:w-auto">
+                            {% if member.can_approve_projects %}
+                                Force Deploy
+                            {% else %}
+                                Transmit Data
+                            {% endif %}
+                        </button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+
+    </main>
+
+    <!-- JS for adding the cyber-input classes to Django rendered fields -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const inputs = document.querySelectorAll('input[type="text"], input[type="url"], textarea, select');
+            inputs.forEach(input => {
+                if (!input.classList.contains('form-input')) {
+                    input.classList.add('form-input');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
