@@ -8,6 +8,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.core.validators import RegexValidator
 
 
 # ==============================================================================
@@ -217,6 +218,104 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"[{self.get_notification_type_display()}] {self.title}"
+
+
+# ==============================================================================
+# CLUB APPLICATION — "Join the Club" form submissions
+# ==============================================================================
+
+class ClubApplication(models.Model):
+    """
+    Stores 'Join the Club' applications from prospective members.
+    Club Head reviews and approves/rejects from the admin dashboard.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    BRANCH_CHOICES = [
+        ('ece', 'Electronics & Communication Engineering (ECE)'),
+        ('cse', 'Computer Science & Engineering (CSE)'),
+        ('iot', 'Internet of Things (IoT)'),
+        ('me', 'Mechanical Engineering'),
+        ('ce', 'Civil Engineering'),
+        ('ee', 'Electrical Engineering'),
+        ('other', 'Other'),
+    ]
+
+    YEAR_CHOICES = [
+        ('1', '1st Year'),
+        ('2', '2nd Year'),
+        ('3', '3rd Year'),
+        ('4', '4th Year'),
+    ]
+
+    DOMAIN_CHOICES = [
+        ('electronics_iot', '⚙️ Core Electronics & IoT'),
+        ('software_web', '💻 Software & Web Development'),
+        ('robotics', '🤖 Robotics & Autonomous Systems'),
+        ('uiux_content', '🎨 UI/UX Design & Content Management'),
+    ]
+
+    SKILL_CHOICES = [
+        ('beginner', 'Absolute Beginner'),
+        ('intermediate', 'Intermediate'),
+        ('advanced', 'Advanced'),
+    ]
+
+    rit_email_validator = RegexValidator(
+        regex=r'^.+@ritroorkee\.com$',
+        message='Only @ritroorkee.com email addresses are allowed.',
+    )
+
+    # --- Linked User (if logged in during submission) ---
+    user = models.ForeignKey(
+        'auth.User', on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='club_applications',
+        help_text="Django user who submitted this application (if logged in)"
+    )
+
+    # --- Section 1: Basic Identity ---
+    full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
+    email = models.EmailField(
+        unique=True,
+        validators=[rit_email_validator],
+        help_text="College email (must end with @ritroorkee.com)"
+    )
+    whatsapp_number = models.CharField(max_length=15, help_text="WhatsApp number for team communication")
+    roll_number = models.CharField(max_length=30, unique=True, help_text="College roll number")
+
+    # --- Section 2: Academic & Club Fit ---
+    branch = models.CharField(max_length=20, choices=BRANCH_CHOICES)
+    current_year = models.CharField(max_length=5, choices=YEAR_CHOICES)
+    domain_of_interest = models.CharField(max_length=30, choices=DOMAIN_CHOICES)
+
+    # --- Section 3: Tech Skills & Motivation ---
+    skill_level = models.CharField(max_length=20, choices=SKILL_CHOICES)
+    motivation = models.TextField(help_text="Why do you want to join CECP?")
+    github_url = models.URLField(blank=True, help_text="GitHub profile (optional)")
+    linkedin_url = models.URLField(blank=True, help_text="LinkedIn profile (optional)")
+
+    # --- Status & Timestamps ---
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    reviewed_by = models.ForeignKey(
+        ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reviewed_applications',
+        help_text="Club Head who reviewed this application"
+    )
+    rejection_reason = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Club Application'
+        verbose_name_plural = 'Club Applications'
+
+    def __str__(self):
+        return f"{self.full_name} ({self.email}) — {self.get_status_display()}"
 
 
 # ==============================================================================

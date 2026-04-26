@@ -11,10 +11,11 @@ from django.contrib import messages
 from django.db.models import Count, Q
 
 from .models import (
-    Project, Initiative, ClubMember, ProjectCategory, Notification, TeamMember
+    Project, Initiative, ClubMember, ProjectCategory, Notification, TeamMember,
+    ClubApplication
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
-from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm
+from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm
 from .services import categorize_project_level
 
 logger = logging.getLogger(__name__)
@@ -51,12 +52,29 @@ def index(request):
 
     team_members = TeamMember.objects.filter(is_active=True).order_by('display_order')
 
+    user_application = None
+    if request.user.is_authenticated:
+        # Tier 1: Direct FK link
+        user_application = ClubApplication.objects.filter(user=request.user).first()
+        # Tier 2: Email match
+        if not user_application and request.user.email:
+            user_application = ClubApplication.objects.filter(email__iexact=request.user.email).first()
+            if user_application and not user_application.user:
+                user_application.user = request.user
+                user_application.save(update_fields=['user'])
+    if not user_application:
+        # Tier 3: Session cookie
+        session_email = request.session.get('applied_email')
+        if session_email:
+            user_application = ClubApplication.objects.filter(email__iexact=session_email).first()
+
     context = {
         'initiatives': initiatives,
         'projects': approved_projects,
         'categories': categories,
         'stats': stats,
         'team_members': team_members,
+        'user_application': user_application,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -394,6 +412,81 @@ def mark_notification_read(request, notification_id):
 
 
 # ==============================================================================
+# 8. JOIN THE CLUB — Application Form
+# ==============================================================================
+
+def apply_view(request):
+    """
+    Public application form for prospective CECP members.
+    No login required — anyone with a @ritroorkee.com email can apply.
+    """
+    has_applied = False
+    application_status = None
+
+    # Check if user already applied — 3-tier lookup:
+    # 1. Direct user FK (permanent, survives session expiry)
+    # 2. Auth email match (fallback)
+    # 3. Session cookie (for anonymous users)
+    existing_app = None
+    
+    if request.user.is_authenticated:
+        # Tier 1: Direct FK link (most reliable)
+        existing_app = ClubApplication.objects.filter(user=request.user).first()
+        
+        # Tier 2: Email match
+        if not existing_app and request.user.email:
+            existing_app = ClubApplication.objects.filter(email__iexact=request.user.email).first()
+            # Auto-link for future lookups
+            if existing_app and not existing_app.user:
+                existing_app.user = request.user
+                existing_app.save(update_fields=['user'])
+    
+    if not existing_app:
+        # Tier 3: Session cookie (anonymous users)
+        session_email = request.session.get('applied_email')
+        if session_email:
+            existing_app = ClubApplication.objects.filter(email__iexact=session_email).first()
+
+    if existing_app:
+        has_applied = True
+        application_status = existing_app.get_status_display()
+
+    if request.method == 'POST' and not has_applied:
+        form = ClubApplicationForm(request.POST)
+        if form.is_valid():
+            application = form.save(commit=False)
+            # Permanently link logged-in user to their application
+            if request.user.is_authenticated:
+                application.user = request.user
+            application.save()
+            # Also save to session as fallback for anonymous users
+            request.session['applied_email'] = application.email
+            
+            # Notify Club Heads about the new application
+            _notify_club_heads_application(application)
+            messages.success(request, 'Your application has been submitted successfully! The Club Head will review it shortly.')
+            return redirect('landing:apply')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ClubApplicationForm()
+
+    return render(request, 'landing/apply.html', {
+        'form': form,
+        'has_applied': has_applied,
+        'application_status': application_status,
+        'page_title': 'Apply to Join CECP Club',
+    })
+
+
+def apply_success_view(request):
+    """Simple success page after application submission."""
+    return render(request, 'landing/apply_success.html', {
+        'page_title': 'Application Submitted — CECP',
+    })
+
+
+# ==============================================================================
 # HELPERS
 # ==============================================================================
 
@@ -405,4 +498,20 @@ def _notify_club_heads(project, submitter):
             title=f'New Submission: {project.title}',
             message=f'{submitter.display_name} submitted "{project.title}" for review.',
             related_project=project,
+        )
+
+
+def _notify_club_heads_application(application):
+    """Notify Club Heads about a new membership application."""
+    heads = ClubMember.objects.filter(role__in=['club_head', 'hod'], is_active=True)
+    for head in heads:
+        Notification.objects.create(
+            recipient=head, notification_type='info',
+            title=f'New Application: {application.full_name}',
+            message=(
+                f'{application.full_name} ({application.email}) has applied to join CECP. '
+                f'Branch: {application.get_branch_display()}, '
+                f'Year: {application.get_current_year_display()}, '
+                f'Domain: {application.get_domain_of_interest_display()}.'
+            ),
         )

@@ -31,4 +31,8 @@ urlpatterns = [
 
     # Notifications
     path('api/notification/<int:notification_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+
+    # Club Application
+    path('apply/', views.apply_view, name='apply'),
+    path('apply/success/', views.apply_success_view, name='apply_success'),
 ]

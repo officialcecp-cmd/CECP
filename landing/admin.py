@@ -4,7 +4,7 @@
 from django.contrib import admin
 from .models import (
     Initiative, Project, TeamMember,
-    ClubMember, ProjectCategory, Notification
+    ClubMember, ProjectCategory, Notification, ClubApplication
 )
 from .services import categorize_project_level
 
@@ -116,3 +116,63 @@ class NotificationAdmin(admin.ModelAdmin):
     list_filter = ('notification_type', 'is_read')
     search_fields = ('title', 'message')
     readonly_fields = ('created_at',)
+
+
+# --- Club Application Admin ---------------------------------------------------
+
+@admin.register(ClubApplication)
+class ClubApplicationAdmin(admin.ModelAdmin):
+    list_display = ('full_name', 'email', 'branch', 'current_year', 'domain_of_interest', 'skill_level', 'status', 'created_at')
+    list_editable = ('status',)
+    list_filter = ('status', 'branch', 'current_year', 'domain_of_interest', 'skill_level')
+    search_fields = ('full_name', 'email', 'roll_number', 'motivation')
+    readonly_fields = ('created_at', 'updated_at', 'reviewed_by')
+    actions = ['approve_applications', 'reject_applications']
+
+    fieldsets = (
+        ('Applicant Identity', {
+            'fields': ('full_name', 'email', 'whatsapp_number', 'roll_number')
+        }),
+        ('Academic Info', {
+            'fields': ('branch', 'current_year', 'domain_of_interest')
+        }),
+        ('Skills & Motivation', {
+            'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
+        }),
+        ('Review', {
+            'fields': ('status', 'reviewed_by', 'rejection_reason')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+
+    def save_model(self, request, obj, form, change):
+        # Auto-capture the logged-in admin if status is changed to Approved/Rejected
+        if obj.status in ['approved', 'rejected']:
+            if hasattr(request.user, 'club_profile'):
+                obj.reviewed_by = request.user.club_profile
+        elif obj.status == 'pending':
+            # Reset if changed back to pending
+            obj.reviewed_by = None
+            
+        super().save_model(request, obj, form, change)
+
+    @admin.action(description='\u2705 Approve selected applications')
+    def approve_applications(self, request, queryset):
+        reviewer = getattr(request.user, 'club_profile', None)
+        if reviewer:
+            updated = queryset.update(status='approved', reviewed_by=reviewer)
+        else:
+            updated = queryset.update(status='approved')
+        self.message_user(request, f'{updated} application(s) approved.')
+
+    @admin.action(description='\u274c Reject selected applications')
+    def reject_applications(self, request, queryset):
+        reviewer = getattr(request.user, 'club_profile', None)
+        if reviewer:
+            updated = queryset.update(status='rejected', reviewed_by=reviewer)
+        else:
+            updated = queryset.update(status='rejected')
+        self.message_user(request, f'{updated} application(s) rejected.')

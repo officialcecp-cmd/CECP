@@ -79,7 +79,7 @@
                 <a href="{% url 'landing:logout' %}" class="btn-outline text-center" style="border-color: #ef4444; color: #ef4444;">Logout</a>
             {% else %}
                 <a href="{% url 'landing:login' %}" class="btn-outline text-center">Login</a>
-                <a href="#" class="btn-gradient text-center" onclick="switchTab('about')">Contact Us</a>
+                <a href="#" class="btn-gradient text-center" onclick="openContactModal(); return false;">Contact Us</a>
             {% endif %}
         </div>
     </div>
@@ -121,7 +121,7 @@
                         <a href="{% url 'landing:logout' %}" class="btn-outline btn-sm" style="border-color: #ef4444; color: #ef4444;">Logout</a>
                     {% else %}
                         <a href="{% url 'landing:login' %}" class="btn-outline btn-sm" id="btn-login">Login</a>
-                        <a href="#" class="btn-gradient btn-sm" id="btn-contact" onclick="switchTab('about')">Contact Us</a>
+                        <a href="#" class="btn-gradient btn-sm" id="btn-contact" onclick="openContactModal(); return false;">Contact Us</a>
                     {% endif %}
                 </div>
 
@@ -153,7 +153,7 @@
                         d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
             </a>
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
+            <a href="https://www.instagram.com/cecp_official/" target="_blank" rel="noopener noreferrer"
                 class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/5 hover:bg-white/10 hover:text-pink-400 text-white transition-all duration-300"
                 title="Instagram">
                 <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
@@ -163,11 +163,96 @@
             </a>
         </div>
 
+        <!-- ===================================================================
+             CONTACT MODAL
+             =================================================================== -->
+        <div id="contact-modal" onclick="if(event.target===this)closeContactModal()"
+            style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(2,6,23,0.85); backdrop-filter:blur(12px); align-items:center; justify-content:center; padding:16px;">
+            <div style="background:linear-gradient(135deg,#0f172a,#0a1628); border:1px solid rgba(6,182,212,0.25); border-radius:24px; max-width:520px; width:100%; padding:40px 36px; position:relative; box-shadow:0 40px 80px rgba(0,0,0,0.6),0 0 60px rgba(6,182,212,0.08); animation: fadeInUp 0.35s ease-out;">
+                <!-- Close -->
+                <button onclick="closeContactModal()" style="position:absolute; top:16px; right:16px; width:36px; height:36px; border-radius:50%; background:rgba(100,116,139,0.15); border:1px solid rgba(100,116,139,0.2); color:#94a3b8; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.15)';this.style.color='#f87171'" onmouseout="this.style.background='rgba(100,116,139,0.15)';this.style.color='#94a3b8'">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+
+                <!-- Header -->
+                <div style="display:flex; align-items:center; gap:14px; margin-bottom:28px;">
+                    <div style="width:48px; height:48px; border-radius:14px; background:linear-gradient(135deg,rgba(6,182,212,0.2),rgba(99,102,241,0.2)); border:1px solid rgba(6,182,212,0.3); display:flex; align-items:center; justify-content:center;">
+                        <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#06b6d4" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                    </div>
+                    <div>
+                        <h2 style="font-size:22px; font-weight:800; color:#fff; margin:0 0 4px;">Contact Us</h2>
+                        <p style="font-size:13px; color:#64748b; margin:0;">Get in touch with the CECP team</p>
+                    </div>
+                </div>
+
+                <!-- Divider -->
+                <div style="height:1px; background:linear-gradient(90deg,transparent,rgba(6,182,212,0.3),transparent); margin-bottom:28px;"></div>
+
+                <!-- Contact Items -->
+                <div style="display:flex; flex-direction:column; gap:14px;">
+
+                    <!-- Email -->
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=officialcecp@gmail.com" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:14px; padding:16px 18px; background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.15); border-radius:14px; text-decoration:none; transition:all 0.3s;" onmouseover="this.style.background='rgba(6,182,212,0.12)';this.style.borderColor='rgba(6,182,212,0.35)'" onmouseout="this.style.background='rgba(6,182,212,0.06)';this.style.borderColor='rgba(6,182,212,0.15)'">
+                        <div style="width:40px; height:40px; border-radius:10px; background:rgba(6,182,212,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#22d3ee" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                        </div>
+                        <div>
+                            <p style="font-size:11px; color:#06b6d4; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin:0 0 3px; font-family:'JetBrains Mono',monospace;">Email</p>
+                            <p style="font-size:14px; color:#e2e8f0; font-weight:600; margin:0;">officialcecp@gmail.com</p>
+                        </div>
+                    </a>
+
+                    <!-- Instagram -->
+                    <a href="https://www.instagram.com/cecp_official/" target="_blank" rel="noopener noreferrer" style="display:flex; align-items:center; gap:14px; padding:16px 18px; background:rgba(236,72,153,0.06); border:1px solid rgba(236,72,153,0.15); border-radius:14px; text-decoration:none; transition:all 0.3s;" onmouseover="this.style.background='rgba(236,72,153,0.12)';this.style.borderColor='rgba(236,72,153,0.35)'" onmouseout="this.style.background='rgba(236,72,153,0.06)';this.style.borderColor='rgba(236,72,153,0.15)'">
+                        <div style="width:40px; height:40px; border-radius:10px; background:rgba(236,72,153,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="18" height="18" fill="#f472b6" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+                        </div>
+                        <div>
+                            <p style="font-size:11px; color:#f472b6; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin:0 0 3px; font-family:'JetBrains Mono',monospace;">Instagram</p>
+                            <p style="font-size:14px; color:#e2e8f0; font-weight:600; margin:0;">@cecp_official</p>
+                        </div>
+                        <svg style="margin-left:auto; flex-shrink:0;" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#64748b" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"/></svg>
+                    </a>
+
+                    <!-- College -->
+                    <div style="display:flex; align-items:center; gap:14px; padding:16px 18px; background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.15); border-radius:14px;">
+                        <div style="width:40px; height:40px; border-radius:10px; background:rgba(99,102,241,0.15); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="#818cf8" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/></svg>
+                        </div>
+                        <div>
+                            <p style="font-size:11px; color:#818cf8; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; margin:0 0 3px; font-family:'JetBrains Mono',monospace;">Location</p>
+                            <p style="font-size:14px; color:#e2e8f0; font-weight:600; margin:0;">Roorkee Institute of Technology</p>
+                            <p style="font-size:12px; color:#64748b; margin:2px 0 0;">Roorkee, Uttarakhand, India</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+
         <!-- =============================================================
              TAB 1: HOME — Hero + About Preview (IIT Indore Style)
              ============================================================= -->
         <section id="tab-home" class="tab-content active-tab h-full overflow-y-auto">
             <div class="flex flex-col">
+
+                <!-- MESSAGES -->
+                {% if messages %}
+                <div class="fixed bottom-8 right-4 sm:right-8 z-[100] w-full max-w-sm pointer-events-none flex flex-col items-end">
+                    {% for message in messages %}
+                    <div class="alert-banner {% if message.tags == 'error' %}alert-error{% else %}alert-success{% endif %} mb-4 animate-in pointer-events-auto backdrop-blur-md shadow-2xl rounded-2xl border flex items-start sm:items-center gap-3 p-4 w-full" 
+                         style="{% if message.tags == 'error' %}background:rgba(239,68,68,0.15); border-color:rgba(239,68,68,0.3); color:#fca5a5;{% else %}background:rgba(6,182,212,0.15); border-color:rgba(6,182,212,0.3); color:#67e8f9;{% endif %}">
+                        {% if message.tags == 'error' %}
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5 sm:mt-0"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        {% else %}
+                        <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="flex-shrink-0 mt-0.5 sm:mt-0"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {% endif %}
+                        <span class="text-sm font-medium leading-relaxed">{{ message }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
 
                 <!-- HERO — Full Viewport -->
                 <div
@@ -257,7 +342,7 @@
                         <!-- CTA Buttons -->
                         <div class="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8"
                             style="animation: fadeInUp 0.8s ease-out 1s both;">
-                            <a href="#" class="btn-gradient" onclick="switchTab('about')">
+                            <a href="#" class="btn-gradient" onclick="openContactModal(); return false;">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"
                                     stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
@@ -760,18 +845,41 @@
                         class="bg-gradient-to-br from-slate-800/60 to-cecp-black border border-white/10 rounded-3xl p-10 md:p-16 text-center backdrop-blur-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                         <h2 class="text-3xl md:text-4xl font-bold text-white mb-8">Ready to build the future with
                             us?</h2>
+                        {% if user_application %}
+                            <div class="inline-block px-8 py-4 rounded-2xl border font-medium text-lg mb-6
+                                {% if user_application.status == 'pending' %}bg-yellow-500/10 border-yellow-500/30 text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)]
+                                {% elif user_application.status == 'approved' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]
+                                {% else %}bg-red-500/10 border-red-500/30 text-red-400 shadow-[0_0_20px_rgba(239,68,68,0.15)]{% endif %}">
+                                {% if user_application.status == 'pending' %}
+                                <svg width="20" height="20" class="inline mr-2 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                                {% elif user_application.status == 'approved' %}
+                                <svg width="20" height="20" class="inline mr-2 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                                {% else %}
+                                <svg width="20" height="20" class="inline mr-2 -mt-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z"/></svg>
+                                {% endif %}
+                                Current Status: <strong>{{ user_application.get_status_display }}</strong>
+                            </div>
+                            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                                <button
+                                    class="px-8 py-3 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto"
+                                    onclick="switchTab('projects')">
+                                    Explore Projects
+                                </button>
+                            </div>
+                        {% else %}
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
-                            <button
+                            <a href="{% url 'landing:apply' %}"
                                 class="btn-gradient px-8 py-3 w-full sm:w-auto shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105"
-                                onclick="switchTab('contact')">
+                                style="text-decoration:none; display:inline-block; text-align:center;">
                                 Join the Club
-                            </button>
+                            </a>
                             <button
                                 class="px-8 py-3 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto"
                                 onclick="switchTab('projects')">
                                 Explore Projects
                             </button>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
 
@@ -1796,6 +1904,23 @@
 
     <!-- Tab Navigation + UI Engine -->
     <script src="{% static 'js/main.js' %}"></script>
+
+    <!-- Contact Modal JS -->
+    <script>
+        function openContactModal() {
+            var modal = document.getElementById('contact-modal');
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        function closeContactModal() {
+            var modal = document.getElementById('contact-modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closeContactModal();
+        });
+    </script>
 
 </body>
 

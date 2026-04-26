@@ -5,7 +5,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from .models import Project, ProjectCategory
+from .models import Project, ProjectCategory, ClubApplication
 
 
 # ==============================================================================
@@ -203,3 +203,86 @@ class UserRegistrationForm(forms.ModelForm):
             raise forms.ValidationError("Passwords do not match.")
         
         return cleaned_data
+
+
+# ==============================================================================
+# CLUB APPLICATION FORM — "Join the Club"
+# ==============================================================================
+
+class ClubApplicationForm(forms.ModelForm):
+    """
+    Application form for prospective CECP members.
+    Enforces @ritroorkee.com email on both frontend (pattern attr) and backend.
+    """
+
+    class Meta:
+        model = ClubApplication
+        fields = [
+            'full_name', 'email', 'whatsapp_number', 'roll_number',
+            'branch', 'current_year', 'domain_of_interest',
+            'skill_level', 'motivation',
+            'github_url', 'linkedin_url',
+        ]
+        widgets = {
+            'full_name': forms.TextInput(attrs={
+                'class': 'apply-input', 'placeholder': 'Your full name',
+                'id': 'id_full_name',
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'apply-input', 'placeholder': 'yourname@ritroorkee.com',
+                'pattern': '.+@ritroorkee\\.com',
+                'title': 'Please use your official @ritroorkee.com email',
+                'id': 'id_email',
+            }),
+            'whatsapp_number': forms.TextInput(attrs={
+                'class': 'apply-input', 'placeholder': '+91 XXXXX XXXXX',
+                'id': 'id_whatsapp',
+            }),
+            'roll_number': forms.TextInput(attrs={
+                'class': 'apply-input', 'placeholder': 'e.g., 22ECE001',
+                'id': 'id_roll',
+            }),
+            'branch': forms.Select(attrs={
+                'class': 'apply-input', 'id': 'id_branch',
+            }),
+            'current_year': forms.Select(attrs={
+                'class': 'apply-input', 'id': 'id_year',
+            }),
+            'domain_of_interest': forms.Select(attrs={
+                'class': 'apply-input', 'id': 'id_domain',
+            }),
+            'skill_level': forms.RadioSelect(attrs={
+                'id': 'id_skill_level',
+            }),
+            'motivation': forms.Textarea(attrs={
+                'class': 'apply-input', 'rows': 4,
+                'placeholder': 'Tell us what excites you about CECP and what you hope to learn or contribute...',
+                'id': 'id_motivation',
+            }),
+            'github_url': forms.URLInput(attrs={
+                'class': 'apply-input', 'placeholder': 'https://github.com/yourusername',
+                'id': 'id_github',
+            }),
+            'linkedin_url': forms.URLInput(attrs={
+                'class': 'apply-input', 'placeholder': 'https://linkedin.com/in/yourprofile',
+                'id': 'id_linkedin',
+            }),
+        }
+
+    def clean_email(self):
+        """Backend enforcement: only @ritroorkee.com emails allowed."""
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email.endswith('@ritroorkee.com'):
+            raise forms.ValidationError(
+                "Only @ritroorkee.com email addresses are accepted. "
+                "Please use your official college email."
+            )
+        # Check for duplicate applications
+        qs = ClubApplication.objects.filter(email__iexact=email)
+        if self.instance and self.instance.pk:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
+            raise forms.ValidationError(
+                "An application with this email already exists."
+            )
+        return email
