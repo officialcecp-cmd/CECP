@@ -91,7 +91,7 @@
 
         {% if not has_applied %}
         <!-- FORM -->
-        <form method="post" action="{% url 'landing:apply' %}" novalidate class="space-y-8 animate-in" style="animation-delay:0.1s;">
+        <form method="post" enctype="multipart/form-data" action="{% url 'landing:apply' %}" novalidate class="space-y-8 animate-in" style="animation-delay:0.1s;">
             {% csrf_token %}
 
             <!-- ═══ SECTION 1: BASIC IDENTITY ═══ -->
@@ -107,6 +107,11 @@
                         <label class="field-label" for="id_full_name">Full Name *</label>
                         {{ form.full_name }}
                         {% if form.full_name.errors %}<p class="field-error">{{ form.full_name.errors.0 }}</p>{% endif %}
+                    </div>
+                    <div>
+                        <label class="field-label" for="id_profile_photo">Professional Profile Photo (Optional)</label>
+                        {{ form.profile_photo }}
+                        {% if form.profile_photo.errors %}<p class="field-error">{{ form.profile_photo.errors.0 }}</p>{% endif %}
                     </div>
                     <div>
                         <label class="field-label" for="id_email">College Email *</label>

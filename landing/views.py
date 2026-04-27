@@ -452,7 +452,7 @@ def apply_view(request):
         application_status = existing_app.get_status_display()
 
     if request.method == 'POST' and not has_applied:
-        form = ClubApplicationForm(request.POST)
+        form = ClubApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
             # Permanently link logged-in user to their application

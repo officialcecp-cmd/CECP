@@ -140,7 +140,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
         }),
         ('Review', {
-            'fields': ('status', 'reviewed_by', 'rejection_reason')
+            'fields': ('status', 'assigned_role', 'reviewed_by', 'rejection_reason')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -157,6 +157,19 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             # Reset if changed back to pending
             obj.reviewed_by = None
             
+        # Automate TeamMember creation on approval
+        if obj.status == 'approved' and obj.assigned_role:
+            # Prevent duplicate team profiles for the same email
+            if not TeamMember.objects.filter(email=obj.email).exists():
+                TeamMember.objects.create(
+                    name=obj.full_name,
+                    email=obj.email,
+                    role=obj.assigned_role,
+                    github_url=obj.github_url,
+                    linkedin_url=obj.linkedin_url,
+                    image=obj.profile_photo if hasattr(obj, 'profile_photo') else None,
+                )
+
         super().save_model(request, obj, form, change)
 
     @admin.action(description='\u2705 Approve selected applications')

@@ -279,6 +279,7 @@ class ClubApplication(models.Model):
 
     # --- Section 1: Basic Identity ---
     full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
+    profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo")
     email = models.EmailField(
         unique=True,
         validators=[rit_email_validator],
@@ -300,6 +301,19 @@ class ClubApplication(models.Model):
 
     # --- Status & Timestamps ---
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    assigned_role = models.CharField(
+        max_length=20, 
+        choices=[
+            ('lead', 'Club Lead'),
+            ('co_lead', 'Co-Lead'),
+            ('head', 'Department Head'),
+            ('treasurer', 'Treasurer'),
+            ('member', 'Core Member'),
+            ('alumni', 'Alumni'),
+        ],
+        null=True, blank=True,
+        help_text="Role to automatically assign on the public Team page upon approval"
+    )
     reviewed_by = models.ForeignKey(
         ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
         related_name='reviewed_applications',

@@ -218,7 +218,7 @@ class ClubApplicationForm(forms.ModelForm):
     class Meta:
         model = ClubApplication
         fields = [
-            'full_name', 'email', 'whatsapp_number', 'roll_number',
+            'full_name', 'profile_photo', 'email', 'whatsapp_number', 'roll_number',
             'branch', 'current_year', 'domain_of_interest',
             'skill_level', 'motivation',
             'github_url', 'linkedin_url',
@@ -227,6 +227,11 @@ class ClubApplicationForm(forms.ModelForm):
             'full_name': forms.TextInput(attrs={
                 'class': 'apply-input', 'placeholder': 'Your full name',
                 'id': 'id_full_name',
+            }),
+            'profile_photo': forms.FileInput(attrs={
+                'class': 'apply-input file-input', 
+                'id': 'id_profile_photo',
+                'accept': 'image/*'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'apply-input', 'placeholder': 'yourname@ritroorkee.com',
@@ -268,6 +273,11 @@ class ClubApplicationForm(forms.ModelForm):
                 'id': 'id_linkedin',
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Remove the empty "---------" choice for the RadioSelect widget
+        self.fields['skill_level'].choices = self.Meta.model.SKILL_CHOICES
 
     def clean_email(self):
         """Backend enforcement: only @ritroorkee.com emails allowed."""
