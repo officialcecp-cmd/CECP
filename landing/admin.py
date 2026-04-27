@@ -7,6 +7,10 @@ from .models import (
     ClubMember, ProjectCategory, Notification, ClubApplication
 )
 from .services import categorize_project_level
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+from django.utils.html import format_html
 
 
 # --- Club Member Admin --------------------------------------------------------
@@ -126,12 +130,12 @@ class ClubApplicationAdmin(admin.ModelAdmin):
     list_editable = ('status',)
     list_filter = ('status', 'branch', 'current_year', 'domain_of_interest', 'skill_level')
     search_fields = ('full_name', 'email', 'roll_number', 'motivation')
-    readonly_fields = ('created_at', 'updated_at', 'reviewed_by')
+    readonly_fields = ('photo_preview', 'created_at', 'updated_at', 'reviewed_by')
     actions = ['approve_applications', 'reject_applications']
 
     fieldsets = (
         ('Applicant Identity', {
-            'fields': ('full_name', 'email', 'whatsapp_number', 'roll_number')
+            'fields': ('photo_preview', 'full_name', 'email', 'whatsapp_number', 'roll_number')
         }),
         ('Academic Info', {
             'fields': ('branch', 'current_year', 'domain_of_interest')
@@ -140,7 +144,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
         }),
         ('Review', {
-            'fields': ('status', 'assigned_role', 'reviewed_by', 'rejection_reason')
+            'fields': ('status', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -148,7 +152,16 @@ class ClubApplicationAdmin(admin.ModelAdmin):
         }),
     )
 
+    def photo_preview(self, obj):
+        if obj.profile_photo:
+            return format_html('<img src="{}" width="120" height="120" style="border-radius: 8px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3);" />', obj.profile_photo.url)
+        return "No Photo Provided"
+    photo_preview.short_description = 'Photo Preview'
+
     def save_model(self, request, obj, form, change):
+        # Use form.cleaned_data to check if the manual email notification is triggered
+        send_manual_email = form.cleaned_data.get('send_notification_email', False)
+        
         # Auto-capture the logged-in admin if status is changed to Approved/Rejected
         if obj.status in ['approved', 'rejected']:
             if hasattr(request.user, 'club_profile'):
@@ -169,8 +182,52 @@ class ClubApplicationAdmin(admin.ModelAdmin):
                     linkedin_url=obj.linkedin_url,
                     image=obj.profile_photo if hasattr(obj, 'profile_photo') else None,
                 )
+        else:
+            # If status is changed back to pending/rejected, remove from Team page
+            TeamMember.objects.filter(email=obj.email).delete()
+
+        # CRITICAL: Reset the checkbox before saving
+        if send_manual_email:
+            obj.send_notification_email = False
 
         super().save_model(request, obj, form, change)
+
+        # Send Manual Email Notification
+        if send_manual_email:
+            try:
+                admin_name = request.user.get_full_name() or request.user.username
+                subject = f'CECP: Application {obj.get_status_display()}'
+                
+                context = {
+                    'applicant_name': obj.full_name,
+                    'status': obj.status,
+                    'admin_name': admin_name
+                }
+                html_content = render_to_string('landing/emails/welcome_email.html', context)
+                
+                msg = EmailMultiAlternatives(
+                    subject=subject,
+                    body=f"Hello {obj.full_name},\nYour application status is now: {obj.get_status_display()}.\nReviewed by: {admin_name}",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[obj.email]
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send(fail_silently=True)
+            except Exception as e:
+                print(f"Error sending email to {obj.email}: {e}")
+
+    def delete_model(self, request, obj):
+        # Auto-delete the TeamMember if the approved application is deleted
+        if obj.status == 'approved':
+            TeamMember.objects.filter(email=obj.email).delete()
+        super().delete_model(request, obj)
+
+    def delete_queryset(self, request, queryset):
+        # Auto-delete all TeamMembers for the approved applications being deleted in bulk
+        approved_emails = queryset.filter(status='approved').values_list('email', flat=True)
+        if approved_emails:
+            TeamMember.objects.filter(email__in=approved_emails).delete()
+        super().delete_queryset(request, queryset)
 
     @admin.action(description='\u2705 Approve selected applications')
     def approve_applications(self, request, queryset):

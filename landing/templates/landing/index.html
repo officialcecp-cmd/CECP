@@ -53,7 +53,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 </head>
 
-<body class="bg-cecp-black text-slate-200 font-sans antialiased overflow-hidden h-screen">
+<body class="bg-cecp-black text-slate-200 font-sans antialiased overflow-hidden overflow-x-hidden h-screen">
 
     <!-- ===================================================================
          MOBILE MENU (Off-canvas overlay)
@@ -68,13 +68,15 @@
         <div class="flex flex-col gap-3 mt-6">
             {% if request.user.is_authenticated %}
                 <div class="flex flex-col items-center mb-2">
-                    <span class="text-center text-sm font-semibold text-cyan-400">Welcome, {{ request.user.club_profile.display_name|default:request.user.username }}</span>
+                    <span class="text-center text-sm font-semibold text-cyan-400">Welcome, {{ request.user.first_name|default:"Member" }}</span>
                     {% if request.user.club_profile %}
                     <span class="text-center text-xs text-gray-400 mt-1 uppercase tracking-wider">{{ request.user.club_profile.get_role_display }}</span>
                     {% endif %}
                 </div>
                 {% if request.user.club_profile.is_faculty or request.user.club_profile.is_club_head or request.user.is_staff or request.user.is_superuser %}
-                    <a href="/admin/" class="btn-gradient text-center" target="_blank">Master Admin</a>
+                    <a href="/admin/" class="btn-gradient text-center" target="_blank">
+                        {% if request.user.is_superuser %}Superuser{% elif request.user.is_staff %}Admin{% else %}Master Admin{% endif %}
+                    </a>
                 {% endif %}
                 <a href="{% url 'landing:logout' %}" class="btn-outline text-center" style="border-color: #ef4444; color: #ef4444;">Logout</a>
             {% else %}
@@ -110,13 +112,15 @@
                 <div class="hidden lg:flex items-center gap-3" id="desktop-cta">
                     {% if request.user.is_authenticated %}
                         <div class="flex flex-col items-end mr-3">
-                            <span class="text-sm font-semibold text-cyan-400">Welcome, {{ request.user.club_profile.display_name|default:request.user.username }}</span>
+                            <span class="text-sm font-semibold text-cyan-400">Welcome, {{ request.user.first_name|default:"Member" }}</span>
                             {% if request.user.club_profile %}
                             <span class="text-xs text-gray-400 uppercase tracking-wider" style="font-size: 0.65rem;">{{ request.user.club_profile.get_role_display }}</span>
                             {% endif %}
                         </div>
                         {% if request.user.club_profile.is_faculty or request.user.club_profile.is_club_head or request.user.is_staff or request.user.is_superuser %}
-                            <a href="/admin/" class="btn-gradient btn-sm" target="_blank">Master Admin</a>
+                            <a href="/admin/" class="btn-gradient btn-sm" target="_blank">
+                                {% if request.user.is_superuser %}Superuser{% elif request.user.is_staff %}Admin{% else %}Master Admin{% endif %}
+                            </a>
                         {% endif %}
                         <a href="{% url 'landing:logout' %}" class="btn-outline btn-sm" style="border-color: #ef4444; color: #ef4444;">Logout</a>
                     {% else %}
@@ -846,6 +850,7 @@
                         <h2 class="text-3xl md:text-4xl font-bold text-white mb-8">Ready to build the future with
                             us?</h2>
                         {% if user_application %}
+                            {% if not request.user.is_staff and not request.user.is_superuser %}
                             <div class="inline-block px-8 py-4 rounded-2xl border font-medium text-lg mb-6
                                 {% if user_application.status == 'pending' %}bg-yellow-500/10 border-yellow-500/30 text-yellow-400 shadow-[0_0_20px_rgba(234,179,8,0.15)]
                                 {% elif user_application.status == 'approved' %}bg-emerald-500/10 border-emerald-500/30 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.15)]
@@ -859,6 +864,7 @@
                                 {% endif %}
                                 Current Status: <strong>{{ user_application.get_status_display }}</strong>
                             </div>
+                            {% endif %}
                             <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
                                 <button
                                     class="px-8 py-3 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto"
@@ -1487,20 +1493,13 @@
         <!-- =============================================================
              TAB 5: TEAM — Team Members
              ============================================================= -->
-        <section id="tab-team" class="tab-content h-full overflow-y-auto relative">
-            <div class="relative min-h-[calc(100vh-5rem)] z-10">
+        <section id="tab-team" class="tab-content h-full overflow-y-auto overflow-x-hidden relative">
+            <div class="relative min-h-[calc(100vh-5rem)] w-full z-10">
                 <div class="ambient-orb orb-indigo" style="width: 400px; height: 400px; top: 15%; right: -120px;"></div>
 
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
 
                     <div class="text-center mb-20 animate-on-scroll">
-                        <div
-                            class="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-cyan-500/30 bg-cyan-500/10 mb-6">
-                            <div class="w-2 h-2 bg-cyan-400 rounded-full animate-pulse"></div>
-                            <span
-                                class="text-[10px] font-mono font-bold text-cyan-400 uppercase tracking-widest">Network
-                                Architecture</span>
-                        </div>
                         <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight uppercase"
                             style="font-family: 'JetBrains Mono', monospace;">
                             Core <span

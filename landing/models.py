@@ -320,6 +320,10 @@ class ClubApplication(models.Model):
         help_text="Club Head who reviewed this application"
     )
     rejection_reason = models.TextField(blank=True)
+    send_notification_email = models.BooleanField(
+        default=False, 
+        help_text="Check this box and save to manually trigger an email notification based on the current status."
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

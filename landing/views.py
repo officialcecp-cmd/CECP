@@ -486,7 +486,33 @@ def apply_success_view(request):
     })
 
 
-# ==============================================================================
+def delete_application(request):
+    """Allow users to delete their pending or rejected application."""
+    if request.method == 'POST':
+        existing_app = None
+        if request.user.is_authenticated:
+            existing_app = ClubApplication.objects.filter(user=request.user).first()
+            if not existing_app and request.user.email:
+                existing_app = ClubApplication.objects.filter(email__iexact=request.user.email).first()
+        if not existing_app:
+            session_email = request.session.get('applied_email')
+            if session_email:
+                existing_app = ClubApplication.objects.filter(email__iexact=session_email).first()
+
+        if existing_app:
+            if existing_app.status != 'approved':
+                # Delete the application
+                existing_app.delete()
+                # Clear session cookie if it exists
+                if 'applied_email' in request.session:
+                    del request.session['applied_email']
+                messages.success(request, 'Your application has been successfully deleted.')
+            else:
+                messages.error(request, 'You cannot delete an approved application.')
+        else:
+            messages.error(request, 'No application found to delete.')
+            
+    return redirect('landing:apply')# ==============================================================================
 # HELPERS
 # ==============================================================================
 

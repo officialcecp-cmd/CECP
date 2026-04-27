@@ -35,4 +35,5 @@ urlpatterns = [
     # Club Application
     path('apply/', views.apply_view, name='apply'),
     path('apply/success/', views.apply_success_view, name='apply_success'),
+    path('apply/delete/', views.delete_application, name='delete_application'),
 ]

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CECP Application Status</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #020617; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
+    
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #020617; width: 100%;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                
+                <table width="100%" max-width="600" border="0" cellspacing="0" cellpadding="0" style="max-width: 600px; background-color: #0f172a; border: 1px solid #1e293b; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+                    
+                    <tr>
+                        <td style="background-color: #020617; text-align: center; padding: 25px 20px; border-bottom: 2px solid #06b6d4;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 900; color: #06b6d4; letter-spacing: 4px; text-transform: uppercase;">CECP<span style="color: #ffffff; font-weight: 300;"></span></h1>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td style="padding: 40px 30px;">
+                            
+                            {% if status == 'approved' %}
+                            <div style="display: inline-block; background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); color: #34d399; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px;">
+                                ✅ Application Approved
+                            </div>
+                            {% else %}
+                            <div style="display: inline-block; background-color: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; padding: 8px 16px; border-radius: 6px; font-size: 14px; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 25px;">
+                                ❌ Application Rejected
+                            </div>
+                            {% endif %}
+                            
+                            <h2 style="color: #ffffff; font-size: 22px; font-weight: 700; margin-top: 0; margin-bottom: 20px;">Hello {{ applicant_name }},</h2>
+                            
+                            {% if status == 'approved' %}
+                                <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">Congratulations! We have reviewed your profile and we are thrilled to inform you that your application has been <strong style="color: #34d399;">Approved</strong>.</p>
+                                
+                                <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 25px;">Welcome to the core team of the Centre of Electronic Coding and Project (CECP) at Roorkee Institute of Technology. You are now officially part of our innovation hub.</p>
+                                
+                                <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #1e293b; border: 1px solid #334155; border-radius: 8px; margin-bottom: 25px;">
+                                    <tr>
+                                        <td style="padding: 20px;">
+                                            <h3 style="color: #06b6d4; margin-top: 0; margin-bottom: 15px; font-size: 16px; text-transform: uppercase; letter-spacing: 1px;">Next Steps for Activation:</h3>
+                                            <ol style="margin: 0; padding-left: 20px; color: #cbd5e1; font-size: 15px; line-height: 1.7;">
+                                                <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">Access the Portal:</strong> Log in to the CECP dashboard to view internal resources and projects.</li>
+                                                <li style="margin-bottom: 10px;"><strong style="color: #ffffff;">Join Communications:</strong> Keep an eye out for a WhatsApp group invite link from the Club Head.</li>
+                                                <li style="margin-bottom: 0;"><strong style="color: #ffffff;">Start Building:</strong> Review the ongoing initiatives and prepare to contribute!</li>
+                                            </ol>
+                                        </td>
+                                    </tr>
+                                </table>
+                                
+                                <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">We are excited to see what we will build together.</p>
+                            {% else %}
+                                <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">Thank you for your interest in joining the Centre of Electronic Coding and Project (CECP). After careful review of your profile, we regret to inform you that your application has been <strong style="color: #f87171;">Rejected</strong> at this time.</p>
+                                <p style="color: #cbd5e1; font-size: 16px; line-height: 1.6; margin-top: 0; margin-bottom: 20px;">We receive many applications and unfortunately cannot accept everyone. We encourage you to continue building your skills, working on projects, and we welcome you to apply again in the next recruitment cycle!</p>
+                            {% endif %}
+
+                            <p style="margin-top: 35px; padding-top: 20px; border-top: 1px solid #334155; font-style: italic; color: #94a3b8; font-size: 14px; line-height: 1.5;">
+                                This application was officially reviewed by: <strong style="color: #e2e8f0;">{{ admin_name }}</strong>
+                            </p>
+                            
+                            <p style="margin-top: 25px; margin-bottom: 0; color: #cbd5e1; font-size: 16px; line-height: 1.6;">
+                                Best Regards,<br>
+                                <strong style="color: #ffffff;">The Core Team</strong><br>
+                                CECP — RIT Roorkee
+                            </p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="background-color: #020617; text-align: center; padding: 25px 20px; border-top: 1px solid #1e293b;">
+                            <div style="color: #06b6d4; font-weight: bold; font-style: italic; font-size: 15px;">Potential to Power. ⚡</div>
+                            <p style="margin-top: 15px; margin-bottom: 0; font-size: 12px; color: #475569; line-height: 1.5;">This is an automated message from the CECP Command Center.<br>Please do not reply directly to this email.</p>
+                        </td>
+                    </tr>
+                </table>
+                
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
