@@ -541,3 +541,36 @@ def _notify_club_heads_application(application):
                 f'Domain: {application.get_domain_of_interest_display()}.'
             ),
         )
+
+@login_required(login_url='/login/')
+def profile_view(request):
+    from landing.models import UserProfile
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    return render(request, 'landing/profile.html', {
+        'page_title': 'My Profile — CECP',
+        'profile': profile,
+    })
+
+@login_required(login_url='/login/')
+def edit_profile_view(request):
+    from landing.models import UserProfile
+    from landing.forms import UserProfileForm
+    from django.shortcuts import redirect
+    from django.contrib import messages
+    
+    profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Your profile has been updated successfully.")
+            return redirect('landing:profile')
+    else:
+        form = UserProfileForm(instance=profile)
+        
+    return render(request, 'landing/edit_profile.html', {
+        'page_title': 'Edit Profile — CECP',
+        'form': form,
+        'profile': profile,
+    })

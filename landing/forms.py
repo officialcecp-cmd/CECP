@@ -296,3 +296,62 @@ class ClubApplicationForm(forms.ModelForm):
                 "An application with this email already exists."
             )
         return email
+
+# ==============================================================================
+# USER PROFILE FORM
+# ==============================================================================
+from .models import UserProfile
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = [
+            'profile_picture', 'course', 'branch', 'graduation_year',
+            'college_roll_number', 'date_of_birth', 'gender',
+            'hometown', 'mobile_number', 'github_profile', 'linkedin_profile'
+        ]
+        widgets = {
+            'profile_picture': forms.FileInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-slate-300 border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500'
+            }),
+            'course': forms.Select(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'id': 'id_course'
+            }),
+            'branch': forms.Select(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'id': 'id_branch'
+            }),
+            'graduation_year': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., 2025-2029'
+            }),
+            'college_roll_number': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., 22ECE001'
+            }),
+            'date_of_birth': forms.DateInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'type': 'date'
+            }),
+            'gender': forms.Select(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500'
+            }),
+            'hometown': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., Patna, Bihar'
+            }),
+            'mobile_number': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': '+91 XXXXXXXXXX'
+            }),
+            'github_profile': forms.URLInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'https://github.com/yourusername'
+            }),
+            'linkedin_profile': forms.URLInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'https://linkedin.com/in/yourprofile'
+            }),
+        }
+

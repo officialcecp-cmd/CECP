@@ -388,3 +388,54 @@ class TeamMember(models.Model):
 
     def __str__(self):
         return f"{self.name} — {self.get_role_display()}"
+
+# ==============================================================================
+# USER PROFILE
+# ==============================================================================
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
+class UserProfile(models.Model):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+        ('P', 'Prefer not to say'),
+    ]
+
+    COURSE_CHOICES = [
+        ('B.Tech', 'B.Tech'),
+        ('MBA', 'MBA'),
+        ('BBA', 'BBA'),
+        ('BCA', 'BCA'),
+        ('MCA', 'MCA'),
+        ('M.Tech', 'M.Tech'),
+    ]
+    BRANCH_CHOICES = [
+        ('ECE', 'Electronics and Communication Engineering (ECE)'),
+        ('CSE', 'Computer Science (CSE)'),
+        ('AI/ML', 'Artificial Intelligence (AI/ML)'),
+        ('CE', 'Civil Engineering (CE)'),
+        ('IT', 'Information Technology (IT)'),
+        ('EE', 'Electrical Engineering (EE)'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    course = models.CharField(max_length=20, choices=COURSE_CHOICES, blank=True, null=True)
+    branch = models.CharField(max_length=50, choices=BRANCH_CHOICES, blank=True, null=True, help_text="Only applicable for B.Tech")
+    graduation_year = models.CharField(max_length=9, blank=True, null=True, help_text="e.g., 2025-2029")
+    college_roll_number = models.CharField(max_length=50, blank=True, null=True)
+    date_of_birth = models.DateField(blank=True, null=True)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
+    hometown = models.CharField(max_length=100, blank=True, null=True, help_text="e.g., Patna, Bihar")
+    mobile_number = models.CharField(max_length=15, blank=True, null=True)
+    github_profile = models.URLField(max_length=200, blank=True, null=True)
+    linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s Profile"
+
+@receiver(post_save, sender=User)
+def create_or_update_user_profile(sender, instance, created, **kwargs):
+    UserProfile.objects.get_or_create(user=instance)

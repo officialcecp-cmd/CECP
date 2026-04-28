@@ -19,6 +19,8 @@ urlpatterns = [
     # Dashboards
     path('dashboard/', views.dashboard, name='dashboard'),
     path('member/dashboard/', views.member_dashboard, name='member_dashboard'),
+    path('profile/', views.profile_view, name='profile'),
+    path('profile/edit/', views.edit_profile_view, name='edit_profile'),
 
     # Project Management
     path('submit-project/', views.submit_project, name='submit_project'),
