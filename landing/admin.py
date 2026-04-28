@@ -106,10 +106,10 @@ class InitiativeAdmin(admin.ModelAdmin):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ('name', 'role', 'title', 'is_active', 'display_order')
-    list_editable = ('role', 'is_active', 'display_order')
-    list_filter = ('role', 'is_active')
-    search_fields = ('name', 'title')
+    list_display = ('name', 'category', 'role', 'is_active', 'display_order')
+    list_editable = ('category', 'role', 'is_active', 'display_order')
+    list_filter = ('category', 'is_active')
+    search_fields = ('name', 'role')
 
 
 # --- Notification Admin -------------------------------------------------------
@@ -144,7 +144,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
         }),
         ('Review', {
-            'fields': ('status', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email')
+            'fields': ('status', 'assigned_category', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -171,16 +171,17 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             obj.reviewed_by = None
             
         # Automate TeamMember creation on approval
-        if obj.status == 'approved' and obj.assigned_role:
+        if obj.status == 'approved' and obj.assigned_category:
             # Prevent duplicate team profiles for the same email
             if not TeamMember.objects.filter(email=obj.email).exists():
                 TeamMember.objects.create(
                     name=obj.full_name,
                     email=obj.email,
-                    role=obj.assigned_role,
-                    github_url=obj.github_url,
-                    linkedin_url=obj.linkedin_url,
-                    image=obj.profile_photo if hasattr(obj, 'profile_photo') else None,
+                    role=obj.assigned_role or 'Club Member',
+                    category=obj.assigned_category,
+                    github=obj.github_url,
+                    linkedin=obj.linkedin_url,
+                    photo=obj.profile_photo if hasattr(obj, 'profile_photo') else None,
                 )
         else:
             # If status is changed back to pending/rejected, remove from Team page

@@ -301,18 +301,21 @@ class ClubApplication(models.Model):
 
     # --- Status & Timestamps ---
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    assigned_role = models.CharField(
+    assigned_category = models.CharField(
         max_length=20, 
         choices=[
-            ('lead', 'Club Lead'),
-            ('co_lead', 'Co-Lead'),
-            ('head', 'Department Head'),
-            ('treasurer', 'Treasurer'),
-            ('member', 'Core Member'),
-            ('alumni', 'Alumni'),
+            ('advisor', 'Faculty Advisor'),
+            ('head', 'Club Head'),
+            ('core', 'Core Team'),
+            ('member', 'Club Member'),
         ],
+        default='member',
+        help_text="Category on the public Team page"
+    )
+    assigned_role = models.CharField(
+        max_length=100,
         null=True, blank=True,
-        help_text="Role to automatically assign on the public Team page upon approval"
+        help_text="Specific role/title (e.g., Web Master, Hardware Lead)"
     )
     reviewed_by = models.ForeignKey(
         ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
@@ -364,22 +367,22 @@ class Initiative(models.Model):
 
 class TeamMember(models.Model):
     """Represents a club team member for the public Team page."""
-    ROLE_CHOICES = [
-        ('lead', 'Club Lead'),
-        ('co_lead', 'Co-Lead'),
-        ('head', 'Department Head'),
-        ('treasurer', 'Treasurer'),
-        ('member', 'Core Member'),
-        ('alumni', 'Alumni'),
+    CATEGORY_CHOICES = [
+        ('advisor', 'Faculty Advisor'),
+        ('head', 'Club Head'),
+        ('core', 'Core Team'),
+        ('member', 'Club Member'),
     ]
 
-    name = models.CharField(max_length=150)
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
-    title = models.CharField(max_length=200, blank=True, help_text="e.g., 'Head of AI/CV Division'")
-    image = models.ImageField(upload_to='team/', blank=True, null=True, help_text="Upload team member photo")
+    name = models.CharField(max_length=100)
+    role = models.CharField(max_length=100, help_text="e.g., Web Master, Hardware Lead")
+    photo = models.ImageField(upload_to='team_photos/', blank=True, null=True)
+    github = models.URLField(max_length=200, blank=True, null=True)
+    linkedin = models.URLField(max_length=200, blank=True, null=True)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='member')
+    
+    # Preserved for admin logic and order
     email = models.EmailField(blank=True, help_text="Contact email address")
-    linkedin_url = models.URLField(blank=True)
-    github_url = models.URLField(blank=True)
     display_order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
 
@@ -387,7 +390,7 @@ class TeamMember(models.Model):
         ordering = ['display_order']
 
     def __str__(self):
-        return f"{self.name} — {self.get_role_display()}"
+        return f"{self.name} — {self.get_category_display()}"
 
 # ==============================================================================
 # USER PROFILE
@@ -439,3 +442,5 @@ class UserProfile(models.Model):
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     UserProfile.objects.get_or_create(user=instance)
+
+

@@ -574,3 +574,20 @@ def edit_profile_view(request):
         'form': form,
         'profile': profile,
     })
+
+def team_view(request):
+    from landing.models import TeamMember
+    members = TeamMember.objects.filter(is_active=True).order_by('display_order', 'name')
+    
+    advisors = members.filter(category='advisor')
+    head = members.filter(category='head').first()
+    core = members.filter(category='core')
+    club_members = members.filter(category='member')
+
+    return render(request, 'landing/team.html', {
+        'page_title': 'Our Team — CECP NEXUS',
+        'advisors': advisors,
+        'head': head,
+        'core_team': core,
+        'club_members': club_members,
+    })
