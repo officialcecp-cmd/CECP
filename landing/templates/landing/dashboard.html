@@ -202,7 +202,11 @@
                             My Profile
                         </a>
                         
-                        {% if request.user.is_staff or request.user.is_superuser %}
+                        {% if request.user.is_superuser %}
+                        <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
+                            Superuser Dashboard
+                        </a>
+                        {% elif request.user.is_staff %}
                         <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
                             Admin Dashboard
                         </a>

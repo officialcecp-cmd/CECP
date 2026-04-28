@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.db.models import Count, Q
 
 from .models import (
-    Project, Initiative, ClubMember, ProjectCategory, Notification, TeamMember,
+    Project, Initiative, ClubMember, ProjectCategory, Notification,
     ClubApplication
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
@@ -50,7 +50,7 @@ def index(request):
         'categories': ProjectCategory.objects.count(),
     }
 
-    team_members = TeamMember.objects.filter(is_active=True).order_by('display_order')
+    team_members = ClubMember.objects.filter(is_active=True).select_related('user').order_by('category', 'user__first_name')
 
     user_application = None
     if request.user.is_authenticated:
@@ -544,8 +544,31 @@ def _notify_club_heads_application(application):
 
 @login_required(login_url='/login/')
 def profile_view(request):
-    from landing.models import UserProfile
+    from landing.models import UserProfile, ClubApplication
     profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    # Auto-populate if freshly created
+    if created and request.user.email:
+        app = ClubApplication.objects.filter(email__iexact=request.user.email, status='approved').first()
+        if app:
+            profile.course = 'B.Tech'  # Default since CECP apps are primarily B.Tech
+            profile.branch = app.branch
+            profile.college_roll_number = app.roll_number
+            profile.mobile_number = app.whatsapp_number
+            profile.github_profile = app.github_url
+            profile.linkedin_profile = app.linkedin_url
+            if app.profile_photo:
+                profile.profile_picture = app.profile_photo
+            profile.save()
+            
+            # Sync name if user hasn't set it (from Google auth etc. it might already be set)
+            if not request.user.first_name and not request.user.last_name and app.full_name:
+                name_parts = app.full_name.split(' ', 1)
+                request.user.first_name = name_parts[0]
+                if len(name_parts) > 1:
+                    request.user.last_name = name_parts[1]
+                request.user.save()
+
     return render(request, 'landing/profile.html', {
         'page_title': 'My Profile — CECP',
         'profile': profile,
@@ -553,12 +576,34 @@ def profile_view(request):
 
 @login_required(login_url='/login/')
 def edit_profile_view(request):
-    from landing.models import UserProfile
+    from landing.models import UserProfile, ClubApplication
     from landing.forms import UserProfileForm
     from django.shortcuts import redirect
     from django.contrib import messages
     
     profile, created = UserProfile.objects.get_or_create(user=request.user)
+    
+    # Auto-populate if freshly created
+    if created and request.user.email:
+        app = ClubApplication.objects.filter(email__iexact=request.user.email, status='approved').first()
+        if app:
+            profile.course = 'B.Tech'
+            profile.branch = app.branch
+            profile.college_roll_number = app.roll_number
+            profile.mobile_number = app.whatsapp_number
+            profile.github_profile = app.github_url
+            profile.linkedin_profile = app.linkedin_url
+            if app.profile_photo:
+                profile.profile_picture = app.profile_photo
+            profile.save()
+            
+            # Sync name if missing
+            if not request.user.first_name and not request.user.last_name and app.full_name:
+                name_parts = app.full_name.split(' ', 1)
+                request.user.first_name = name_parts[0]
+                if len(name_parts) > 1:
+                    request.user.last_name = name_parts[1]
+                request.user.save()
     
     if request.method == 'POST':
         form = UserProfileForm(request.POST, request.FILES, instance=profile)
@@ -576,18 +621,18 @@ def edit_profile_view(request):
     })
 
 def team_view(request):
-    from landing.models import TeamMember
-    members = TeamMember.objects.filter(is_active=True).order_by('display_order', 'name')
-    
-    advisors = members.filter(category='advisor')
-    head = members.filter(category='head').first()
-    core = members.filter(category='core')
+    from landing.models import ClubMember
+    members = ClubMember.objects.filter(is_active=True).select_related('user').order_by('user__first_name')
+
+    advisors    = members.filter(category='advisor')
+    heads       = members.filter(category='head')
+    core_team   = members.filter(category='core')
     club_members = members.filter(category='member')
 
     return render(request, 'landing/team.html', {
         'page_title': 'Our Team — CECP NEXUS',
         'advisors': advisors,
-        'head': head,
-        'core_team': core,
+        'heads': heads,
+        'core_team': core_team,
         'club_members': club_members,
     })

@@ -3,7 +3,7 @@
 # ==============================================================================
 from django.contrib import admin
 from .models import (
-    Initiative, Project, TeamMember,
+    Initiative, Project,
     ClubMember, ProjectCategory, Notification, ClubApplication
 )
 from .services import categorize_project_level
@@ -17,11 +17,25 @@ from django.utils.html import format_html
 
 @admin.register(ClubMember)
 class ClubMemberAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'member_id', 'role', 'is_active', 'joined_at')
-    list_editable = ('role', 'is_active')
-    list_filter = ('role', 'is_active')
-    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id')
+    list_display = ('display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
+    list_editable = ('role', 'category', 'display_role', 'is_active')
+    list_filter = ('role', 'category', 'is_active')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id', 'display_role')
     raw_id_fields = ('user',)
+
+    fieldsets = (
+        ('User Account', {
+            'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
+        }),
+        ('Team Page Display', {
+            'fields': ('category', 'display_role', 'avatar', 'bio'),
+            'description': 'These fields control how the member appears on the public /team/ page.'
+        }),
+        ('Contact & Social', {
+            'fields': ('phone', 'linkedin_url', 'github_url'),
+            'classes': ('collapse',)
+        }),
+    )
 
 
 # --- Project Category Admin ---------------------------------------------------
@@ -74,7 +88,7 @@ class ProjectAdmin(admin.ModelAdmin):
         if obj.spec and (not obj.level or (change and 'spec' in form.changed_data)):
             obj.level = categorize_project_level(obj.spec)
 
-        # ✅ Auto-approve when a superuser or staff adds a project via admin
+        # Auto-approve when a superuser or staff adds a project via admin
         if not change and request.user.is_staff and obj.approval_status == 'pending':
             obj.approval_status = 'approved'
 
@@ -91,7 +105,6 @@ class ProjectAdmin(admin.ModelAdmin):
         self.message_user(request, f'{updated} project(s) rejected.')
 
 
-
 # --- Initiative Admin ---------------------------------------------------------
 
 @admin.register(Initiative)
@@ -100,16 +113,6 @@ class InitiativeAdmin(admin.ModelAdmin):
     list_editable = ('display_order', 'is_active')
     list_filter = ('is_active',)
     search_fields = ('title', 'description')
-
-
-# --- Team Member Admin --------------------------------------------------------
-
-@admin.register(TeamMember)
-class TeamMemberAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'role', 'is_active', 'display_order')
-    list_editable = ('category', 'role', 'is_active', 'display_order')
-    list_filter = ('category', 'is_active')
-    search_fields = ('name', 'role')
 
 
 # --- Notification Admin -------------------------------------------------------
@@ -143,8 +146,9 @@ class ClubApplicationAdmin(admin.ModelAdmin):
         ('Skills & Motivation', {
             'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
         }),
-        ('Review', {
-            'fields': ('status', 'assigned_category', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email')
+        ('Review & Team Assignment', {
+            'fields': ('status', 'assigned_category', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email'),
+            'description': 'Set assigned_category and assigned_role before approving. A ClubMember record will be auto-created/updated.'
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
@@ -158,34 +162,44 @@ class ClubApplicationAdmin(admin.ModelAdmin):
         return "No Photo Provided"
     photo_preview.short_description = 'Photo Preview'
 
+    def _sync_club_member(self, obj):
+        """
+        Core sync logic: when an application is approved, find or create
+        the linked Django User and update/create their ClubMember record.
+        """
+        from django.contrib.auth.models import User as DjangoUser
+
+        # Try to find the linked user by email
+        user = obj.user
+        if not user:
+            try:
+                user = DjangoUser.objects.get(email__iexact=obj.email)
+            except DjangoUser.DoesNotExist:
+                user = None
+
+        if user:
+            # Get or create the ClubMember for this user
+            club_member, _ = ClubMember.objects.get_or_create(user=user)
+            club_member.category = obj.assigned_category or 'member'
+            club_member.display_role = obj.assigned_role or ''
+            club_member.github_url = obj.github_url or ''
+            club_member.linkedin_url = obj.linkedin_url or ''
+            if obj.profile_photo and not club_member.avatar:
+                club_member.avatar = obj.profile_photo
+            club_member.is_active = True
+            club_member.save()
+            return club_member
+        return None
+
     def save_model(self, request, obj, form, change):
-        # Use form.cleaned_data to check if the manual email notification is triggered
         send_manual_email = form.cleaned_data.get('send_notification_email', False)
-        
-        # Auto-capture the logged-in admin if status is changed to Approved/Rejected
+
+        # Auto-capture the logged-in admin reviewer
         if obj.status in ['approved', 'rejected']:
             if hasattr(request.user, 'club_profile'):
                 obj.reviewed_by = request.user.club_profile
         elif obj.status == 'pending':
-            # Reset if changed back to pending
             obj.reviewed_by = None
-            
-        # Automate TeamMember creation on approval
-        if obj.status == 'approved' and obj.assigned_category:
-            # Prevent duplicate team profiles for the same email
-            if not TeamMember.objects.filter(email=obj.email).exists():
-                TeamMember.objects.create(
-                    name=obj.full_name,
-                    email=obj.email,
-                    role=obj.assigned_role or 'Club Member',
-                    category=obj.assigned_category,
-                    github=obj.github_url,
-                    linkedin=obj.linkedin_url,
-                    photo=obj.profile_photo if hasattr(obj, 'profile_photo') else None,
-                )
-        else:
-            # If status is changed back to pending/rejected, remove from Team page
-            TeamMember.objects.filter(email=obj.email).delete()
 
         # CRITICAL: Reset the checkbox before saving
         if send_manual_email:
@@ -193,19 +207,23 @@ class ClubApplicationAdmin(admin.ModelAdmin):
 
         super().save_model(request, obj, form, change)
 
+        # Sync ClubMember on approval
+        if obj.status == 'approved':
+            self._sync_club_member(obj)
+
         # Send Manual Email Notification
         if send_manual_email:
             try:
                 admin_name = request.user.get_full_name() or request.user.username
                 subject = f'CECP: Application {obj.get_status_display()}'
-                
+
                 context = {
                     'applicant_name': obj.full_name,
                     'status': obj.status,
                     'admin_name': admin_name
                 }
                 html_content = render_to_string('landing/emails/welcome_email.html', context)
-                
+
                 msg = EmailMultiAlternatives(
                     subject=subject,
                     body=f"Hello {obj.full_name},\nYour application status is now: {obj.get_status_display()}.\nReviewed by: {admin_name}",
@@ -217,33 +235,36 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             except Exception as e:
                 print(f"Error sending email to {obj.email}: {e}")
 
-    def delete_model(self, request, obj):
-        # Auto-delete the TeamMember if the approved application is deleted
-        if obj.status == 'approved':
-            TeamMember.objects.filter(email=obj.email).delete()
-        super().delete_model(request, obj)
-
-    def delete_queryset(self, request, queryset):
-        # Auto-delete all TeamMembers for the approved applications being deleted in bulk
-        approved_emails = queryset.filter(status='approved').values_list('email', flat=True)
-        if approved_emails:
-            TeamMember.objects.filter(email__in=approved_emails).delete()
-        super().delete_queryset(request, queryset)
-
-    @admin.action(description='\u2705 Approve selected applications')
+    @admin.action(description='✅ Approve selected applications')
     def approve_applications(self, request, queryset):
         reviewer = getattr(request.user, 'club_profile', None)
         if reviewer:
-            updated = queryset.update(status='approved', reviewed_by=reviewer)
+            queryset.update(status='approved', reviewed_by=reviewer)
         else:
-            updated = queryset.update(status='approved')
-        self.message_user(request, f'{updated} application(s) approved.')
+            queryset.update(status='approved')
 
-    @admin.action(description='\u274c Reject selected applications')
+        synced = 0
+        for obj in queryset:
+            if self._sync_club_member(obj):
+                synced += 1
+
+        self.message_user(request, f'{queryset.count()} application(s) approved. {synced} ClubMember record(s) synced.')
+
+    @admin.action(description='❌ Reject selected applications')
     def reject_applications(self, request, queryset):
         reviewer = getattr(request.user, 'club_profile', None)
         if reviewer:
             updated = queryset.update(status='rejected', reviewed_by=reviewer)
         else:
             updated = queryset.update(status='rejected')
+
+        # Deactivate corresponding ClubMembers
+        from django.contrib.auth.models import User as DjangoUser
+        for obj in queryset:
+            try:
+                user = obj.user or DjangoUser.objects.get(email__iexact=obj.email)
+                ClubMember.objects.filter(user=user).update(is_active=False)
+            except DjangoUser.DoesNotExist:
+                pass
+
         self.message_user(request, f'{updated} application(s) rejected.')

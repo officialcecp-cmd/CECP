@@ -12,13 +12,26 @@ from django.core.validators import RegexValidator
 
 
 # ==============================================================================
-# CLUB MEMBER — Role-based access control
+# GLOBAL CHOICES — Single source of truth for member hierarchy
+# ==============================================================================
+
+CATEGORY_CHOICES = [
+    ('advisor', 'Faculty Advisor'),
+    ('head', 'Club Head'),
+    ('core', 'Core Team'),
+    ('member', 'Club Member'),
+]
+
+
+# ==============================================================================
+# CLUB MEMBER — Role-based access control + Team page source of truth
 # ==============================================================================
 
 class ClubMember(models.Model):
     """
     Links a Django User to a CECP club role.
     Role hierarchy: HOD > Faculty > Club Head > Member
+    This is also the SINGLE SOURCE OF TRUTH for the public Team page.
     """
     ROLE_CHOICES = [
         ('hod', 'HOD / Faculty Coordinator'),
@@ -29,6 +42,17 @@ class ClubMember(models.Model):
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='club_profile')
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='member')
+
+    # --- Team Page Fields ---
+    category = models.CharField(
+        max_length=20, choices=CATEGORY_CHOICES, default='member',
+        help_text="Category on the public Team page (advisor / head / core / member)"
+    )
+    display_role = models.CharField(
+        max_length=100, blank=True,
+        help_text="Specific title shown on Team page (e.g., 'Web Master', 'Hardware Lead')"
+    )
+
     member_id = models.CharField(
         max_length=20, unique=True, blank=True,
         help_text="Unique member ID (e.g., CECP-2025-001)"
@@ -42,10 +66,10 @@ class ClubMember(models.Model):
     is_active = models.BooleanField(default=True)
 
     class Meta:
-        ordering = ['role', 'user__first_name']
+        ordering = ['category', 'user__first_name']
 
     def __str__(self):
-        return f"{self.user.get_full_name() or self.user.username} — {self.get_role_display()}"
+        return f"{self.user.get_full_name() or self.user.username} — {self.get_category_display()}"
 
     @property
     def is_club_head(self):
@@ -63,6 +87,11 @@ class ClubMember(models.Model):
     @property
     def display_name(self):
         return self.user.get_full_name() or self.user.username
+
+    @property
+    def team_role_label(self):
+        """Returns display_role if set, otherwise falls back to category display."""
+        return self.display_role or self.get_category_display()
 
 
 # ==============================================================================
@@ -228,6 +257,7 @@ class ClubApplication(models.Model):
     """
     Stores 'Join the Club' applications from prospective members.
     Club Head reviews and approves/rejects from the admin dashboard.
+    On approval, a ClubMember record is auto-created.
     """
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
@@ -299,16 +329,11 @@ class ClubApplication(models.Model):
     github_url = models.URLField(blank=True, help_text="GitHub profile (optional)")
     linkedin_url = models.URLField(blank=True, help_text="LinkedIn profile (optional)")
 
-    # --- Status & Timestamps ---
+    # --- Status & Review ---
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     assigned_category = models.CharField(
-        max_length=20, 
-        choices=[
-            ('advisor', 'Faculty Advisor'),
-            ('head', 'Club Head'),
-            ('core', 'Core Team'),
-            ('member', 'Club Member'),
-        ],
+        max_length=20,
+        choices=CATEGORY_CHOICES,
         default='member',
         help_text="Category on the public Team page"
     )
@@ -324,7 +349,7 @@ class ClubApplication(models.Model):
     )
     rejection_reason = models.TextField(blank=True)
     send_notification_email = models.BooleanField(
-        default=False, 
+        default=False,
         help_text="Check this box and save to manually trigger an email notification based on the current status."
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -360,37 +385,6 @@ class Initiative(models.Model):
     def __str__(self):
         return self.title
 
-
-# ==============================================================================
-# TEAM MEMBER — Preserved from original
-# ==============================================================================
-
-class TeamMember(models.Model):
-    """Represents a club team member for the public Team page."""
-    CATEGORY_CHOICES = [
-        ('advisor', 'Faculty Advisor'),
-        ('head', 'Club Head'),
-        ('core', 'Core Team'),
-        ('member', 'Club Member'),
-    ]
-
-    name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100, help_text="e.g., Web Master, Hardware Lead")
-    photo = models.ImageField(upload_to='team_photos/', blank=True, null=True)
-    github = models.URLField(max_length=200, blank=True, null=True)
-    linkedin = models.URLField(max_length=200, blank=True, null=True)
-    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default='member')
-    
-    # Preserved for admin logic and order
-    email = models.EmailField(blank=True, help_text="Contact email address")
-    display_order = models.PositiveIntegerField(default=0)
-    is_active = models.BooleanField(default=True)
-
-    class Meta:
-        ordering = ['display_order']
-
-    def __str__(self):
-        return f"{self.name} — {self.get_category_display()}"
 
 # ==============================================================================
 # USER PROFILE
@@ -442,5 +436,3 @@ class UserProfile(models.Model):
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     UserProfile.objects.get_or_create(user=instance)
-
-
