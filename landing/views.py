@@ -621,18 +621,21 @@ def edit_profile_view(request):
     })
 
 def team_view(request):
-    from landing.models import ClubMember
-    members = ClubMember.objects.filter(is_active=True).select_related('user').order_by('user__first_name')
+    # ==================================================================
+    # Single queryset — filtered into 4 context buckets.
+    # select_related('user') avoids N+1 on display_name / get_full_name.
+    # ==================================================================
+    active_members = (
+        ClubMember.objects.filter(is_active=True)
+        .select_related('user')
+        .order_by('user__first_name')
+    )
 
-    advisors    = members.filter(category='advisor')
-    heads       = members.filter(category='head')
-    core_team   = members.filter(category='core')
-    club_members = members.filter(category='member')
-
-    return render(request, 'landing/team.html', {
+    context = {
         'page_title': 'Our Team — CECP NEXUS',
-        'advisors': advisors,
-        'heads': heads,
-        'core_team': core_team,
-        'club_members': club_members,
-    })
+        'advisors':        active_members.filter(category='advisor'),
+        'club_heads':      active_members.filter(category='head'),
+        'core_members':    active_members.filter(category='core'),
+        'general_members': active_members.filter(category='member'),
+    }
+    return render(request, 'landing/team.html', context)

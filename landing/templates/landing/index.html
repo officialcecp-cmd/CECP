@@ -1561,136 +1561,78 @@
                         </p>
                     </div>
 
-                    <!-- TIER 1: FACULTY ADVISORS -->
+                    <!-- ── SECTION 1: FACULTY ADVISORS ── -->
+                    {% if team_members %}
                     <div class="mb-20 animate-on-scroll">
                         <div class="text-center mb-12">
-                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Faculty Coordinator</h3>
+                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Faculty Coordinators</h3>
                         </div>
-
                         <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                            <!-- HOD -->
-                            <div
-                                class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
-                                <div class="holo-card-border"
-                                    style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(168,85,247,0.5));">
-                                </div>
-                                <div
-                                    class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
+                            {% for member in team_members %}
+                            {% if member.category == 'advisor' %}
+                            <div class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
+                                <div class="holo-card-border" style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(168,85,247,0.5));"></div>
+                                <div class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
                                     <div class="card-scan-overlay absolute inset-0 z-0"></div>
-                                    <div
-                                        class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full p-1 bg-gradient-to-br from-purple-500/20 to-pink-500/20 group-hover:from-purple-400 group-hover:to-pink-500 transition-all duration-500">
-                                        <div
-                                            class="w-full h-full rounded-full bg-[#050b14] flex items-center justify-center overflow-hidden border border-purple-500/30 relative">
-                                            <div
-                                                class="absolute inset-0 bg-[url('{% static 'images/cecp-logo.jpg' %}')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-500">
-                                            </div>
-                                            <div
-                                                class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent -translate-y-full group-hover:animate-[scan_2s_ease-in-out_infinite]">
-                                            </div>
+                                    <div class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-purple-500/40">
+                                        {% if member.avatar %}
+                                        <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                        {% else %}
+                                        <div class="w-full h-full bg-gradient-to-br from-purple-900 to-blue-900 flex items-center justify-center text-4xl font-black text-white">
+                                            {{ member.display_name|make_list|first|upper }}
                                         </div>
+                                        {% endif %}
                                     </div>
                                     <div class="relative z-10 mb-3">
-                                        <span
-                                            class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">Head
-                                            of Department</span>
+                                        <span class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">{{ member.team_role_label }}</span>
                                     </div>
-                                    <h4
-                                        class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">
-                                        Dr. Pankaj Singh Tomar</h4>
-                                    <p
-                                        class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono uppercase tracking-widest">
-                                        Supreme Authority</p>
+                                    <h4 class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">{{ member.display_name }}</h4>
+                                    {% if member.bio %}<p class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono line-clamp-2">{{ member.bio }}</p>{% endif %}
+                                    <div class="relative z-10 flex justify-center gap-4 mt-4">
+                                        {% if member.linkedin_url %}
+                                        <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-400 hover:text-cyan-400 transition-colors">
+                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                        </a>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
-
-                            <!-- Faculty Coordinator -->
-                            <div
-                                class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
-                                <div class="holo-card-border"
-                                    style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(59,130,246,0.5));">
-                                </div>
-                                <div
-                                    class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
-                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
-                                    <div
-                                        class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full p-1 bg-gradient-to-br from-purple-500/20 to-blue-500/20 group-hover:from-purple-400 group-hover:to-blue-500 transition-all duration-500">
-                                        <div
-                                            class="w-full h-full rounded-full bg-[#050b14] flex items-center justify-center overflow-hidden border border-blue-500/30 relative">
-                                            <div
-                                                class="absolute inset-0 bg-[url('{% static 'images/cecp-logo.jpg' %}')] bg-cover bg-center opacity-30 grayscale group-hover:grayscale-0 transition-all duration-500">
-                                            </div>
-                                            <div
-                                                class="absolute inset-0 bg-gradient-to-b from-transparent via-purple-400/20 to-transparent -translate-y-full group-hover:animate-[scan_2s_ease-in-out_infinite]">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="relative z-10 mb-3">
-                                        <span
-                                            class="inline-block px-3 py-1 rounded border border-blue-500/20 bg-blue-500/10 text-[10px] font-mono tracking-widest text-blue-400 uppercase">Faculty
-                                            Coordinator</span>
-                                    </div>
-                                    <h4
-                                        class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">
-                                        Dr. Saurabh Raj</h4>
-                                    <p
-                                        class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono uppercase tracking-widest">
-                                        Operational Oversight</p>
-                                </div>
-                            </div>
+                            {% endif %}
+                            {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
 
-                    <!-- TIER 2: CLUB HEADS -->
+                    <!-- ── SECTION 2: CLUB HEAD ── -->
                     <div class="mb-20 animate-on-scroll">
                         <div class="text-center mb-12">
                             <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Head</h3>
                         </div>
-
                         <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
                             {% for member in team_members %}
-                            {% if member.role == 'lead' or member.role == 'co_lead' or member.role == 'head' or member.role == 'treasurer' %}
-                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
-                                <!-- Profile Image with bright cyan border -->
+                            {% if member.category == 'head' %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-cyan-500/30 shadow-xl shadow-cyan-500/5">
                                 <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
-                                    {% if member.image %}
-                                    <img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                                    {% if member.avatar %}
+                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
                                     {% else %}
-                                    <div class="w-full h-full bg-[#111827] flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                                    <div class="w-full h-full bg-gradient-to-br from-cyan-900 to-blue-900 flex items-center justify-center text-3xl font-black text-white">
+                                        {{ member.display_name|make_list|first|upper }}
                                     </div>
                                     {% endif %}
                                 </div>
-
-                                <!-- Name -->
-                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.name }}</h3>
-                                
-                                <!-- Role -->
-                                <p class="text-cyan-400 font-medium text-[15px] mb-5 tracking-wide">{{ member.get_role_display }}</p>
-                                
-                                <!-- Quote / Title -->
-                                <p class="text-slate-400 italic text-[13px] mb-8 uppercase tracking-wider">"{{ member.title|default:'POTENTIAL TO POWER' }}"</p>
-                                
-                                <!-- Social Icons -->
+                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.display_name }}</h3>
+                                <p class="text-cyan-400 font-medium text-[15px] mb-3 tracking-wide">{{ member.team_role_label }}</p>
+                                {% if member.bio %}<p class="text-slate-400 italic text-[13px] mb-5 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-5 mt-auto">
-                                    {% if member.email %}
-                                    <a href="mailto:{{ member.email }}" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Email">
-                                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75m19.5 0v.243m0 0a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
-                                        </svg>
-                                    </a>
-                                    {% endif %}
                                     {% if member.github_url %}
-                                    <a href="{{ member.github_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
-                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                                        </svg>
+                                    <a href="{{ member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
                                     {% if member.linkedin_url %}
-                                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
-                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
-                                        </svg>
+                                    <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -1700,57 +1642,36 @@
                         </div>
                     </div>
 
-                    <!-- TIER 3: MEMBERS -->
-                    <div class="animate-on-scroll">
+                    <!-- ── SECTION 3: CORE MEMBERS (category='core' only) ── -->
+                    <div class="mb-20 animate-on-scroll">
                         <div class="text-center mb-12">
                             <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Core Members</h3>
                         </div>
-
                         <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
                             {% for member in team_members %}
-                            {% if member.role == 'member' or member.role == 'alumni' %}
-                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
-                                <!-- Profile Image with bright cyan border -->
-                                <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
-                                    {% if member.image %}
-                                    <img src="{{ member.image.url }}" alt="{{ member.name }}" class="w-full h-full object-cover">
+                            {% if member.category == 'core' %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
+                                <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-cyan-400/60 overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.15)] flex-shrink-0">
+                                    {% if member.avatar %}
+                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
                                     {% else %}
-                                    <div class="w-full h-full bg-[#111827] flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" /></svg>
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-2xl font-black text-cyan-400">
+                                        {{ member.display_name|make_list|first|upper }}
                                     </div>
                                     {% endif %}
                                 </div>
-
-                                <!-- Name -->
-                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.name }}</h3>
-                                
-                                <!-- Role -->
-                                <p class="text-cyan-400 font-medium text-[15px] mb-5 tracking-wide">{{ member.get_role_display }}</p>
-                                
-                                <!-- Quote / Title -->
-                                <p class="text-slate-400 italic text-[13px] mb-8 uppercase tracking-wider">"{{ member.title|default:'POTENTIAL TO POWER' }}"</p>
-                                
-                                <!-- Social Icons -->
-                                <div class="flex items-center justify-center gap-5 mt-auto">
-                                    {% if member.email %}
-                                    <a href="mailto:{{ member.email }}" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Email">
-                                        <svg class="w-[22px] h-[22px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75m19.5 0v.243m0 0a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.909A2.25 2.25 0 0 1 2.25 6.993V6.75" />
-                                        </svg>
-                                    </a>
-                                    {% endif %}
+                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.display_name }}</h3>
+                                <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                                {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
+                                <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.github_url %}
-                                    <a href="{{ member.github_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
-                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                                        </svg>
+                                    <a href="{{ member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
                                     {% if member.linkedin_url %}
-                                    <a href="{{ member.linkedin_url }}" target="_blank" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
-                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle>
-                                        </svg>
+                                    <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -1760,8 +1681,45 @@
                         </div>
                     </div>
 
+                    <!-- ── SECTION 4: CLUB MEMBERS (category='member' only) ── -->
+                    <div class="animate-on-scroll">
+                        <div class="text-center mb-12">
+                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Members</h3>
+                        </div>
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {% for member in team_members %}
+                            {% if member.category == 'member' %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
+                                <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-slate-600/60 overflow-hidden flex-shrink-0">
+                                    {% if member.avatar %}
+                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                    {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-2xl font-black text-slate-300">
+                                        {{ member.display_name|make_list|first|upper }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.display_name }}</h3>
+                                <p class="text-slate-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                                {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
+                                <div class="flex items-center justify-center gap-4 mt-auto">
+                                    {% if member.github_url %}
+                                    <a href="{{ member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.linkedin_url %}
+                                    <a href="{{ member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
                 </div>
-
                 <footer class="border-t border-slate-800/50 py-8">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <p class="text-xs text-slate-600">&copy; {% now "Y" %} CECP — Roorkee Institute of Technology
