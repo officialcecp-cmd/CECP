@@ -46,7 +46,7 @@ def index(request):
 
     stats = {
         'total_projects': Project.objects.filter(approval_status='approved').count(),
-        'active_members': ClubMember.objects.filter(is_active=True).count(),
+        'active_members': ClubMember.objects.filter(is_active=True).exclude(category='advisor').count(),
         'categories': ProjectCategory.objects.count(),
     }
 

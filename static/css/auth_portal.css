@@ -237,6 +237,23 @@ body{
 }
 .login-input::placeholder{color:var(--muted-dim);transition:color .3s}
 .login-input:focus::placeholder{color:rgba(100,116,139,.35)}
+
+/* ---- Autofill override — prevents Chrome/Safari white-background flash ---- */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  /* Inset shadow paints over the browser-forced white background */
+  -webkit-box-shadow: 0 0 0 9999px rgba(15,23,42,0.85) inset !important;
+  box-shadow:         0 0 0 9999px rgba(15,23,42,0.85) inset !important;
+  /* Restore readable light text (Chrome ignores `color` on autofill) */
+  -webkit-text-fill-color: #e2e8f0 !important;
+  /* Delay bg-color transition so the flash never actually renders */
+  transition: background-color 5000s ease-in-out 0s !important;
+  /* Keep the cursor visible */
+  caret-color: #e2e8f0;
+}
+
 .eye-toggle{
   background:none;border:none;padding:0 14px;
   color:var(--muted);cursor:pointer;display:flex;align-items:center;

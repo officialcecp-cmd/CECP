@@ -159,32 +159,21 @@ ACCOUNT_UNIQUE_EMAIL = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_ADAPTER = 'landing.adapters.CECPSocialAccountAdapter'
 
+# --- allauth 65.x: Do NOT put APP credentials here.
+# Allauth 65 auto-imports these settings into the DB (SocialApp table) on startup.
+# Having APP in settings AND a SocialApp DB row causes MultipleObjectsReturned.
+# Manage credentials via Django Admin → Social Applications instead.
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': ['profile', 'email'],
         'AUTH_PARAMS': {'access_type': 'online'},
-        'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
-            'key': ''
-        }
     },
     'github': {
         'SCOPE': ['user:email', 'read:user'],
-        'APP': {
-            'client_id': os.environ.get('GITHUB_CLIENT_ID', 'dummy-client-id'),
-            'secret': os.environ.get('GITHUB_CLIENT_SECRET', 'dummy-secret'),
-            'key': ''
-        }
     },
     'microsoft': {
         'SCOPE': ['User.Read'],
-        'APP': {
-            'client_id': os.environ.get('MICROSOFT_CLIENT_ID', 'dummy-client-id'),
-            'secret': os.environ.get('MICROSOFT_CLIENT_SECRET', 'dummy-secret'),
-            'key': ''
-        }
-    }
+    },
 }
 
 # --- Jazzmin Admin Theme Configuration -----------------------------------------
