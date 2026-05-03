@@ -4,7 +4,7 @@
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib import messages
@@ -17,6 +17,11 @@ from .models import (
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm
 from .services import categorize_project_level
+
+
+def is_admin(user):
+    """Returns True if user is a superuser or in CECP_Admins group."""
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name='CECP_Admins').exists())
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +210,11 @@ def member_logout(request):
 
 
 def project_detail(request, project_id):
-    project = get_object_or_404(Project, id=project_id, approval_status='approved')
+    # Allow admins to preview pending projects; public only sees approved ones
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.groups.filter(name='CECP_Admins').exists()):
+        project = get_object_or_404(Project, id=project_id)
+    else:
+        project = get_object_or_404(Project, id=project_id, approval_status='approved')
     return render(request, 'landing/project_detail.html', {
         'project': project,
         'page_title': f"{project.title} — CECP",
@@ -354,56 +363,38 @@ def approval_dashboard(request):
     })
 
 
-@login_required(login_url='/login/')
+@user_passes_test(is_admin, login_url='/login/')
 @require_POST
 def approve_project(request, project_id):
-    try:
-        member = request.user.club_profile
-    except ClubMember.DoesNotExist:
-        return JsonResponse({'error': 'No club profile'}, status=403)
-    if not member.can_approve_projects:
-        return JsonResponse({'error': 'Permission denied'}, status=403)
-
-    project = get_object_or_404(Project, id=project_id, approval_status='pending')
+    project = get_object_or_404(Project, id=project_id)
     project.approval_status = 'approved'
-    project.approved_by = member
+    project.is_approved = True
     project.save()
 
-    if project.submitted_by:
-        Notification.objects.create(
-            recipient=project.submitted_by, notification_type='approved',
-            title=f'Project Approved: {project.title}',
-            message=f'Your project "{project.title}" has been approved by {member.display_name}!',
-            related_project=project,
-        )
-    return JsonResponse({'status': 'approved', 'project_id': project_id})
+    # Send notification to submitter
+    try:
+        if project.submitted_by:
+            Notification.objects.create(
+                recipient=project.submitted_by, notification_type='approved',
+                title=f'Project Approved: {project.title}',
+                message=f'Your project "{project.title}" has been approved and is now live!',
+                related_project=project,
+            )
+    except Exception:
+        pass
+
+    messages.success(request, f'Project "{project.title}" has been approved and published.')
+    return redirect('landing:moderator_dashboard')
 
 
-@login_required(login_url='/login/')
+@user_passes_test(is_admin, login_url='/login/')
 @require_POST
 def reject_project(request, project_id):
-    try:
-        member = request.user.club_profile
-    except ClubMember.DoesNotExist:
-        return JsonResponse({'error': 'No club profile'}, status=403)
-    if not member.can_approve_projects:
-        return JsonResponse({'error': 'Permission denied'}, status=403)
-
-    project = get_object_or_404(Project, id=project_id, approval_status='pending')
-    reason = request.POST.get('reason', 'No reason provided')
-    project.approval_status = 'rejected'
-    project.rejection_reason = reason
-    project.approved_by = member
-    project.save()
-
-    if project.submitted_by:
-        Notification.objects.create(
-            recipient=project.submitted_by, notification_type='rejected',
-            title=f'Project Rejected: {project.title}',
-            message=f'Your project "{project.title}" was not approved. Reason: {reason}',
-            related_project=project,
-        )
-    return JsonResponse({'status': 'rejected', 'project_id': project_id})
+    project = get_object_or_404(Project, id=project_id)
+    title = project.title
+    project.delete()
+    messages.success(request, f'Project "{title}" has been rejected and removed.')
+    return redirect('landing:moderator_dashboard')
 
 
 @login_required(login_url='/login/')
@@ -693,18 +684,17 @@ def blog_detail(request, blog_id):
     }
     return render(request, 'landing/blog_detail.html', context)
 
-from django.contrib.auth.decorators import user_passes_test
-
-def is_admin(user):
-    return user.is_authenticated and (user.is_superuser or user.groups.filter(name='CECP_Admins').exists())
-
 @user_passes_test(is_admin, login_url='/login/')
 def moderator_dashboard(request):
     pending_blogs = Blog.objects.filter(is_approved=False).order_by('-created_at')
     pending_apps = ClubApplication.objects.filter(status='pending').order_by('-created_at')
+    pending_projects = Project.objects.filter(
+        approval_status='pending'
+    ).select_related('submitted_by', 'category').order_by('-created_at')
     return render(request, 'landing/moderator_dashboard.html', {
         'pending_blogs': pending_blogs,
         'pending_apps': pending_apps,
+        'pending_projects': pending_projects,
         'page_title': 'Moderator Dashboard - CECP'
     })
 

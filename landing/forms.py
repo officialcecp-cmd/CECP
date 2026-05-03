@@ -143,13 +143,12 @@ class ProjectSubmissionForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = [
-            'title', 'codename', 'description', 'spec',
+            'title', 'description', 'spec',
             'image', 'category', 'status',
             'github_url', 'demo_url', 'documentation_url',
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Project Title'}),
-            'codename': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Internal Codename'}),
             'description': forms.Textarea(attrs={'class': 'form-input', 'placeholder': 'Brief description...', 'rows': 3}),
             'spec': forms.Textarea(attrs={'class': 'form-input', 'placeholder': 'Full technical specification...', 'rows': 6}),
             'category': forms.Select(attrs={'class': 'form-input'}),
