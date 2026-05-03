@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication
+    ClubApplication, Blog
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm
@@ -68,6 +68,11 @@ def index(request):
         if session_email:
             user_application = ClubApplication.objects.filter(email__iexact=session_email).first()
 
+    approved_blogs = Blog.objects.filter(is_approved=True)
+    is_cecp_team = False
+    if request.user.is_authenticated:
+        is_cecp_team = request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()
+
     context = {
         'initiatives': initiatives,
         'projects': approved_projects,
@@ -75,6 +80,8 @@ def index(request):
         'stats': stats,
         'team_members': team_members,
         'user_application': user_application,
+        'blogs': approved_blogs,
+        'is_cecp_team': is_cecp_team,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -639,3 +646,113 @@ def team_view(request):
         'general_members': active_members.filter(category='member'),
     }
     return render(request, 'landing/team.html', context)
+
+
+@login_required
+def submit_blog(request):
+    if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()):
+        messages.error(request, 'You are not authorized to submit blogs.')
+        return redirect('landing:index')
+
+    if request.method == 'POST':
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+        category_tag = request.POST.get('category_tag')
+        read_time = request.POST.get('read_time') or '5 min read'
+        image = request.FILES.get('image')
+
+        author = ClubMember.objects.filter(user=request.user).first()
+
+        blog = Blog.objects.create(
+            title=title,
+            content=content,
+            category_tag=category_tag,
+            read_time=read_time,
+            image=image,
+            author=author,
+            is_approved=False
+        )
+        messages.success(request, 'Blog submitted successfully and is pending approval!')
+        return redirect('landing:index')
+
+    return render(request, 'landing/submit_blog.html')
+
+
+def blog_detail(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    
+    if not blog.is_approved:
+        if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()):
+            messages.error(request, 'This blog is pending approval and cannot be viewed yet.')
+            return redirect('landing:index')
+
+    context = {
+        'blog': blog,
+        'page_title': f"{blog.title} - CECP",
+    }
+    return render(request, 'landing/blog_detail.html', context)
+
+from django.contrib.auth.decorators import user_passes_test
+
+def is_admin(user):
+    return user.is_authenticated and (user.is_superuser or user.groups.filter(name='CECP_Admins').exists())
+
+@user_passes_test(is_admin, login_url='/login/')
+def moderator_dashboard(request):
+    pending_blogs = Blog.objects.filter(is_approved=False).order_by('-created_at')
+    pending_apps = ClubApplication.objects.filter(status='pending').order_by('-created_at')
+    return render(request, 'landing/moderator_dashboard.html', {
+        'pending_blogs': pending_blogs,
+        'pending_apps': pending_apps,
+        'page_title': 'Moderator Dashboard - CECP'
+    })
+
+@user_passes_test(is_admin, login_url='/login/')
+@require_POST
+def approve_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    blog.is_approved = True
+    blog.save()
+    messages.success(request, f'Blog "{blog.title}" has been approved and published.')
+    return redirect('landing:moderator_dashboard')
+
+@user_passes_test(is_admin, login_url='/login/')
+@require_POST
+def reject_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    blog.delete()
+    messages.success(request, f'Blog "{blog.title}" has been rejected and deleted.')
+    return redirect('landing:moderator_dashboard')
+
+@user_passes_test(is_admin, login_url='/login/')
+def edit_blog(request, blog_id):
+    blog = get_object_or_404(Blog, id=blog_id)
+    if request.method == 'POST':
+        blog.title = request.POST.get('title')
+        blog.content = request.POST.get('content')
+        blog.category_tag = request.POST.get('category_tag')
+        if request.FILES.get('image'):
+            blog.image = request.FILES.get('image')
+        blog.save()
+        messages.success(request, f'Blog "{blog.title}" has been updated.')
+        return redirect('landing:moderator_dashboard')
+    
+    return render(request, 'landing/edit_blog.html', {'blog': blog, 'page_title': 'Edit Blog - CECP'})
+
+@user_passes_test(is_admin, login_url='/login/')
+@require_POST
+def accept_application(request, app_id):
+    app = get_object_or_404(ClubApplication, id=app_id)
+    app.status = 'approved'
+    app.save()
+    messages.success(request, f'Application for {app.full_name} has been approved.')
+    return redirect('landing:moderator_dashboard')
+
+@user_passes_test(is_admin, login_url='/login/')
+@require_POST
+def reject_application(request, app_id):
+    app = get_object_or_404(ClubApplication, id=app_id)
+    app.status = 'rejected'
+    app.save()
+    messages.success(request, f'Application for {app.full_name} has been rejected.')
+    return redirect('landing:moderator_dashboard')

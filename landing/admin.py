@@ -4,7 +4,7 @@
 from django.contrib import admin
 from .models import (
     Initiative, Project,
-    ClubMember, ProjectCategory, Notification, ClubApplication
+    ClubMember, ProjectCategory, Notification, ClubApplication, Blog
 )
 from .services import categorize_project_level
 from django.core.mail import EmailMultiAlternatives
@@ -268,3 +268,22 @@ class ClubApplicationAdmin(admin.ModelAdmin):
                 pass
 
         self.message_user(request, f'{updated} application(s) rejected.')
+
+# --- Blog Admin ---------------------------------------------------------------
+
+@admin.register(Blog)
+class BlogAdmin(admin.ModelAdmin):
+    list_display = ('title', 'author', 'category_tag', 'is_approved', 'created_at')
+    list_editable = ('is_approved',)
+    list_filter = ('is_approved', 'category_tag')
+    search_fields = ('title', 'content')
+    
+    @admin.action(description='\xe2\x9c\x85 Approve selected blogs')
+    def approve_blogs(self, request, queryset):
+        queryset.update(is_approved=True)
+
+    @admin.action(description='\xe2\x9d\x8c Reject selected blogs')
+    def reject_blogs(self, request, queryset):
+        queryset.update(is_approved=False)
+        
+    actions = ['approve_blogs', 'reject_blogs']

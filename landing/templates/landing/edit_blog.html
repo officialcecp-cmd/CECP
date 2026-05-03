@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
+        .form-input, .form-textarea {
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid #3b82f6;
+            color: #ffffff;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .form-input:focus, .form-textarea:focus {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #60a5fa;
+            box-shadow: 0 0 12px rgba(59, 130, 246, 0.6);
+        }
+        .btn-primary { background-color: #3b82f6; color: white; padding: 0.75rem 2rem; border-radius: 0.5rem; font-weight: 600; }
+        .btn-primary:hover { background-color: #2563eb; }
+        .btn-secondary { background-color: transparent; color: #94a3b8; padding: 0.75rem 2rem; border-radius: 0.5rem; border: 1px solid #475569; }
+        .btn-secondary:hover { color: #f8fafc; border-color: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center max-w-4xl mx-auto">
+    
+    <div class="mb-10 text-center">
+        <h1 class="text-4xl font-black text-white">Edit Blog</h1>
+        <p class="text-slate-400 mt-2">Make corrections before approval.</p>
+    </div>
+
+    <div class="bg-[#1e293b] rounded-2xl p-8 border border-slate-700">
+        <form method="POST" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Title</label>
+                <input type="text" name="title" value="{{ blog.title }}" required class="form-input">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Category Tag</label>
+                <input type="text" name="category_tag" value="{{ blog.category_tag }}" class="form-input">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Content</label>
+                <textarea name="content" required rows="15" class="form-textarea">{{ blog.content }}</textarea>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-slate-300 mb-2">Cover Image (Optional to update)</label>
+                <input type="file" name="image" accept="image/*" class="w-full text-slate-400">
+                {% if blog.image %}
+                    <p class="text-sm text-cyan-400 mt-2">Currently has an image uploaded.</p>
+                {% endif %}
+            </div>
+
+            <div class="pt-6 border-t border-slate-700 flex justify-between gap-4">
+                <a href="{% url 'landing:moderator_dashboard' %}" class="btn-secondary">Cancel</a>
+                <button type="submit" class="btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

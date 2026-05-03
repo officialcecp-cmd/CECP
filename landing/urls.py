@@ -52,6 +52,14 @@ urlpatterns = [
 
     # Project Management
     path('submit-project/', views.submit_project, name='submit_project'),
+    path('submit-blog/', views.submit_blog, name='submit_blog'),
+    path('blog/<int:blog_id>/', views.blog_detail, name='blog_detail'),
+    path('moderator-dashboard/', views.moderator_dashboard, name='moderator_dashboard'),
+    path('approve-blog/<int:blog_id>/', views.approve_blog, name='approve_blog'),
+    path('reject-blog/<int:blog_id>/', views.reject_blog, name='reject_blog'),
+    path('edit-blog/<int:blog_id>/', views.edit_blog, name='edit_blog'),
+    path('accept-application/<int:app_id>/', views.accept_application, name='accept_application'),
+    path('reject-application/<int:app_id>/', views.reject_application, name='reject_application'),
     path('api/delete-project/<int:project_id>/', views.delete_project, name='delete_project'),
 
     # Approvals

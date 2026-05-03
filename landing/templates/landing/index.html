@@ -1,5 +1,6 @@
 <!-- CHANGELOG: Overhauled #tab-about section with parallax campus hero, floating glass counter stats, split mission/vision panels, domain pillar grids, and values marquee. -->
 {% load static %}
+{% load custom_tags %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -149,6 +150,12 @@
                                     <a href="{% url 'landing:dashboard' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
                                         Dashboard
                                     </a>
+                                    
+                                    {% if request.user.is_superuser or request.user|has_group:"CECP_Admins" %}
+                                    <a href="{% url 'landing:moderator_dashboard' %}" class="block px-4 py-2 text-sm text-cyan-300 bg-cyan-900/20 hover:bg-cyan-800/40 hover:text-cyan-200 transition-colors border-l-2 border-cyan-500">
+                                        Moderator Dashboard
+                                    </a>
+                                    {% endif %}
                                     
                                     {% if request.user.is_superuser %}
                                     <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
@@ -1709,12 +1716,20 @@
                         <p class="section-subtitle mx-auto">
                             Deep dives into our latest research, projects, and technical explorations.
                         </p>
+                        {% if is_cecp_team %}
+                        <div class="mt-8 flex justify-center">
+                            <a href="{% url 'landing:submit_blog' %}" class="bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-full inline-flex items-center gap-2 transition-all hover:scale-105 shadow-[0_0_15px_rgba(6,182,212,0.5)]">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Write Blog
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
 
                     <!-- Masonry / Large Card Grid -->
                     <div class="grid lg:grid-cols-2 gap-8 lg:gap-12">
-
-                        <!-- Blog Post 1 -->
+                        {% for blog in blogs %}
+                        <!-- Blog Post -->
                         <article
                             class="holo-card p-[1px] group animate-on-scroll rounded-2xl flex flex-col h-full hover:shadow-[0_10px_40px_rgba(6,182,212,0.15)] transition-all duration-500">
                             <div class="holo-card-border"
@@ -1723,37 +1738,35 @@
                             <div
                                 class="relative flex flex-col h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] overflow-hidden">
                                 <div class="card-scan-overlay absolute inset-0 z-0"></div>
-                                <!-- Large Image -->
+                                
                                 <div class="relative w-full h-72 sm:h-80 overflow-hidden bg-slate-800">
-                                    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                        alt="Research Topic 1"
+                                    {% if blog.image %}
+                                    <img src="{{ blog.image.url }}" alt="{{ blog.title }}"
                                         class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
+                                    {% else %}
+                                    <div class="w-full h-full flex items-center justify-center bg-slate-800"><span class="text-slate-500">No Image</span></div>
+                                    {% endif %}
                                     <div
                                         class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent opacity-90">
                                     </div>
                                     <div class="absolute top-4 right-4 z-20">
                                         <span
-                                            class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-300 bg-cyan-900/50 backdrop-blur-md rounded-full border border-cyan-400/30">AI
-                                            & Vision</span>
+                                            class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-cyan-300 bg-cyan-900/50 backdrop-blur-md rounded-full border border-cyan-400/30">{{ blog.category_tag|default:"Article" }}</span>
                                     </div>
                                 </div>
 
-                                <!-- Content -->
                                 <div
                                     class="p-8 sm:p-10 flex flex-col flex-grow relative z-10 -mt-16 bg-[#0f172a]/80 backdrop-blur-xl rounded-t-3xl border-t border-white/5">
                                     <div class="flex items-center gap-3 text-xs font-mono text-cyan-400 mb-4">
-                                        <span>Apr 22, 2026</span>
-                                        <span class="w-1 h-1 rounded-full bg-cyan-600"></span>
-                                        <span>5 min read</span>
+                                        <span>{{ blog.created_at|date:"M d, Y" }}</span>
+                                        
                                     </div>
                                     <h3
                                         class="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-cyan-300 transition-colors leading-tight">
-                                        Optimizing Edge Inference for Real-Time Object Detection
+                                        {{ blog.title }}
                                     </h3>
                                     <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 flex-grow">
-                                        A deep dive into our methodology for achieving 60+ FPS on embedded devices. We
-                                        explore quantization techniques, ONNX runtime optimizations, and the trade-offs
-                                        between accuracy and speed in production environments.
+                                        {{ blog.content|truncatewords:40 }}
                                     </p>
 
                                     <div
@@ -1761,14 +1774,14 @@
                                         <div class="flex items-center gap-3">
                                             <div
                                                 class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg">
-                                                JD
+                                                {% if blog.author %}{{ blog.author.user.first_name|first|default:"U"|upper }}{{ blog.author.user.last_name|first|default:""|upper }}{% else %}CE{% endif %}
                                             </div>
                                             <div class="flex flex-col">
-                                                <span class="text-sm text-white font-medium">John Doe</span>
-                                                <span class="text-xs text-slate-500">Computer Vision Lead</span>
+                                                <span class="text-sm text-white font-medium">{% if blog.author %}{{ blog.author.user.get_full_name|default:blog.author.user.username }}{% else %}CECP Team{% endif %}</span>
+                                                <span class="text-xs text-slate-500">{% if blog.author %}{{ blog.author.display_role|default:"Member" }}{% else %}Author{% endif %}</span>
                                             </div>
                                         </div>
-                                        <a href="#"
+                                        <a href="{% url 'landing:blog_detail' blog.id %}"
                                             class="text-cyan-400 hover:text-cyan-300 text-sm font-semibold flex items-center gap-2 group/btn bg-cyan-400/10 hover:bg-cyan-400/20 px-4 py-2 rounded-lg transition-colors">
                                             Read
                                             <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform"
@@ -1779,77 +1792,11 @@
                                         </a>
                                     </div>
                                 </div>
-                            </div> <!-- Close holo-card wrapper -->
-                        </article>
-
-                        <!-- Blog Post 2 -->
-                        <article
-                            class="holo-card p-[1px] group animate-on-scroll rounded-2xl flex flex-col h-full hover:shadow-[0_10px_40px_rgba(139,92,246,0.15)] transition-all duration-500 delay-100">
-                            <div class="holo-card-border"
-                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(99,102,241,0.2), rgba(168,85,247,0.4));">
                             </div>
-                            <div
-                                class="relative flex flex-col h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] overflow-hidden">
-                                <div class="card-scan-overlay absolute inset-0 z-0"></div>
-                                <!-- Large Image -->
-                                <div class="relative w-full h-72 sm:h-80 overflow-hidden bg-slate-800">
-                                    <img src="https://images.unsplash.com/photo-1555664424-778a1e5e1b48?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                                        alt="Research Topic 2"
-                                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700" />
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/40 to-transparent opacity-90">
-                                    </div>
-                                    <div class="absolute top-4 right-4 z-20">
-                                        <span
-                                            class="px-3 py-1 text-xs font-bold uppercase tracking-wider text-purple-300 bg-purple-900/50 backdrop-blur-md rounded-full border border-purple-400/30">Embedded
-                                            Systems</span>
-                                    </div>
-                                </div>
-
-                                <!-- Content -->
-                                <div
-                                    class="p-8 sm:p-10 flex flex-col flex-grow relative z-10 -mt-16 bg-[#0f172a]/80 backdrop-blur-xl rounded-t-3xl border-t border-white/5">
-                                    <div class="flex items-center gap-3 text-xs font-mono text-purple-400 mb-4">
-                                        <span>Apr 18, 2026</span>
-                                        <span class="w-1 h-1 rounded-full bg-purple-600"></span>
-                                        <span>8 min read</span>
-                                    </div>
-                                    <h3
-                                        class="text-2xl sm:text-3xl font-bold text-white mb-4 group-hover:text-purple-300 transition-colors leading-tight">
-                                        Designing Custom RTOS Architectures for UAVs
-                                    </h3>
-                                    <p class="text-slate-300 text-sm sm:text-base leading-relaxed mb-8 flex-grow">
-                                        Exploring the challenges of deterministic behavior in flight controllers. This
-                                        paper covers our approach to task scheduling, interrupt latency management, and
-                                        memory safety in C++ environments.
-                                    </p>
-
-                                    <div
-                                        class="flex items-center justify-between mt-auto pt-6 border-t border-slate-800/60">
-                                        <div class="flex items-center gap-3">
-                                            <div
-                                                class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg">
-                                                AS
-                                            </div>
-                                            <div class="flex flex-col">
-                                                <span class="text-sm text-white font-medium">Alice Smith</span>
-                                                <span class="text-xs text-slate-500">Embedded Lead</span>
-                                            </div>
-                                        </div>
-                                        <a href="#"
-                                            class="text-purple-400 hover:text-purple-300 text-sm font-semibold flex items-center gap-2 group/btn bg-purple-400/10 hover:bg-purple-400/20 px-4 py-2 rounded-lg transition-colors">
-                                            Read
-                                            <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform"
-                                                fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div> <!-- Close holo-card wrapper -->
                         </article>
-
+                        {% empty %}
+                        <div class="col-span-2 text-center py-20"><p class="text-slate-400 italic text-xl">No blogs published yet. Check back soon!</p></div>
+                        {% endfor %}
                     </div>
                 </div>
 

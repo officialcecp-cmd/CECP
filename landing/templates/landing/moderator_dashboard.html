@@ -1,0 +1,257 @@
+{% load static %}
+{% load custom_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617; 
+            color: #f8fafc;
+        }
+        
+        .admin-card {
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-approve {
+            background-color: rgba(34, 197, 94, 0.1);
+            color: #4ade80;
+            border: 1px solid rgba(34, 197, 94, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-approve:hover {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: #4ade80;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+        }
+
+        .btn-reject {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-reject:hover {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: #f87171;
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-edit {
+            background-color: rgba(56, 189, 248, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            transition: all 0.3s ease;
+        }
+        .btn-edit:hover {
+            background-color: rgba(56, 189, 248, 0.2);
+            border-color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            color: #38bdf8;
+            border-bottom-color: #38bdf8;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col py-10 px-4 sm:px-6 lg:px-8 relative overflow-x-hidden">
+    <!-- Ambient Background Effects -->
+    <div class="fixed w-[600px] h-[600px] rounded-full bg-cyan-900/10 blur-[120px] top-[-200px] right-[-200px] z-[-1]"></div>
+    <div class="fixed w-[500px] h-[500px] rounded-full bg-blue-900/10 blur-[100px] bottom-[-200px] left-[-200px] z-[-1]"></div>
+
+    <main class="flex-grow w-full max-w-6xl mx-auto flex flex-col">
+        
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-10 gap-4">
+            <div>
+                <a href="{% url 'landing:index' %}" class="text-cyan-500 hover:text-cyan-400 text-sm font-semibold mb-4 inline-flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    Back to Hub
+                </a>
+                <h1 class="text-4xl font-black text-white tracking-tight uppercase font-mono">
+                    Moderator <span class="text-cyan-400">Dashboard</span>
+                </h1>
+                <p class="text-slate-400 mt-2">Complete Content & Application Moderation Control Center.</p>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="mb-8 space-y-3">
+            {% for message in messages %}
+            <div class="p-4 rounded-lg {% if message.tags == 'error' %}bg-red-900/50 border border-red-500/50 text-red-200{% else %}bg-green-900/50 border border-green-500/50 text-green-200{% endif %} flex items-center gap-3">
+                <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Tabs -->
+        <div class="flex items-center gap-4 mb-6 border-b border-slate-700/50">
+            <button onclick="switchTab('blogs')" id="btn-blogs" class="tab-btn active">Pending Blogs ({{ pending_blogs.count }})</button>
+            <button onclick="switchTab('apps')" id="btn-apps" class="tab-btn">Pending Applications ({{ pending_apps.count }})</button>
+        </div>
+
+        <!-- Pending Blogs Section -->
+        <div id="section-blogs" class="admin-card rounded-2xl overflow-hidden block">
+            <div class="p-6 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/40">
+                <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                    <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+                    Blogs Review
+                </h2>
+            </div>
+
+            {% if pending_blogs %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/30 text-xs uppercase tracking-widest text-slate-400 font-mono">
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Date</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Author</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Title</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        {% for blog in pending_blogs %}
+                        <tr class="hover:bg-slate-800/20 transition-colors">
+                            <td class="p-4 text-sm text-slate-300 font-mono">{{ blog.created_at|date:"M d, Y" }}</td>
+                            <td class="p-4 text-sm text-slate-300">
+                                {% if blog.author %}
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 rounded-full bg-cyan-900 flex items-center justify-center text-xs font-bold text-cyan-200">
+                                            {{ blog.author.user.first_name|first|default:"U"|upper }}
+                                        </div>
+                                        {{ blog.author.user.get_full_name|default:blog.author.user.username }}
+                                    </div>
+                                {% else %}
+                                    System
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-sm font-semibold text-white">{{ blog.title }}</td>
+                            <td class="p-4 text-right flex items-center justify-end gap-2">
+                                <a href="{% url 'landing:blog_detail' blog.id %}" target="_blank" class="text-slate-400 hover:text-white text-sm font-medium transition-colors px-2">Preview</a>
+                                <a href="{% url 'landing:edit_blog' blog.id %}" class="btn-edit px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Edit</a>
+                                <form method="POST" action="{% url 'landing:approve_blog' blog.id %}" class="inline" onsubmit="return confirm('Approve this blog?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-approve px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Approve</button>
+                                </form>
+                                <form method="POST" action="{% url 'landing:reject_blog' blog.id %}" class="inline" onsubmit="return confirm('Reject and delete this blog?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-reject px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-12 text-center flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <p class="text-slate-400 text-sm">No pending blogs to review.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pending Applications Section -->
+        <div id="section-apps" class="admin-card rounded-2xl overflow-hidden hidden">
+            <div class="p-6 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/40">
+                <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                    <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Applications Review
+                </h2>
+            </div>
+
+            {% if pending_apps %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/30 text-xs uppercase tracking-widest text-slate-400 font-mono">
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Date</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Applicant Name</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Email / ID</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Domain</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        {% for app in pending_apps %}
+                        <tr class="hover:bg-slate-800/20 transition-colors">
+                            <td class="p-4 text-sm text-slate-300 font-mono">{{ app.created_at|date:"M d, Y" }}</td>
+                            <td class="p-4 text-sm font-semibold text-white">{{ app.full_name }}</td>
+                            <td class="p-4 text-sm text-slate-300">
+                                <div>{{ app.email }}</div>
+                                <div class="text-xs text-slate-500 font-mono mt-0.5">{{ app.student_id }}</div>
+                            </td>
+                            <td class="p-4 text-sm text-slate-300">{{ app.get_domain_display|default:app.domain }}</td>
+                            <td class="p-4 text-right flex items-center justify-end gap-2">
+                                <form method="POST" action="{% url 'landing:accept_application' app.id %}" class="inline" onsubmit="return confirm('Accept this applicant into CECP?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-approve px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Accept</button>
+                                </form>
+                                <form method="POST" action="{% url 'landing:reject_application' app.id %}" class="inline" onsubmit="return confirm('Reject this application?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-reject px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-12 text-center flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                </div>
+                <p class="text-slate-400 text-sm">No pending applications at the moment.</p>
+            </div>
+            {% endif %}
+        </div>
+
+    </main>
+
+    <script>
+        function switchTab(tab) {
+            if(tab === 'blogs') {
+                document.getElementById('section-blogs').classList.remove('hidden');
+                document.getElementById('section-blogs').classList.add('block');
+                document.getElementById('section-apps').classList.add('hidden');
+                document.getElementById('section-apps').classList.remove('block');
+                
+                document.getElementById('btn-blogs').classList.add('active');
+                document.getElementById('btn-apps').classList.remove('active');
+            } else {
+                document.getElementById('section-apps').classList.remove('hidden');
+                document.getElementById('section-apps').classList.add('block');
+                document.getElementById('section-blogs').classList.add('hidden');
+                document.getElementById('section-blogs').classList.remove('block');
+                
+                document.getElementById('btn-apps').classList.add('active');
+                document.getElementById('btn-blogs').classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>
