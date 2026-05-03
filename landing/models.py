@@ -124,6 +124,7 @@ class ProjectCategory(models.Model):
 # ==============================================================================
 
 class Project(models.Model):
+    is_approved = models.BooleanField(default=False)
     """
     Represents a club project with full approval workflow.
     Members submit → Club Head approves → appears on live site.

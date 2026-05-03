@@ -300,8 +300,9 @@ def submit_project(request):
             else:
                 project.approval_status = 'pending'
                 messages.success(request, f'Project "{project.title}" submitted for review!')
-                _notify_club_heads(project, member)
             project.save()
+            if project.approval_status == 'pending':
+                _notify_club_heads(project, member)
             project.team_members.add(member)
             return redirect('landing:dashboard')
     else:

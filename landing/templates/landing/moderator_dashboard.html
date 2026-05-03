@@ -105,8 +105,9 @@
         {% endif %}
 
         <!-- Tabs -->
-        <div class="flex items-center gap-4 mb-6 border-b border-slate-700/50">
+        <div class="flex items-center gap-4 mb-6 border-b border-slate-700/50 overflow-x-auto whitespace-nowrap scrollbar-hide">
             <button onclick="switchTab('blogs')" id="btn-blogs" class="tab-btn active">Pending Blogs ({{ pending_blogs.count }})</button>
+            <button onclick="switchTab('projects')" id="btn-projects" class="tab-btn">Pending Projects ({{ pending_projects.count }})</button>
             <button onclick="switchTab('apps')" id="btn-apps" class="tab-btn">Pending Applications ({{ pending_apps.count }})</button>
         </div>
 
@@ -174,6 +175,66 @@
             {% endif %}
         </div>
 
+        <!-- Pending Projects Section -->
+        <div id="section-projects" class="admin-card rounded-2xl overflow-hidden hidden">
+            <div class="p-6 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/40">
+                <h2 class="text-xl font-bold text-white flex items-center gap-3">
+                    <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    Projects Review
+                </h2>
+            </div>
+
+            {% if pending_projects %}
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-800/30 text-xs uppercase tracking-widest text-slate-400 font-mono">
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Date</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Submitter</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50">Title</th>
+                            <th class="p-4 font-semibold border-b border-slate-700/50 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-700/50">
+                        {% for proj in pending_projects %}
+                        <tr class="hover:bg-slate-800/20 transition-colors">
+                            <td class="p-4 text-sm text-slate-300 font-mono">{{ proj.created_at|date:"M d, Y" }}</td>
+                            <td class="p-4 text-sm text-slate-300">
+                                {% if proj.submitted_by %}
+                                    <div class="flex items-center gap-2">
+                                        {{ proj.submitted_by.user.get_full_name|default:proj.submitted_by.user.username }}
+                                    </div>
+                                {% else %}
+                                    System
+                                {% endif %}
+                            </td>
+                            <td class="p-4 text-sm font-semibold text-white">{{ proj.title }}</td>
+                            <td class="p-4 text-right flex items-center justify-end gap-2">
+                                <a href="{% url 'landing:project_detail' proj.id %}" target="_blank" class="text-slate-400 hover:text-white text-sm font-medium transition-colors px-2">Preview</a>
+                                <form method="POST" action="{% url 'landing:approve_project' proj.id %}" class="inline" onsubmit="return confirm('Approve this project?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-approve px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Approve</button>
+                                </form>
+                                <form method="POST" action="{% url 'landing:reject_project' proj.id %}" class="inline" onsubmit="return confirm('Reject and delete this project?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn-reject px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="p-12 text-center flex flex-col items-center">
+                <div class="w-16 h-16 rounded-full bg-slate-800/50 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                </div>
+                <p class="text-slate-400 text-sm">No pending projects to review.</p>
+            </div>
+            {% endif %}
+        </div>
+
         <!-- Pending Applications Section -->
         <div id="section-apps" class="admin-card rounded-2xl overflow-hidden hidden">
             <div class="p-6 border-b border-slate-700/50 flex items-center justify-between bg-slate-900/40">
@@ -234,23 +295,19 @@
 
     <script>
         function switchTab(tab) {
-            if(tab === 'blogs') {
-                document.getElementById('section-blogs').classList.remove('hidden');
-                document.getElementById('section-blogs').classList.add('block');
-                document.getElementById('section-apps').classList.add('hidden');
-                document.getElementById('section-apps').classList.remove('block');
-                
-                document.getElementById('btn-blogs').classList.add('active');
-                document.getElementById('btn-apps').classList.remove('active');
-            } else {
-                document.getElementById('section-apps').classList.remove('hidden');
-                document.getElementById('section-apps').classList.add('block');
-                document.getElementById('section-blogs').classList.add('hidden');
-                document.getElementById('section-blogs').classList.remove('block');
-                
-                document.getElementById('btn-apps').classList.add('active');
-                document.getElementById('btn-blogs').classList.remove('active');
-            }
+            // Hide all sections
+            document.getElementById('section-blogs').classList.replace('block', 'hidden');
+            document.getElementById('section-projects').classList.replace('block', 'hidden');
+            document.getElementById('section-apps').classList.replace('block', 'hidden');
+            
+            // Remove active state from all buttons
+            document.getElementById('btn-blogs').classList.remove('active');
+            document.getElementById('btn-projects').classList.remove('active');
+            document.getElementById('btn-apps').classList.remove('active');
+            
+            // Show selected section and set button active
+            document.getElementById('section-' + tab).classList.replace('hidden', 'block');
+            document.getElementById('btn-' + tab).classList.add('active');
         }
     </script>
 </body>

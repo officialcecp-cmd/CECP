@@ -1,0 +1,29 @@
+@login_required(login_url='/login/')
+def submit_project(request):
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, 'Your account is not linked to a club member profile.')
+        return redirect('landing:index')
+    if request.method == 'POST':
+        form = ProjectSubmissionForm(request.POST, request.FILES)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.submitted_by = member
+            project.tech_stack = form.cleaned_data.get('tech_stack_input', [])
+            if project.spec:
+                project.level = categorize_project_level(project.spec)
+            if member.can_approve_projects:
+                project.approval_status = 'approved'
+                project.approved_by = member
+                messages.success(request, f'Project "{project.title}" published!')
+            else:
+                project.approval_status = 'pending'
+                messages.success(request, f'Project "{project.title}" submitted for review!')
+                _notify_club_heads(project, member)
+            project.save()
+            project.team_members.add(member)
+            return redirect('landing:dashboard')
+    else:
+        form = ProjectSubmissionForm()
+    return render(request, 'landing/submit_project.html', {'form': form, 'member': member, 'page_title': 'Submit Project â\x80\x94 CECP'})
