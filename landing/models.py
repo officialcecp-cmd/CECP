@@ -438,7 +438,7 @@ class UserProfile(models.Model):
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     UserProfile.objects.get_or_create(user=instance)
 # ==============================================================================
-# BLOG — Articles and Research
+# BLOG - Articles and Research
 # ==============================================================================
 
 class Blog(models.Model):
