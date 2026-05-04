@@ -138,7 +138,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
 
     fieldsets = (
         ('Applicant Identity', {
-            'fields': ('photo_preview', 'full_name', 'email', 'whatsapp_number', 'roll_number')
+            'fields': ('photo_preview', 'profile_photo', 'full_name', 'email', 'whatsapp_number', 'roll_number')
         }),
         ('Academic Info', {
             'fields': ('branch', 'current_year', 'domain_of_interest')
