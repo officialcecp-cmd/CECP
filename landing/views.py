@@ -48,14 +48,20 @@ def index(request):
     categories = ProjectCategory.objects.annotate(
         project_count=Count('projects', filter=Q(projects__approval_status='approved'))
     )
+    
+    # Strictly filter active members to those with approved apps or manual admins
+    approved_apps = ClubApplication.objects.filter(status='approved')
+    approved_users = approved_apps.exclude(user__isnull=True).values('user')
+    approved_emails = approved_apps.values('email')
+    valid_member_filter = Q(user__in=approved_users) | Q(user__email__in=approved_emails) | Q(category__in=['advisor', 'head'])
 
     stats = {
         'total_projects': Project.objects.filter(approval_status='approved').count(),
-        'active_members': ClubMember.objects.filter(is_active=True).exclude(category='advisor').count(),
+        'active_members': ClubMember.objects.filter(is_active=True).filter(valid_member_filter).exclude(category='advisor').count(),
         'categories': ProjectCategory.objects.count(),
     }
 
-    team_members = ClubMember.objects.filter(is_active=True).select_related('user').order_by('category', 'user__first_name')
+    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user').order_by('category', 'user__first_name')
 
     user_application = None
     if request.user.is_authenticated:
@@ -620,12 +626,25 @@ def edit_profile_view(request):
     })
 
 def team_view(request):
+    from .models import ClubApplication
+
+    # Get approved applications' linked users and emails
+    approved_apps = ClubApplication.objects.filter(status='approved')
+    approved_users = approved_apps.exclude(user__isnull=True).values('user')
+    approved_emails = approved_apps.values('email')
+
     # ==================================================================
     # Single queryset — filtered into 4 context buckets.
     # select_related('user') avoids N+1 on display_name / get_full_name.
+    # Filters ONLY members who have an "Approved" application (or are Advisors/Heads).
     # ==================================================================
     active_members = (
         ClubMember.objects.filter(is_active=True)
+        .filter(
+            Q(user__in=approved_users) | 
+            Q(user__email__in=approved_emails) |
+            Q(category__in=['advisor', 'head'])
+        )
         .select_related('user')
         .order_by('user__first_name')
     )
