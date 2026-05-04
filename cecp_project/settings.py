@@ -127,8 +127,10 @@ USE_TZ = True
 
 # --- Static Files ---------------------------------------------------------------
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # --- Default Primary Key Field Type --------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
