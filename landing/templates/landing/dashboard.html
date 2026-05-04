@@ -248,7 +248,7 @@
                     My Dashboard
                 </h1>
                 <p class="text-slate-400 text-base">
-                    Welcome back, <span class="text-cyan-400 font-semibold">{{ member.display_name }}</span> — manage your projects and track progress.
+                    Welcome back, <span class="text-cyan-400 font-semibold">{{ member.get_display_name }}</span> — manage your projects and track progress.
                 </p>
             </div>
             <a href="{% url 'landing:submit_project' %}" class="btn-primary shrink-0">

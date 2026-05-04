@@ -1545,18 +1545,18 @@
                                 <div class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
                                     <div class="card-scan-overlay absolute inset-0 z-0"></div>
                                     <div class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-purple-500/40">
-                                        {% if member.avatar %}
-                                        <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                        {% if member.profile_image %}
+                                        <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
                                         {% else %}
                                         <div class="w-full h-full bg-gradient-to-br from-purple-900 to-blue-900 flex items-center justify-center text-4xl font-black text-white">
-                                            {{ member.display_name|make_list|first|upper }}
+                                            {{ member.get_display_name|make_list|first|upper }}
                                         </div>
                                         {% endif %}
                                     </div>
                                     <div class="relative z-10 mb-3">
                                         <span class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">{{ member.team_role_label }}</span>
                                     </div>
-                                    <h4 class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">{{ member.display_name }}</h4>
+                                    <h4 class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">{{ member.get_display_name }}</h4>
                                     {% if member.bio %}<p class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono line-clamp-2">{{ member.bio }}</p>{% endif %}
                                     <div class="relative z-10 flex justify-center gap-4 mt-4">
                                         {% if member.linkedin_url %}
@@ -1583,15 +1583,15 @@
                             {% if member.category == 'head' %}
                             <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-cyan-500/30 shadow-xl shadow-cyan-500/5">
                                 <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
-                                    {% if member.avatar %}
-                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                    {% if member.profile_image %}
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-cyan-900 to-blue-900 flex items-center justify-center text-3xl font-black text-white">
-                                        {{ member.display_name|make_list|first|upper }}
+                                        {{ member.get_display_name|make_list|first|upper }}
                                     </div>
                                     {% endif %}
                                 </div>
-                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.display_name }}</h3>
+                                <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.get_display_name }}</h3>
                                 <p class="text-cyan-400 font-medium text-[15px] mb-3 tracking-wide">{{ member.team_role_label }}</p>
                                 {% if member.bio %}<p class="text-slate-400 italic text-[13px] mb-5 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-5 mt-auto">
@@ -1622,15 +1622,15 @@
                             {% if member.category == 'core' %}
                             <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
                                 <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-cyan-400/60 overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.15)] flex-shrink-0">
-                                    {% if member.avatar %}
-                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                    {% if member.profile_image %}
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-2xl font-black text-cyan-400">
-                                        {{ member.display_name|make_list|first|upper }}
+                                        {{ member.get_display_name|make_list|first|upper }}
                                     </div>
                                     {% endif %}
                                 </div>
-                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.display_name }}</h3>
+                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
                                 <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
@@ -1661,15 +1661,15 @@
                             {% if member.category == 'member' %}
                             <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
                                 <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-slate-600/60 overflow-hidden flex-shrink-0">
-                                    {% if member.avatar %}
-                                    <img src="{{ member.avatar.url }}" alt="{{ member.display_name }}" class="w-full h-full object-cover">
+                                    {% if member.profile_image %}
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-2xl font-black text-slate-300">
-                                        {{ member.display_name|make_list|first|upper }}
+                                        {{ member.get_display_name|make_list|first|upper }}
                                     </div>
                                     {% endif %}
                                 </div>
-                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.display_name }}</h3>
+                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
                                 <p class="text-slate-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">

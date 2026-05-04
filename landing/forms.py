@@ -296,6 +296,37 @@ class ClubApplicationForm(forms.ModelForm):
             )
         return email
 
+class ClubApplicationReviewForm(forms.ModelForm):
+    """
+    Form for moderators to review, assign roles/categories, and approve/reject applications.
+    """
+    class Meta:
+        model = ClubApplication
+        fields = [
+            'status', 'assigned_category', 'assigned_role',
+            'rejection_reason', 'send_notification_email'
+        ]
+        widgets = {
+            'status': forms.Select(attrs={
+                'class': 'w-full rounded-md bg-slate-900/50 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500'
+            }),
+            'assigned_category': forms.Select(attrs={
+                'class': 'w-full rounded-md bg-slate-900/50 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500'
+            }),
+            'assigned_role': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900/50 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., UI/UX Lead, Web Master'
+            }),
+            'rejection_reason': forms.Textarea(attrs={
+                'class': 'w-full rounded-md bg-slate-900/50 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'rows': 3,
+                'placeholder': 'If rejected, please provide a reason...'
+            }),
+            'send_notification_email': forms.CheckboxInput(attrs={
+                'class': 'rounded bg-slate-900 border-slate-700 text-cyan-500 focus:ring-cyan-500 w-5 h-5'
+            }),
+        }
+
 # ==============================================================================
 # USER PROFILE FORM
 # ==============================================================================

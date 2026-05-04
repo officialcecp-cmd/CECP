@@ -17,7 +17,7 @@ from django.utils.html import format_html
 
 @admin.register(ClubMember)
 class ClubMemberAdmin(admin.ModelAdmin):
-    list_display = ('display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
+    list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
     list_editable = ('role', 'category', 'display_role', 'is_active')
     list_filter = ('role', 'category', 'is_active')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id', 'display_role')
@@ -184,8 +184,8 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             club_member.display_role = obj.assigned_role or ''
             club_member.github_url = obj.github_url or ''
             club_member.linkedin_url = obj.linkedin_url or ''
-            if obj.profile_photo and not club_member.avatar:
-                club_member.avatar = obj.profile_photo
+            if obj.profile_photo and not club_member.profile_image:
+                club_member.profile_image = obj.profile_photo
             club_member.is_active = True
             club_member.save()
             return club_member

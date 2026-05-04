@@ -57,7 +57,8 @@ class ClubMember(models.Model):
         max_length=20, unique=True, blank=True,
         help_text="Unique member ID (e.g., CECP-2025-001)"
     )
-    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    display_name = models.CharField(max_length=200, blank=True, help_text="Specific title/name shown on Team page")
+    profile_image = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio = models.TextField(blank=True, help_text="Short bio or specialization")
     phone = models.CharField(max_length=15, blank=True)
     linkedin_url = models.URLField(blank=True)
@@ -85,8 +86,8 @@ class ClubMember(models.Model):
         return self.role in ('club_head', 'hod')
 
     @property
-    def display_name(self):
-        return self.user.get_full_name() or self.user.username
+    def get_display_name(self):
+        return self.display_name or self.user.get_full_name() or self.user.username
 
     @property
     def team_role_label(self):
@@ -363,6 +364,45 @@ class ClubApplication(models.Model):
 
     def __str__(self):
         return f"{self.full_name} ({self.email}) — {self.get_status_display()}"
+
+    def save(self, *args, **kwargs):
+        is_newly_approved = False
+        if self.pk:
+            old_instance = ClubApplication.objects.get(pk=self.pk)
+            if old_instance.status != 'approved' and self.status == 'approved':
+                is_newly_approved = True
+        elif self.status == 'approved':
+            is_newly_approved = True
+
+        super().save(*args, **kwargs)
+
+        if is_newly_approved:
+            from django.contrib.auth.models import User
+            # Find or create user
+            user = self.user
+            if not user:
+                user = User.objects.filter(email__iexact=self.email).first()
+            if not user:
+                # Create user
+                user = User.objects.create_user(
+                    username=self.email,
+                    email=self.email,
+                    first_name=self.full_name.split()[0] if self.full_name else '',
+                    last_name=' '.join(self.full_name.split()[1:]) if self.full_name and len(self.full_name.split()) > 1 else ''
+                )
+                self.user = user
+                self.save(update_fields=['user'])
+            
+            # Sync to ClubMember
+            member, _ = ClubMember.objects.get_or_create(user=user)
+            member.display_name = self.full_name
+            member.category = self.assigned_category
+            if self.assigned_role:
+                member.display_role = self.assigned_role
+            if self.profile_photo:
+                # Properly link the exact same file path so it doesn't break
+                member.profile_image.name = self.profile_photo.name
+            member.save()
 
 
 # ==============================================================================

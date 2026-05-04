@@ -15,7 +15,7 @@ from .models import (
     ClubApplication, Blog
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
-from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm
+from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
 from .services import categorize_project_level
 
 
@@ -124,19 +124,19 @@ def auth_portal(request):
                     profile = user.club_profile
                     if profile.role in ('hod', 'faculty', 'club_head'):
                         role = 'admin'
-                        display_name = profile.display_name
+                        display_name = profile.get_display_name
                     elif profile.role == 'member' and profile.is_active:
                         role = 'core_member'
-                        display_name = profile.display_name
+                        display_name = profile.get_display_name
                     else:
                         role = 'core_member'
-                        display_name = profile.display_name
+                        display_name = profile.get_display_name
                 except Exception:
                     role = 'general'
 
             # Store in session
             request.session['user_role'] = role
-            request.session['display_name'] = display_name
+            request.session['get_display_name'] = display_name
             request.session['login_type'] = role
 
             # Handle remember me
@@ -250,7 +250,7 @@ def member_dashboard(request):
         'notifications': notifications,
         'pending_count': pending_count,
         'total_approved': Project.objects.filter(approval_status='approved').count(),
-        'page_title': f'Dashboard — {member.display_name if member else request.user.username}',
+        'page_title': f'Dashboard — {member.get_display_name if member else request.user.username}',
     }
     return render(request, 'landing/dashboard.html', context)
 
@@ -277,7 +277,7 @@ def dashboard(request):
         'my_projects': my_projects,
         'notifications': notifications,
         'pending_count': pending_count,
-        'page_title': f'Dashboard — {member.display_name}',
+        'page_title': f'Dashboard — {member.get_display_name}',
     }
     return render(request, 'landing/dashboard.html', context)
 
@@ -521,7 +521,7 @@ def _notify_club_heads(project, submitter):
         Notification.objects.create(
             recipient=head, notification_type='submission',
             title=f'New Submission: {project.title}',
-            message=f'{submitter.display_name} submitted "{project.title}" for review.',
+            message=f'{submitter.get_display_name} submitted "{project.title}" for review.',
             related_project=project,
         )
 
@@ -747,3 +747,27 @@ def reject_application(request, app_id):
     app.save()
     messages.success(request, f'Application for {app.full_name} has been rejected.')
     return redirect('landing:moderator_dashboard')
+
+@user_passes_test(is_admin, login_url='/login/')
+def review_application(request, application_id):
+    app = get_object_or_404(ClubApplication, id=application_id)
+    if request.method == 'POST':
+        form = ClubApplicationReviewForm(request.POST, instance=app)
+        if form.is_valid():
+            application = form.save(commit=False)
+            try:
+                member = request.user.club_profile
+                application.reviewed_by = member
+            except ClubMember.DoesNotExist:
+                pass
+            application.save()
+            messages.success(request, f'Application for {application.full_name} has been reviewed and saved.')
+            return redirect('landing:moderator_dashboard')
+    else:
+        form = ClubApplicationReviewForm(instance=app)
+    
+    return render(request, 'landing/review_application.html', {
+        'form': form,
+        'app': app,
+        'page_title': f'Review Application: {app.full_name}'
+    })

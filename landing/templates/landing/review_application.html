@@ -1,0 +1,216 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: #020617; 
+            color: #f8fafc;
+        }
+
+        .admin-card {
+            background-color: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 8px -1px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #94a3b8;
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #475569;
+        }
+        .btn-secondary:hover {
+            color: #f8fafc;
+            border-color: #94a3b8;
+            background-color: rgba(255,255,255,0.05);
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #e2e8f0;
+            font-size: 0.95rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col py-10 px-4 sm:px-6 lg:px-8 relative overflow-x-hidden">
+    <!-- Ambient Background Effects -->
+    <div class="fixed w-[600px] h-[600px] rounded-full bg-cyan-900/10 blur-[120px] top-[-200px] right-[-200px] z-[-1]"></div>
+    <div class="fixed w-[500px] h-[500px] rounded-full bg-blue-900/10 blur-[100px] bottom-[-200px] left-[-200px] z-[-1]"></div>
+
+    <main class="flex-grow w-full max-w-4xl mx-auto flex flex-col justify-center">
+        
+        <!-- Header -->
+        <div class="flex items-center gap-4 mb-8">
+            <a href="{% url 'landing:moderator_dashboard' %}" class="text-slate-400 hover:text-white transition-colors bg-slate-800/50 p-2 rounded-lg">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+            </a>
+            <div>
+                <h1 class="text-3xl font-bold tracking-tight text-white">Review Application</h1>
+                <p class="text-slate-400">Applicant: <span class="font-semibold text-white">{{ app.full_name }}</span></p>
+            </div>
+        </div>
+
+        <!-- Read-only Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="admin-card p-6 rounded-xl border border-slate-700/50">
+                <h2 class="text-lg font-semibold text-cyan-400 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Identity & Contact
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Email</span>
+                        <p class="text-sm font-mono text-slate-300">{{ app.email }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">WhatsApp</span>
+                        <p class="text-sm text-slate-300">{{ app.whatsapp_number }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Roll Number</span>
+                        <p class="text-sm text-slate-300">{{ app.roll_number }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6 rounded-xl border border-slate-700/50">
+                <h2 class="text-lg font-semibold text-purple-400 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    Academic & Skills
+                </h2>
+                <div class="space-y-3">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Branch & Year</span>
+                        <p class="text-sm text-slate-300">{{ app.get_branch_display }}, {{ app.get_current_year_display }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Domain of Interest</span>
+                        <p class="text-sm text-slate-300">{{ app.get_domain_of_interest_display }}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Skill Level</span>
+                        <p class="text-sm text-slate-300">{{ app.get_skill_level_display }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card p-6 rounded-xl border border-slate-700/50 md:col-span-2">
+                <h2 class="text-lg font-semibold text-amber-400 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Motivation & Links
+                </h2>
+                <div class="space-y-4">
+                    <div>
+                        <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Motivation</span>
+                        <p class="text-sm text-slate-300 mt-1 whitespace-pre-line">{{ app.motivation }}</p>
+                    </div>
+                    <div class="flex gap-4">
+                        {% if app.github_url %}
+                        <a href="{{ app.github_url }}" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-sm font-medium flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.603-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.463-1.11-1.463-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.161 22 16.418 22 12c0-5.523-4.477-10-10-10z"></path></svg>
+                            GitHub
+                        </a>
+                        {% endif %}
+                        {% if app.linkedin_url %}
+                        <a href="{{ app.linkedin_url }}" target="_blank" class="text-cyan-400 hover:text-cyan-300 text-sm font-medium flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.475-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                            LinkedIn
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <div class="admin-card rounded-2xl shadow-xl p-8 border border-slate-700/50 relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 rounded-bl-full z-0 pointer-events-none"></div>
+            
+            <form method="POST" class="space-y-6 relative z-10">
+                {% csrf_token %}
+                
+                <h2 class="text-xl font-bold text-white mb-6 border-b border-slate-700/50 pb-4">Moderator Decision</h2>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Status -->
+                    <div>
+                        <label for="{{ form.status.id_for_label }}" class="form-label">Application Status</label>
+                        {{ form.status }}
+                        {{ form.status.errors }}
+                    </div>
+
+                    <!-- Category -->
+                    <div>
+                        <label for="{{ form.assigned_category.id_for_label }}" class="form-label">Assigned Category</label>
+                        {{ form.assigned_category }}
+                        {{ form.assigned_category.errors }}
+                    </div>
+
+                    <!-- Role -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.assigned_role.id_for_label }}" class="form-label">Assigned Role</label>
+                        {{ form.assigned_role }}
+                        <p class="text-xs text-slate-500 mt-1">Leave blank for default. Custom roles appear on the Team page.</p>
+                        {{ form.assigned_role.errors }}
+                    </div>
+
+                    <!-- Rejection Reason -->
+                    <div class="md:col-span-2">
+                        <label for="{{ form.rejection_reason.id_for_label }}" class="form-label">Rejection Reason (if applicable)</label>
+                        {{ form.rejection_reason }}
+                        {{ form.rejection_reason.errors }}
+                    </div>
+
+                    <!-- Send Notification Email -->
+                    <div class="md:col-span-2 flex items-center gap-3">
+                        {{ form.send_notification_email }}
+                        <label for="{{ form.send_notification_email.id_for_label }}" class="text-sm font-medium text-slate-300 select-none cursor-pointer">
+                            Send notification email to applicant upon save
+                        </label>
+                        {{ form.send_notification_email.errors }}
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="pt-6 border-t border-slate-700/50 flex flex-col sm:flex-row items-center justify-end gap-4 mt-8">
+                    <a href="{% url 'landing:moderator_dashboard' %}" class="btn-secondary w-full sm:w-auto text-center">Cancel</a>
+                    <button type="submit" class="btn-primary w-full sm:w-auto flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        Save Decision
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    </main>
+
+</body>
+</html>

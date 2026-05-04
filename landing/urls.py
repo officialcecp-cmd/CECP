@@ -60,6 +60,7 @@ urlpatterns = [
     path('edit-blog/<int:blog_id>/', views.edit_blog, name='edit_blog'),
     path('accept-application/<int:app_id>/', views.accept_application, name='accept_application'),
     path('reject-application/<int:app_id>/', views.reject_application, name='reject_application'),
+    path('review-application/<int:application_id>/', views.review_application, name='review_application'),
     path('approve-project/<int:project_id>/', views.approve_project, name='approve_project'),
     path('reject-project/<int:project_id>/', views.reject_project, name='reject_project'),
     path('api/delete-project/<int:project_id>/', views.delete_project, name='delete_project'),
