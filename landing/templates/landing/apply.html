@@ -201,6 +201,12 @@
                         {% if form.motivation.errors %}<p class="field-error">{{ form.motivation.errors.0 }}</p>{% endif %}
                     </div>
 
+                    <div>
+                        <label class="field-label" for="id_quote">Personal Quote / Signature Phrase (Optional)</label>
+                        {{ form.quote }}
+                        {% if form.quote.errors %}<p class="field-error">{{ form.quote.errors.0 }}</p>{% endif %}
+                    </div>
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
                             <label class="field-label" for="id_github">GitHub Profile <span class="text-slate-600">(optional)</span></label>

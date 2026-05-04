@@ -110,6 +110,8 @@
                     <h3 class="text-xl font-bold text-white">{{ member.get_display_name }}</h3>
                     <!-- Role -->
                     <p class="text-sm font-semibold text-purple-400 mt-1">{{ member.team_role_label }}</p>
+                    <!-- Quote -->
+                    {% if member.quote %}<p class="text-xs text-emerald-400/90 italic mt-1.5">"{{ member.quote }}"</p>{% endif %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -163,6 +165,8 @@
                     <h3 class="text-2xl font-black text-white relative z-10">{{ member.get_display_name }}</h3>
                     <!-- Role -->
                     <p class="text-base font-semibold text-cyan-400 mt-1 relative z-10">{{ member.team_role_label }}</p>
+                    <!-- Quote -->
+                    {% if member.quote %}<p class="text-sm text-emerald-400/90 italic mt-2 relative z-10">"{{ member.quote }}"</p>{% endif %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-sm text-slate-400 mt-3 relative z-10 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -211,6 +215,8 @@
                     <h3 class="text-lg font-bold text-white">{{ member.get_display_name }}</h3>
                     <!-- Role -->
                     <p class="text-xs font-semibold text-cyan-400 mt-1">{{ member.team_role_label }}</p>
+                    <!-- Quote -->
+                    {% if member.quote %}<p class="text-[11px] text-emerald-400/90 italic mt-1.5 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -259,6 +265,8 @@
                     <h3 class="text-sm font-bold text-white truncate">{{ member.get_display_name }}</h3>
                     <!-- Role -->
                     <p class="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider truncate">{{ member.team_role_label }}</p>
+                    <!-- Quote -->
+                    {% if member.quote %}<p class="text-[10px] text-emerald-400/90 italic mt-1 truncate">"{{ member.quote }}"</p>{% endif %}
                     <!-- Socials -->
                     <div class="mt-2 flex justify-center gap-2">
                         {% if member.github_url %}

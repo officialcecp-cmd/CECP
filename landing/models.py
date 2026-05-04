@@ -60,6 +60,7 @@ class ClubMember(models.Model):
     display_name = models.CharField(max_length=200, blank=True, help_text="Specific title/name shown on Team page")
     profile_image = models.ImageField(upload_to='avatars/', blank=True, null=True)
     bio = models.TextField(blank=True, help_text="Short bio or specialization")
+    quote = models.CharField(max_length=255, blank=True, help_text="A personal quote or signature phrase.")
     phone = models.CharField(max_length=15, blank=True)
     linkedin_url = models.URLField(blank=True)
     github_url = models.URLField(blank=True)
@@ -328,6 +329,7 @@ class ClubApplication(models.Model):
     # --- Section 3: Tech Skills & Motivation ---
     skill_level = models.CharField(max_length=20, choices=SKILL_CHOICES)
     motivation = models.TextField(help_text="Why do you want to join CECP?")
+    quote = models.CharField(max_length=255, blank=True, help_text="Your personal quote or signature phrase")
     github_url = models.URLField(blank=True, help_text="GitHub profile (optional)")
     linkedin_url = models.URLField(blank=True, help_text="LinkedIn profile (optional)")
 
@@ -402,6 +404,8 @@ class ClubApplication(models.Model):
             if self.profile_photo:
                 # Properly link the exact same file path so it doesn't break
                 member.profile_image.name = self.profile_photo.name
+            if getattr(self, 'quote', None):
+                member.quote = self.quote
             member.save()
 
 

@@ -28,7 +28,7 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
         }),
         ('Team Page Display', {
-            'fields': ('category', 'display_role', 'avatar', 'bio'),
+            'fields': ('category', 'display_role', 'profile_image', 'bio', 'quote'),
             'description': 'These fields control how the member appears on the public /team/ page.'
         }),
         ('Contact & Social', {
@@ -144,7 +144,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             'fields': ('branch', 'current_year', 'domain_of_interest')
         }),
         ('Skills & Motivation', {
-            'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
+            'fields': ('skill_level', 'motivation', 'quote', 'github_url', 'linkedin_url')
         }),
         ('Review & Team Assignment', {
             'fields': ('status', 'assigned_category', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email'),
