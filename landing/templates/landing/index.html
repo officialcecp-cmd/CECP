@@ -1634,16 +1634,11 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
-<<<<<<< HEAD
                                 {% if member.user.profile.quote %}
                                 <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% endif %}
-=======
-                                <p class="text-cyan-400 font-medium text-[13px] mb-2 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
-                                {% if member.quote %}<p class="text-emerald-400/90 italic text-[11px] mb-3 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
->>>>>>> 48952258530259f8c47339af731b466b33453846
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.github_url %}
@@ -1682,16 +1677,11 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
-<<<<<<< HEAD
                                 {% if member.user.profile.quote %}
                                 <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-slate-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">Club Member</p>
                                 {% endif %}
-=======
-                                <p class="text-slate-400 font-medium text-[13px] mb-2 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
-                                {% if member.quote %}<p class="text-emerald-400/90 italic text-[11px] mb-2 truncate w-full">"{{ member.quote }}"</p>{% endif %}
->>>>>>> 48952258530259f8c47339af731b466b33453846
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.github_url %}
