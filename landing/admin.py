@@ -18,6 +18,7 @@ from django.utils.html import format_html
 @admin.register(ClubMember)
 class ClubMemberAdmin(admin.ModelAdmin):
     list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
+    list_select_related = ('user',)
     list_editable = ('role', 'category', 'display_role', 'is_active')
     list_filter = ('role', 'category', 'is_active')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id', 'display_role')
@@ -28,7 +29,7 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
         }),
         ('Team Page Display', {
-            'fields': ('category', 'display_role', 'avatar', 'bio'),
+            'fields': ('category', 'display_role', 'profile_image', 'bio', 'quote'),
             'description': 'These fields control how the member appears on the public /team/ page.'
         }),
         ('Contact & Social', {
@@ -52,12 +53,13 @@ class ProjectCategoryAdmin(admin.ModelAdmin):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('title', 'level', 'category', 'approval_status', 'status', 'submitted_by', 'is_featured')
+    list_select_related = ('submitted_by', 'submitted_by__user', 'category', 'approved_by', 'approved_by__user')
     list_editable = ('approval_status', 'is_featured')
     list_filter = ('approval_status', 'status', 'level', 'category', 'is_featured')
     search_fields = ('title', 'codename', 'description', 'spec')
     readonly_fields = ('level', 'created_at', 'updated_at')
     raw_id_fields = ('submitted_by', 'approved_by')
-    filter_horizontal = ('team_members',)
+    autocomplete_fields = ('team_members',)
     actions = ['approve_projects', 'reject_projects']
 
     fieldsets = (
@@ -144,7 +146,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             'fields': ('branch', 'current_year', 'domain_of_interest')
         }),
         ('Skills & Motivation', {
-            'fields': ('skill_level', 'motivation', 'github_url', 'linkedin_url')
+            'fields': ('skill_level', 'motivation', 'quote', 'github_url', 'linkedin_url')
         }),
         ('Review & Team Assignment', {
             'fields': ('status', 'assigned_category', 'assigned_role', 'reviewed_by', 'rejection_reason', 'send_notification_email'),
@@ -274,6 +276,7 @@ class ClubApplicationAdmin(admin.ModelAdmin):
 @admin.register(Blog)
 class BlogAdmin(admin.ModelAdmin):
     list_display = ('title', 'author', 'category_tag', 'is_approved', 'created_at')
+    list_select_related = ('author', 'author__user')
     list_editable = ('is_approved',)
     list_filter = ('is_approved', 'category_tag')
     search_fields = ('title', 'content')

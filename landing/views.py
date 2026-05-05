@@ -23,6 +23,10 @@ def is_admin(user):
     """Returns True if user is a superuser or in CECP_Admins group."""
     return user.is_authenticated and (user.is_superuser or user.groups.filter(name='CECP_Admins').exists())
 
+def ping(request):
+    """Keep-alive endpoint for Vercel Serverless to prevent cold starts."""
+    return JsonResponse({"status": "warm", "message": "CECP Server is alive"})
+
 logger = logging.getLogger(__name__)
 
 FALLBACK_INITIATIVES = [

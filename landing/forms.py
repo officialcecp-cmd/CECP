@@ -219,7 +219,7 @@ class ClubApplicationForm(forms.ModelForm):
         fields = [
             'full_name', 'profile_photo', 'email', 'whatsapp_number', 'roll_number',
             'branch', 'current_year', 'domain_of_interest',
-            'skill_level', 'motivation',
+            'skill_level', 'motivation', 'quote',
             'github_url', 'linkedin_url',
         ]
         widgets = {
@@ -262,6 +262,10 @@ class ClubApplicationForm(forms.ModelForm):
                 'class': 'apply-input', 'rows': 4,
                 'placeholder': 'Tell us what excites you about CECP and what you hope to learn or contribute...',
                 'id': 'id_motivation',
+            }),
+            'quote': forms.TextInput(attrs={
+                'class': 'apply-input', 'placeholder': 'Your personal quote or signature phrase (Optional)',
+                'id': 'id_quote',
             }),
             'github_url': forms.URLInput(attrs={
                 'class': 'apply-input', 'placeholder': 'https://github.com/yourusername',

@@ -52,6 +52,7 @@
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
 </head>
 
 <body class="bg-cecp-black text-slate-200 font-sans antialiased overflow-hidden overflow-x-hidden h-screen">
@@ -1075,11 +1076,11 @@
                                     <div class="relative z-10">
                                         <div class="flex items-center gap-3 mb-4">
                                             <span
-                                                class="text-sm font-mono text-purple-400 font-bold uppercase tracking-widest">Chipo
+                                                class="text-sm font-mono text-purple-400 font-bold uppercase tracking-widest">Chip
                                                 Nirman</span>
                                             <span class="text-slate-600">x</span>
                                             <span
-                                                class="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 rounded">5TRUCHIP</span>
+                                                class="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 rounded">TRUECHIP</span>
                                         </div>
                                         <h3
                                             class="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all duration-300">
@@ -1087,7 +1088,7 @@
                                         </h3>
                                         <p class="text-slate-400 leading-relaxed mb-8 font-mono text-sm">
                                             In an exclusive collaboration with industry leader TRUECHIP, the CECP club
-                                            hosted the Chipo Nirman Hackathon. Students engaged in cutting-edge VLSI
+                                            hosted the Chip Nirman Hackathon. Students engaged in cutting-edge VLSI
                                             challenges, designing efficient chip architectures and competing for top
                                             honors.
                                         </p>
@@ -1557,6 +1558,7 @@
                                         <span class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">{{ member.team_role_label }}</span>
                                     </div>
                                     <h4 class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">{{ member.get_display_name }}</h4>
+                                    {% if member.quote %}<p class="relative z-10 text-[11px] text-emerald-400/90 italic mt-2 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
                                     {% if member.bio %}<p class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono line-clamp-2">{{ member.bio }}</p>{% endif %}
                                     <div class="relative z-10 flex justify-center gap-4 mt-4">
                                         {% if member.linkedin_url %}
@@ -1592,7 +1594,8 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[22px] font-bold text-white mb-1.5 tracking-wide">{{ member.get_display_name }}</h3>
-                                <p class="text-cyan-400 font-medium text-[15px] mb-3 tracking-wide">{{ member.team_role_label }}</p>
+                                <p class="text-cyan-400 font-medium text-[15px] mb-2 tracking-wide">{{ member.team_role_label }}</p>
+                                {% if member.quote %}<p class="text-emerald-400/90 italic text-[13px] mb-3">"{{ member.quote }}"</p>{% endif %}
                                 {% if member.bio %}<p class="text-slate-400 italic text-[13px] mb-5 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-5 mt-auto">
                                     {% if member.github_url %}
@@ -1631,11 +1634,16 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
+<<<<<<< HEAD
                                 {% if member.user.profile.quote %}
                                 <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% endif %}
+=======
+                                <p class="text-cyan-400 font-medium text-[13px] mb-2 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                                {% if member.quote %}<p class="text-emerald-400/90 italic text-[11px] mb-3 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
+>>>>>>> 48952258530259f8c47339af731b466b33453846
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.github_url %}
@@ -1674,11 +1682,16 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
+<<<<<<< HEAD
                                 {% if member.user.profile.quote %}
                                 <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-slate-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">Club Member</p>
                                 {% endif %}
+=======
+                                <p class="text-slate-400 font-medium text-[13px] mb-2 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                                {% if member.quote %}<p class="text-emerald-400/90 italic text-[11px] mb-2 truncate w-full">"{{ member.quote }}"</p>{% endif %}
+>>>>>>> 48952258530259f8c47339af731b466b33453846
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.github_url %}
