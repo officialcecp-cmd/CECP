@@ -574,9 +574,19 @@ def profile_view(request):
                     request.user.last_name = name_parts[1]
                 request.user.save()
 
+    # Determine if the user has an approved club application
+    is_accepted = ClubApplication.objects.filter(
+        user=request.user, status='approved'
+    ).exists()
+    if not is_accepted and request.user.email:
+        is_accepted = ClubApplication.objects.filter(
+            email__iexact=request.user.email, status='approved'
+        ).exists()
+
     return render(request, 'landing/profile.html', {
         'page_title': 'My Profile — CECP',
         'profile': profile,
+        'is_accepted': is_accepted,
     })
 
 @login_required(login_url='/login/')
@@ -619,10 +629,20 @@ def edit_profile_view(request):
     else:
         form = UserProfileForm(instance=profile)
         
+    # Determine if the user has an approved club application
+    is_accepted = ClubApplication.objects.filter(
+        user=request.user, status='approved'
+    ).exists()
+    if not is_accepted and request.user.email:
+        is_accepted = ClubApplication.objects.filter(
+            email__iexact=request.user.email, status='approved'
+        ).exists()
+
     return render(request, 'landing/edit_profile.html', {
         'page_title': 'Edit Profile — CECP',
         'form': form,
         'profile': profile,
+        'is_accepted': is_accepted,
     })
 
 def team_view(request):
