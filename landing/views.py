@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event
+    ClubApplication, Blog, Event, EventStat
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
@@ -42,6 +42,7 @@ FALLBACK_INITIATIVES = [
 
 def index(request):
     events = Event.objects.all()
+    event_stats = EventStat.objects.first()
     initiatives = fetch_initiatives()
     if initiatives is None:
         initiatives = FALLBACK_INITIATIVES
@@ -91,6 +92,7 @@ def index(request):
 
     context = {
         'events': events,
+        'event_stats': event_stats,
         'initiatives': initiatives,
         'projects': approved_projects,
         'featured_project': approved_projects.filter(is_featured=True).first(),

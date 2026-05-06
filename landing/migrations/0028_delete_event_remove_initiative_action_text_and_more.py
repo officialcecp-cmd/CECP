@@ -10,9 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='Event',
-        ),
         migrations.RemoveField(
             model_name='initiative',
             name='action_text',

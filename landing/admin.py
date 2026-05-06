@@ -3,7 +3,7 @@
 # ==============================================================================
 from django.contrib import admin
 from .models import (
-    Event,
+    Event, EventStat,
     Initiative, Project, ProjectAchievement,
     ClubMember, ProjectCategory, Notification, ClubApplication, Blog
 )
@@ -314,3 +314,8 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ('event_type', 'status', 'is_featured')
     search_fields = ('title', 'description', 'location')
     list_editable = ('status', 'is_featured')
+
+
+@admin.register(EventStat)
+class EventStatAdmin(admin.ModelAdmin):
+    list_display = ('events_hosted', 'participants', 'winners_crowned', 'collaborations')
