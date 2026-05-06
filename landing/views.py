@@ -403,7 +403,7 @@ def delete_project(request, project_id):
         try:
             member = ClubMember.objects.get(user=request.user)
             project = get_object_or_404(Project, id=project_id)
-            if project.submitted_by == member or member.can_approve_projects:
+            if project.submitted_by == member or project.project_lead == member or member.can_approve_projects:
                 project.delete()
                 messages.success(request, 'Project successfully deleted.')
             else:
