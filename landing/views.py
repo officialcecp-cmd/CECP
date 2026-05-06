@@ -226,8 +226,15 @@ def member_detail(request, member_id):
     # Fetch member projects
     projects = Project.objects.filter(Q(submitted_by=member) | Q(team_members=member), approval_status='approved').distinct().select_related('category').prefetch_related('achievements').order_by('-created_at')
     
+    application = None
+    if member.user:
+        application = ClubApplication.objects.filter(user=member.user).first()
+        if not application and member.user.email:
+            application = ClubApplication.objects.filter(Q(email__iexact=member.user.email) | Q(personal_email__iexact=member.user.email)).first()
+
     return render(request, 'landing/member_detail.html', {
         'member': member,
+        'application': application,
         'projects': projects,
         'page_title': f"{member.get_display_name} — CECP Profile",
     })
