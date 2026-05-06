@@ -140,12 +140,26 @@ class ProjectSubmissionForm(forms.ModelForm):
         help_text="Comma-separated list of technologies used"
     )
 
+    # Dynamic team member emails (up to 10 slots, handled via JS)
+    team_member_emails = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={'id': 'team_member_emails_json'}),
+        help_text="JSON array of team member email addresses"
+    )
+
+    # Dynamic achievements (handled via JS, sent as JSON)
+    achievements_json = forms.CharField(
+        required=False,
+        widget=forms.HiddenInput(attrs={'id': 'achievements_json'}),
+        help_text="JSON array of achievement objects"
+    )
+
     class Meta:
         model = Project
         fields = [
             'title', 'description', 'spec',
-            'image', 'category', 'status',
-            'github_url', 'demo_url', 'documentation_url',
+            'image', 'category', 'status', 'year',
+            'github_url', 'demo_url', 'documentation_url', 'video_url',
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Project Title'}),
@@ -153,9 +167,11 @@ class ProjectSubmissionForm(forms.ModelForm):
             'spec': forms.Textarea(attrs={'class': 'form-input', 'placeholder': 'Full technical specification...', 'rows': 6}),
             'category': forms.Select(attrs={'class': 'form-input'}),
             'status': forms.Select(attrs={'class': 'form-input'}),
+            'year': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '2026', 'min': '2020', 'max': '2035'}),
             'github_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://github.com/...'}),
             'demo_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://demo.example.com'}),
             'documentation_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://docs.example.com'}),
+            'video_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://youtube.com/watch?v=...'}),
         }
 
     def clean_tech_stack_input(self):
@@ -163,6 +179,50 @@ class ProjectSubmissionForm(forms.ModelForm):
         if raw:
             return [t.strip() for t in raw.split(',') if t.strip()]
         return []
+
+    def clean_team_member_emails(self):
+        import json
+        raw = self.cleaned_data.get('team_member_emails', '')
+        if not raw:
+            return []
+        try:
+            emails = json.loads(raw)
+            if not isinstance(emails, list):
+                return []
+            # Validate each email
+            cleaned = []
+            for email in emails:
+                email = email.strip().lower()
+                if email and '@' in email:
+                    cleaned.append(email)
+            return cleaned
+        except (json.JSONDecodeError, TypeError):
+            return []
+
+    def clean_achievements_json(self):
+        import json
+        raw = self.cleaned_data.get('achievements_json', '')
+        if not raw:
+            return []
+        try:
+            achievements = json.loads(raw)
+            if not isinstance(achievements, list):
+                return []
+            cleaned = []
+            for ach in achievements:
+                if isinstance(ach, dict) and ach.get('title') and ach.get('date'):
+                    cleaned.append({
+                        'title': str(ach['title'])[:300],
+                        'achievement_type': str(ach.get('achievement_type', 'competition'))[:20],
+                        'event_name': str(ach.get('event_name', ''))[:200],
+                        'position': str(ach.get('position', ''))[:100],
+                        'description': str(ach.get('description', ''))[:500],
+                        'date': str(ach['date']),
+                        'certificate_url': str(ach.get('certificate_url', ''))[:200],
+                    })
+            return cleaned
+        except (json.JSONDecodeError, TypeError):
+            return []
 
 # ==============================================================================
 # USER REGISTRATION FORM

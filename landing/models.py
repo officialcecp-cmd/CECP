@@ -189,6 +189,11 @@ class Project(models.Model):
     rejection_reason = models.TextField(blank=True, help_text="Reason if project was rejected")
 
     # --- Team ---
+    project_lead = models.ForeignKey(
+        ClubMember, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='led_projects',
+        help_text="The primary lead of this project"
+    )
     team_members = models.ManyToManyField(
         ClubMember, blank=True, related_name='projects',
         help_text="Members who worked on this project"
@@ -198,10 +203,12 @@ class Project(models.Model):
     github_url = models.URLField(blank=True, help_text="GitHub repository URL")
     demo_url = models.URLField(blank=True, help_text="Live demo or video URL")
     documentation_url = models.URLField(blank=True, help_text="Documentation or report URL")
+    video_url = models.URLField(blank=True, help_text="YouTube or demo video URL")
 
     # --- Ordering & Display ---
     display_order = models.PositiveIntegerField(default=0)
     is_featured = models.BooleanField(default=False, help_text="Feature on the landing page")
+    year = models.PositiveIntegerField(default=2026, help_text="Project year")
 
     # --- Timestamps ---
     created_at = models.DateTimeField(auto_now_add=True)
@@ -217,6 +224,64 @@ class Project(models.Model):
     def is_live(self):
         """Project is visible on the public site only if approved."""
         return self.approval_status == 'approved'
+
+
+# ==============================================================================
+# PROJECT ACHIEVEMENT — Competition wins, milestones, awards
+# ==============================================================================
+
+class ProjectAchievement(models.Model):
+    """
+    Tracks achievements / milestones / competition results for a project.
+    E.g., "Top 10 Finalist — OpenAI Hackathon National Finals 2026"
+    """
+    ACHIEVEMENT_TYPE_CHOICES = [
+        ('competition', 'Competition / Hackathon'),
+        ('award', 'Award / Recognition'),
+        ('publication', 'Publication / Paper'),
+        ('milestone', 'Project Milestone'),
+        ('deployment', 'Deployment / Launch'),
+    ]
+
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='achievements',
+        help_text="The project this achievement belongs to"
+    )
+    title = models.CharField(
+        max_length=300,
+        help_text="e.g., Top 10 Finalist — OpenAI Hackathon National Finals"
+    )
+    achievement_type = models.CharField(
+        max_length=20, choices=ACHIEVEMENT_TYPE_CHOICES, default='competition'
+    )
+    description = models.TextField(
+        blank=True,
+        help_text="Details about the achievement"
+    )
+    event_name = models.CharField(
+        max_length=200, blank=True,
+        help_text="e.g., Technomax 2025, OpenAI Hackathon 2026"
+    )
+    position = models.CharField(
+        max_length=100, blank=True,
+        help_text="e.g., 1st Place, Top 10 Finalist, Runner Up"
+    )
+    date = models.DateField(
+        help_text="Date of the achievement"
+    )
+    certificate_url = models.URLField(
+        blank=True,
+        help_text="Link to certificate or proof"
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-date']
+        verbose_name = 'Project Achievement'
+        verbose_name_plural = 'Project Achievements'
+
+    def __str__(self):
+        return f"{self.title} — {self.project.title} ({self.date})"
 
 
 # ==============================================================================

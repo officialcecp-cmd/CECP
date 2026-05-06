@@ -47,7 +47,7 @@ def index(request):
 
     approved_projects = Project.objects.filter(
         approval_status='approved'
-    ).select_related('category', 'submitted_by').prefetch_related('team_members')
+    ).select_related('category', 'submitted_by', 'project_lead', 'project_lead__user').prefetch_related('team_members', 'achievements')
 
     categories = ProjectCategory.objects.annotate(
         project_count=Count('projects', filter=Q(projects__approval_status='approved'))
@@ -225,8 +225,14 @@ def project_detail(request, project_id):
         project = get_object_or_404(Project, id=project_id)
     else:
         project = get_object_or_404(Project, id=project_id, approval_status='approved')
+    
+    achievements = project.achievements.all()
+    team = project.team_members.select_related('user', 'user__profile').all()
+    
     return render(request, 'landing/project_detail.html', {
         'project': project,
+        'achievements': achievements,
+        'team': team,
         'page_title': f"{project.title} — CECP",
     })
 
@@ -245,7 +251,9 @@ def member_dashboard(request):
         is_club_member = False
 
     if member:
-        my_projects = Project.objects.filter(submitted_by=member).select_related('category').order_by('-created_at')
+        my_projects = Project.objects.filter(
+            Q(submitted_by=member) | Q(team_members=member)
+        ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('-created_at')
         notifications = Notification.objects.filter(recipient=member, is_read=False)[:10]
         pending_count = Project.objects.filter(approval_status='pending').count() if member.can_approve_projects else 0
     else:
@@ -277,7 +285,9 @@ def dashboard(request):
         messages.error(request, 'Your account is not linked to a club member profile.')
         return redirect('landing:index')
 
-    my_projects = Project.objects.filter(submitted_by=member).select_related('category').order_by('-created_at')
+    my_projects = Project.objects.filter(
+        Q(submitted_by=member) | Q(team_members=member)
+    ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('-created_at')
     notifications = Notification.objects.filter(recipient=member, is_read=False)[:10]
     pending_count = Project.objects.filter(approval_status='pending').count() if member.can_approve_projects else 0
 
@@ -309,20 +319,74 @@ def submit_project(request):
         if form.is_valid():
             project = form.save(commit=False)
             project.submitted_by = member
+            project.project_lead = member
             project.tech_stack = form.cleaned_data.get('tech_stack_input', [])
             if project.spec:
                 project.level = categorize_project_level(project.spec)
             if member.can_approve_projects:
                 project.approval_status = 'approved'
+                project.is_approved = True
                 project.approved_by = member
                 messages.success(request, f'Project "{project.title}" published!')
             else:
                 project.approval_status = 'pending'
                 messages.success(request, f'Project "{project.title}" submitted for review!')
             project.save()
+
+            # --- Add the submitter as a team member ---
+            project.team_members.add(member)
+
+            # --- Link team members by email ---
+            team_emails = form.cleaned_data.get('team_member_emails', [])
+            for email in team_emails:
+                # Find User by email (personal_email or auth email)
+                from django.contrib.auth.models import User as DjangoUser
+                from landing.models import ClubApplication
+                user = DjangoUser.objects.filter(email__iexact=email).first()
+                if not user:
+                    # Also check personal_email in applications
+                    app = ClubApplication.objects.filter(
+                        personal_email__iexact=email, status='approved'
+                    ).first()
+                    if app and app.user:
+                        user = app.user
+                if user:
+                    try:
+                        team_member = user.club_profile
+                        project.team_members.add(team_member)
+                        # Notify the team member
+                        Notification.objects.create(
+                            recipient=team_member,
+                            notification_type='info',
+                            title=f'Added to Project: {project.title}',
+                            message=f'{member.get_display_name} added you as a team member on "{project.title}".',
+                            related_project=project,
+                        )
+                    except ClubMember.DoesNotExist:
+                        pass  # User exists but no club profile yet
+
+            # --- Create achievements ---
+            achievements_data = form.cleaned_data.get('achievements_json', [])
+            from landing.models import ProjectAchievement
+            from datetime import datetime
+            for ach in achievements_data:
+                try:
+                    ach_date = datetime.strptime(ach['date'], '%Y-%m-%d').date()
+                    ProjectAchievement.objects.create(
+                        project=project,
+                        title=ach['title'],
+                        achievement_type=ach.get('achievement_type', 'competition'),
+                        event_name=ach.get('event_name', ''),
+                        position=ach.get('position', ''),
+                        description=ach.get('description', ''),
+                        date=ach_date,
+                        certificate_url=ach.get('certificate_url', ''),
+                    )
+                except (ValueError, KeyError):
+                    continue
+
             if project.approval_status == 'pending':
                 _notify_club_heads(project, member)
-            project.team_members.add(member)
             return redirect('landing:dashboard')
     else:
         form = ProjectSubmissionForm()
@@ -381,9 +445,20 @@ def approve_project(request, project_id):
     project.is_approved = True
     project.save()
 
-    # Send notification to submitter
+    # Send notification to ALL team members (including submitter)
     try:
-        if project.submitted_by:
+        notified = set()
+        for team_member in project.team_members.all():
+            if team_member.id not in notified:
+                Notification.objects.create(
+                    recipient=team_member, notification_type='approved',
+                    title=f'Project Approved: {project.title}',
+                    message=f'Your project "{project.title}" has been approved and is now live on the CECP website!',
+                    related_project=project,
+                )
+                notified.add(team_member.id)
+        # Also notify submitter if not already in team
+        if project.submitted_by and project.submitted_by.id not in notified:
             Notification.objects.create(
                 recipient=project.submitted_by, notification_type='approved',
                 title=f'Project Approved: {project.title}',

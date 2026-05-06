@@ -1353,10 +1353,24 @@
                                     </div>
                                     
                                     <!-- Owner -->
-                                    {% if project.submitted_by %}
-                                    <div class="flex items-center gap-2 mb-6">
+                                    {% if project.project_lead %}
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
+                                        <span class="text-sm text-slate-300 font-medium">{{ project.project_lead.get_display_name }}</span>
+                                    </div>
+                                    {% elif project.submitted_by %}
+                                    <div class="flex items-center gap-2 mb-4">
                                         <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
                                         <span class="text-sm text-slate-300 font-medium">{{ project.submitted_by.user.get_full_name|default:project.submitted_by.user.username }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Achievements Badge -->
+                                    {% if project.achievements.count > 0 %}
+                                    <div class="flex items-center gap-1.5 mb-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[11px] font-bold">
+                                            🏆 {{ project.achievements.count }} Achievement{{ project.achievements.count|pluralize }}
+                                        </span>
                                     </div>
                                     {% endif %}
 
@@ -1479,10 +1493,24 @@
                                     </div>
                                     
                                     <!-- Owner -->
-                                    {% if project.submitted_by %}
-                                    <div class="flex items-center gap-2 mb-6">
+                                    {% if project.project_lead %}
+                                    <div class="flex items-center gap-2 mb-4">
+                                        <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
+                                        <span class="text-sm text-slate-300 font-medium">{{ project.project_lead.get_display_name }}</span>
+                                    </div>
+                                    {% elif project.submitted_by %}
+                                    <div class="flex items-center gap-2 mb-4">
                                         <span class="text-[11px] uppercase tracking-wider text-slate-500 font-mono">Lead /</span>
                                         <span class="text-sm text-slate-300 font-medium">{{ project.submitted_by.user.get_full_name|default:project.submitted_by.user.username }}</span>
+                                    </div>
+                                    {% endif %}
+
+                                    <!-- Achievements Badge -->
+                                    {% if project.achievements.count > 0 %}
+                                    <div class="flex items-center gap-1.5 mb-4">
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 text-[11px] font-bold">
+                                            🏆 {{ project.achievements.count }} Achievement{{ project.achievements.count|pluralize }}
+                                        </span>
                                     </div>
                                     {% endif %}
 

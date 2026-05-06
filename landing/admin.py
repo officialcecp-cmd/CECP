@@ -3,7 +3,7 @@
 # ==============================================================================
 from django.contrib import admin
 from .models import (
-    Initiative, Project,
+    Initiative, Project, ProjectAchievement,
     ClubMember, ProjectCategory, Notification, ClubApplication, Blog
 )
 from .services import categorize_project_level
@@ -48,18 +48,27 @@ class ProjectCategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
 
 
+# --- Project Achievement Inline -----------------------------------------------
+
+class ProjectAchievementInline(admin.TabularInline):
+    model = ProjectAchievement
+    extra = 0
+    fields = ('title', 'achievement_type', 'event_name', 'position', 'date', 'certificate_url')
+
+
 # --- Project Admin (with AI auto-categorization) ------------------------------
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'level', 'category', 'approval_status', 'status', 'submitted_by', 'is_featured')
-    list_select_related = ('submitted_by', 'submitted_by__user', 'category', 'approved_by', 'approved_by__user')
+    list_display = ('title', 'level', 'category', 'approval_status', 'status', 'submitted_by', 'project_lead', 'is_featured', 'year')
+    list_select_related = ('submitted_by', 'submitted_by__user', 'category', 'approved_by', 'approved_by__user', 'project_lead', 'project_lead__user')
     list_editable = ('approval_status', 'is_featured')
-    list_filter = ('approval_status', 'status', 'level', 'category', 'is_featured')
+    list_filter = ('approval_status', 'status', 'level', 'category', 'is_featured', 'year')
     search_fields = ('title', 'codename', 'description', 'spec')
     readonly_fields = ('level', 'created_at', 'updated_at')
-    raw_id_fields = ('submitted_by', 'approved_by')
+    raw_id_fields = ('submitted_by', 'approved_by', 'project_lead')
     autocomplete_fields = ('team_members',)
+    inlines = [ProjectAchievementInline]
     actions = ['approve_projects', 'reject_projects']
 
     fieldsets = (
@@ -73,11 +82,11 @@ class ProjectAdmin(admin.ModelAdmin):
             'fields': ('approval_status', 'submitted_by', 'approved_by', 'rejection_reason')
         }),
         ('Links', {
-            'fields': ('github_url', 'demo_url', 'documentation_url'),
+            'fields': ('github_url', 'demo_url', 'documentation_url', 'video_url'),
             'classes': ('collapse',)
         }),
         ('Team & Display', {
-            'fields': ('team_members', 'status', 'is_featured', 'display_order')
+            'fields': ('project_lead', 'team_members', 'status', 'is_featured', 'display_order', 'year')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at'),
