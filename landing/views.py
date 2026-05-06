@@ -73,7 +73,7 @@ def index(request):
         user_application = ClubApplication.objects.filter(user=request.user).first()
         # Tier 2: Email match
         if not user_application and request.user.email:
-            user_application = ClubApplication.objects.filter(email__iexact=request.user.email).first()
+            user_application = ClubApplication.objects.filter(Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email)).first()
             if user_application and not user_application.user:
                 user_application.user = request.user
                 user_application.save(update_fields=['user'])
@@ -558,7 +558,7 @@ def profile_view(request):
     
     # Auto-populate if freshly created
     if created and request.user.email:
-        app = ClubApplication.objects.filter(email__iexact=request.user.email, status='approved').first()
+        app = ClubApplication.objects.filter(Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email), status='approved').first()
         if app:
             profile.course = 'B.Tech'  # Default since CECP apps are primarily B.Tech
             profile.branch = app.branch
@@ -584,7 +584,7 @@ def profile_view(request):
     ).exists()
     if not is_accepted and request.user.email:
         is_accepted = ClubApplication.objects.filter(
-            email__iexact=request.user.email, status='approved'
+            Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email), status='approved'
         ).exists()
 
     return render(request, 'landing/profile.html', {

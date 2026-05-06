@@ -217,7 +217,7 @@ class ClubApplicationForm(forms.ModelForm):
     class Meta:
         model = ClubApplication
         fields = [
-            'full_name', 'profile_photo', 'resume', 'email', 'whatsapp_number', 'roll_number',
+            'full_name', 'profile_photo', 'resume', 'email', 'personal_email', 'whatsapp_number', 'roll_number',
             'branch', 'current_year', 'domain_of_interest',
             'skill_level', 'motivation', 'quote',
             'github_url', 'linkedin_url',
@@ -242,6 +242,11 @@ class ClubApplicationForm(forms.ModelForm):
                 'pattern': '.+@ritroorkee\\.com',
                 'title': 'Please use your official @ritroorkee.com email',
                 'id': 'id_email',
+            }),
+            'personal_email': forms.EmailInput(attrs={
+                'class': 'apply-input', 'placeholder': 'yourname@gmail.com',
+                'title': 'This email will be used for your Google Login',
+                'id': 'id_personal_email',
             }),
             'whatsapp_number': forms.TextInput(attrs={
                 'class': 'apply-input', 'placeholder': '+91 XXXXX XXXXX',

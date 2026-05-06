@@ -65,7 +65,7 @@
         <a href="#" class="nav-link text-xl" data-tab="about" onclick="switchTab('about')">About Us</a>
         <a href="#" class="nav-link text-xl" data-tab="blogs" onclick="switchTab('blogs')">Blogs</a>
         <a href="#" class="nav-link text-xl" data-tab="projects" onclick="switchTab('projects')">Projects</a>
-        <a href="#" class="nav-link text-xl" data-tab="team" onclick="switchTab('team')">Team</a>
+        <a href="#" class="nav-link text-xl" data-tab="team" onclick="switchTab('team')">Management</a>
         <a href="#" class="nav-link text-xl" data-tab="initiatives" onclick="switchTab('initiatives')">Initiatives</a>
         <div class="flex flex-col gap-3 mt-6">
             {% if request.user.is_authenticated %}
@@ -105,7 +105,7 @@
                     <a href="#" class="nav-link tab-link" data-tab="blogs" onclick="switchTab('blogs')">Blogs</a>
                     <a href="#" class="nav-link tab-link" data-tab="projects"
                         onclick="switchTab('projects')">Projects</a>
-                    <a href="#" class="nav-link tab-link" data-tab="team" onclick="switchTab('team')">Team</a>
+                    <a href="#" class="nav-link tab-link" data-tab="team" onclick="switchTab('team')">Management</a>
                     <a href="#" class="nav-link tab-link" data-tab="initiatives"
                         onclick="switchTab('initiatives')">Initiatives</a>
                 </nav>
@@ -1541,32 +1541,34 @@
                         <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
                             {% for member in team_members %}
                             {% if member.category == 'advisor' %}
-                            <div class="holo-card p-[1px] text-center group hover:-translate-y-2 transition-transform duration-500">
-                                <div class="holo-card-border" style="background: linear-gradient(135deg, rgba(168,85,247,0.5), transparent, rgba(168,85,247,0.5));"></div>
-                                <div class="relative h-full bg-[#0a1628]/95 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
-                                    <div class="card-scan-overlay absolute inset-0 z-0"></div>
-                                    <div class="relative z-10 w-32 h-32 mx-auto mb-6 rounded-full overflow-hidden border-2 border-purple-500/40">
-                                        {% if member.profile_image %}
-                                        <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
-                                        {% else %}
-                                        <div class="w-full h-full bg-gradient-to-br from-purple-900 to-blue-900 flex items-center justify-center text-4xl font-black text-white">
-                                            {{ member.get_display_name|make_list|first|upper }}
-                                        </div>
-                                        {% endif %}
+                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
+                                <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-cyan-400/60 overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.15)] flex-shrink-0">
+                                    {% if member.profile_image %}
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover object-top">
+                                    {% else %}
+                                    <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-2xl font-black text-cyan-400">
+                                        {{ member.get_display_name|make_list|first|upper }}
                                     </div>
-                                    <div class="relative z-10 mb-3">
-                                        <span class="inline-block px-3 py-1 rounded border border-purple-500/20 bg-purple-500/10 text-[10px] font-mono tracking-widest text-purple-400 uppercase">{{ member.team_role_label }}</span>
-                                    </div>
-                                    <h4 class="relative z-10 text-xl font-black text-white group-hover:text-purple-300 transition-colors tracking-wide">{{ member.get_display_name }}</h4>
-                                    {% if member.quote %}<p class="relative z-10 text-[11px] text-emerald-400/90 italic mt-2 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
-                                    {% if member.bio %}<p class="relative z-10 text-[11px] text-slate-500 mt-2 font-mono line-clamp-2">{{ member.bio }}</p>{% endif %}
-                                    <div class="relative z-10 flex justify-center gap-4 mt-4">
-                                        {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                        <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-400 hover:text-cyan-400 transition-colors">
-                                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                                        </a>
-                                        {% endif %}
-                                    </div>
+                                    {% endif %}
+                                </div>
+                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
+                                {% if member.user.profile.quote %}
+                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
+                                {% else %}
+                                <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                                {% endif %}
+                                {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
+                                <div class="flex items-center justify-center gap-4 mt-auto">
+                                    {% if member.user.profile.github_profile or member.github_url %}
+                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.user.profile.linkedin_profile or member.linkedin_url %}
+                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endif %}
@@ -1586,7 +1588,7 @@
                             <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-cyan-500/30 shadow-xl shadow-cyan-500/5">
                                 <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
                                     {% if member.profile_image %}
-                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover object-top">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-cyan-900 to-blue-900 flex items-center justify-center text-3xl font-black text-white">
                                         {{ member.get_display_name|make_list|first|upper }}
@@ -1626,7 +1628,7 @@
                             <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl">
                                 <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-cyan-400/60 overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.15)] flex-shrink-0">
                                     {% if member.profile_image %}
-                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover object-top">
                                     {% else %}
                                     <div class="w-full h-full bg-gradient-to-br from-slate-800 to-slate-900 flex items-center justify-center text-2xl font-black text-cyan-400">
                                         {{ member.get_display_name|make_list|first|upper }}

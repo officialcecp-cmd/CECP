@@ -314,11 +314,18 @@ class ClubApplication(models.Model):
     # --- Section 1: Basic Identity ---
     full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
     profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo")
-    resume = models.FileField(upload_to='application_resumes/', storage=RawMediaCloudinaryStorage(), null=True, blank=True, help_text="Resume (PDF)")
+    resume = models.FileField(upload_to='application_resumes/', storage=RawMediaCloudinaryStorage(), null=True, blank=False, help_text="Resume (PDF)")
     email = models.EmailField(
         unique=True,
+        db_index=True,
         validators=[rit_email_validator],
         help_text="College email (must end with @ritroorkee.com)"
+    )
+    personal_email = models.EmailField(
+        unique=True,
+        db_index=True,
+        null=True, blank=False,
+        help_text="Personal Gmail ID (used for website login)"
     )
     whatsapp_number = models.CharField(max_length=15, help_text="WhatsApp number for team communication")
     roll_number = models.CharField(max_length=30, unique=True, help_text="College roll number")
@@ -336,7 +343,7 @@ class ClubApplication(models.Model):
     linkedin_url = models.URLField(blank=True, help_text="LinkedIn profile (optional)")
 
     # --- Status & Review ---
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True)
     assigned_category = models.CharField(
         max_length=20,
         choices=CATEGORY_CHOICES,

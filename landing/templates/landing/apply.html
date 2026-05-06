@@ -121,11 +121,19 @@
                             {% if form.resume.errors %}<p class="field-error">{{ form.resume.errors.0 }}</p>{% endif %}
                         </div>
                     </div>
-                    <div>
-                        <label class="field-label" for="id_email">College Email *</label>
-                        {{ form.email }}
-                        <p class="text-xs text-amber-400/70 mt-1.5" style="font-family:'JetBrains Mono',monospace;">🔒 Only @ritroorkee.com emails accepted</p>
-                        {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="field-label" for="id_email">College Email *</label>
+                            {{ form.email }}
+                            <p class="text-xs text-amber-400/70 mt-1.5" style="font-family:'JetBrains Mono',monospace;">🔒 Only @ritroorkee.com emails accepted</p>
+                            {% if form.email.errors %}<p class="field-error">{{ form.email.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="field-label" for="id_personal_email">Personal Email (Gmail) *</label>
+                            {{ form.personal_email }}
+                            <p class="text-xs text-cyan-400/70 mt-1.5" style="font-family:'JetBrains Mono',monospace;">Used for Google OAuth Login</p>
+                            {% if form.personal_email.errors %}<p class="field-error">{{ form.personal_email.errors.0 }}</p>{% endif %}
+                        </div>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div>
