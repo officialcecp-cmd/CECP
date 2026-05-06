@@ -253,6 +253,19 @@
                             {% if form.linkedin_profile.help_text %}<p class="helptext">{{ form.linkedin_profile.help_text }}</p>{% endif %}
                             {{ form.linkedin_profile.errors }}
                         </div>
+
+                        {% if is_accepted %}
+                        <div class="mt-2">
+                            <div class="flex items-center gap-2 mb-3">
+                                <svg class="w-4 h-4 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h8"/></svg>
+                                {{ form.quote.label_tag }}
+                            </div>
+                            {{ form.quote }}
+                            <p class="helptext mt-1">{{ form.quote.help_text }} (max 100 characters)</p>
+                            {{ form.quote.errors }}
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
 
