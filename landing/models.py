@@ -389,15 +389,24 @@ class ClubApplication(models.Model):
 
         if is_newly_approved:
             from django.contrib.auth.models import User
-            # Find or create user
+            # Find or create user using personal_email (for Google login linking)
             user = self.user
-            if not user:
-                user = User.objects.filter(email__iexact=self.email).first()
-            if not user:
+            target_email = self.personal_email or self.email
+            if not user and target_email:
+                user = User.objects.filter(email__iexact=target_email).first()
+            if not user and target_email:
                 # Create user
+                base_username = target_email.split('@')[0]
+                # Ensure unique username
+                username = base_username
+                counter = 1
+                while User.objects.filter(username=username).exists():
+                    username = f"{base_username}{counter}"
+                    counter += 1
+                
                 user = User.objects.create_user(
-                    username=self.email,
-                    email=self.email,
+                    username=username,
+                    email=target_email,
                     first_name=self.full_name.split()[0] if self.full_name else '',
                     last_name=' '.join(self.full_name.split()[1:]) if self.full_name and len(self.full_name.split()) > 1 else ''
                 )
