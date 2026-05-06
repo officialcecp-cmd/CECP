@@ -228,11 +228,14 @@ def project_detail(request, project_id):
     
     achievements = project.achievements.all()
     team = project.team_members.select_related('user', 'user__profile').all()
+    external_team = project.external_team_members if isinstance(project.external_team_members, list) else []
+    total_team_count = team.count() + len(external_team)
     
     return render(request, 'landing/project_detail.html', {
         'project': project,
         'achievements': achievements,
         'team': team,
+        'total_team_count': total_team_count,
         'page_title': f"{project.title} — CECP",
     })
 

@@ -122,7 +122,7 @@
         <div class="form-card p-6 sm:p-10">
             <form method="post" enctype="multipart/form-data" id="projectForm" class="space-y-10">
                 {% csrf_token %}
-                {{ form.team_member_emails }}
+                {{ form.team_members_json }}
                 {{ form.achievements_json }}
 
                 <!-- Section 1: Core ID -->
