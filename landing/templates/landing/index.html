@@ -116,7 +116,7 @@
                         <!-- User Profile Dropdown -->
                         <div class="relative group inline-block z-50">
                             <!-- Trigger Button -->
-                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700">
+                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700 event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn" onclick="filterEvents('status:Completed', this)" onclick="filterEvents('status:Ongoing', this)" onclick="filterEvents('Talk', this)" onclick="filterEvents('Competition', this)" onclick="filterEvents('Workshop', this)" onclick="filterEvents('Hackathon', this)" onclick="filterEvents('all', this)">
                                 <!-- Avatar -->
                                 {% if request.user.profile.profile_picture %}
                                     <img src="{{ request.user.profile.profile_picture.url }}" alt="{{ request.user.username }}" class="w-8 h-8 rounded-full object-cover border border-cyan-500">
@@ -1068,7 +1068,7 @@
                             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                             </div>
-                            <input type="text" class="bg-slate-900/80 border border-slate-700/80 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-10 p-2.5 placeholder-slate-500 shadow-inner" placeholder="Search events...">
+                            <input type="text" class="bg-slate-900/80 border border-slate-700/80 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-10 p-2.5 placeholder-slate-500 shadow-inner" id="eventSearchInput" placeholder="Search events..." onkeyup="filterEvents()">
                         </div>
                     </div>
 
@@ -1077,7 +1077,7 @@
                         
 
                         {% for event in events %}
-                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-{% if event.is_featured %}purple{% elif event.status == 'Live Now' %}green{% else %}cyan{% endif %}-500/50 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-300 flex flex-col group relative">
+                        <div class="event-card bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-{% if event.is_featured %}purple{% elif event.status == 'Live Now' %}green{% else %}cyan{% endif %}-500/50 hover:shadow-[0_0_30px_rgba(139,92,246,0.15)] transition-all duration-300 flex flex-col group relative" data-type="{{ event.event_type }}" data-status="{{ event.status }}" data-title="{{ event.title|lower }}">
                             <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-{% if event.is_featured %}purple-500 to-indigo-500{% elif event.status == 'Live Now' %}green-500 to-emerald-500{% else %}cyan-500 to-blue-500{% endif %} z-20"></div>
                             <div class="h-40 bg-[url('{% if event.image %}{{ event.image.url }}{% else %}https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop{% endif %}')] bg-cover bg-center relative overflow-hidden">
                                 <div class="absolute inset-0 bg-{% if event.is_featured %}indigo{% elif event.status == 'Live Now' %}green{% else %}cyan{% endif %}-900/40 group-hover:bg-{% if event.is_featured %}indigo{% elif event.status == 'Live Now' %}green{% else %}cyan{% endif %}-900/20 transition-colors"></div>
