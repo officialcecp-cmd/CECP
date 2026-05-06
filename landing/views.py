@@ -219,6 +219,16 @@ def member_logout(request):
     messages.info(request, 'You have been logged out.')
     return redirect('landing:index')
 
+def member_detail(request, member_id):
+    member = get_object_or_404(ClubMember, id=member_id)
+    # Fetch member projects
+    projects = Project.objects.filter(Q(submitted_by=member) | Q(team_members=member), approval_status='approved').distinct().select_related('category').prefetch_related('achievements').order_by('-created_at')
+    
+    return render(request, 'landing/member_detail.html', {
+        'member': member,
+        'projects': projects,
+        'page_title': f"{member.get_display_name} — CECP Profile",
+    })
 
 def project_detail(request, project_id):
     # Allow admins to preview pending projects; public only sees approved ones

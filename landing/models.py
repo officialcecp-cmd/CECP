@@ -65,6 +65,12 @@ class ClubMember(models.Model):
     phone = models.CharField(max_length=15, blank=True)
     linkedin_url = models.URLField(blank=True)
     github_url = models.URLField(blank=True)
+    
+    # --- Profile Detail Fields ---
+    core_technologies = models.CharField(max_length=255, blank=True, help_text="Comma-separated skills (e.g., Python, React, IoT)")
+    area_of_interest = models.CharField(max_length=255, blank=True, help_text="e.g., Embedded Systems, AI, Web Dev")
+    experience = models.TextField(blank=True, help_text="Internships, past roles, or major accomplishments")
+    
     joined_at = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=True)
 

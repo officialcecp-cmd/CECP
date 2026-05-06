@@ -11,6 +11,7 @@ urlpatterns = [
     # Public
     path('', views.index, name='index'),
     path('team/', views.team_view, name='team'),
+    path('member/<int:member_id>/', views.member_detail, name='member_detail'),
     path('projects/<int:project_id>/', views.project_detail, name='project_detail'),
 
     # Authentication

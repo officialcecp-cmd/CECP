@@ -29,8 +29,12 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
         }),
         ('Team Page Display', {
-            'fields': ('category', 'display_role', 'profile_image', 'bio', 'quote'),
+            'fields': ('category', 'display_role', 'display_name', 'profile_image', 'bio', 'quote'),
             'description': 'These fields control how the member appears on the public /team/ page.'
+        }),
+        ('Detailed Profile Info', {
+            'fields': ('core_technologies', 'area_of_interest', 'experience'),
+            'description': 'These fields are shown on the individual member profile detail page.'
         }),
         ('Contact & Social', {
             'fields': ('phone', 'linkedin_url', 'github_url'),
