@@ -91,6 +91,7 @@ def index(request):
     context = {
         'initiatives': initiatives,
         'projects': approved_projects,
+        'featured_project': approved_projects.filter(is_featured=True).first(),
         'categories': categories,
         'stats': stats,
         'team_members': team_members,
