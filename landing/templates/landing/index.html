@@ -66,7 +66,7 @@
         <a href="#" class="nav-link text-xl" data-tab="blogs" onclick="switchTab('blogs')">Blogs</a>
         <a href="#" class="nav-link text-xl" data-tab="projects" onclick="switchTab('projects')">Projects</a>
         <a href="#" class="nav-link text-xl" data-tab="team" onclick="switchTab('team')">Management</a>
-        <a href="#" class="nav-link text-xl" data-tab="initiatives" onclick="switchTab('initiatives')">Initiatives</a>
+        <a href="#" class="nav-link text-xl" data-tab="events" onclick="switchTab('events')">Events</a>
         <div class="flex flex-col gap-3 mt-6">
             {% if request.user.is_authenticated %}
                 <div class="flex flex-col items-center mb-2">
@@ -106,8 +106,8 @@
                     <a href="#" class="nav-link tab-link" data-tab="projects"
                         onclick="switchTab('projects')">Projects</a>
                     <a href="#" class="nav-link tab-link" data-tab="team" onclick="switchTab('team')">Management</a>
-                    <a href="#" class="nav-link tab-link" data-tab="initiatives"
-                        onclick="switchTab('initiatives')">Initiatives</a>
+                    <a href="#" class="nav-link tab-link" data-tab="events"
+                        onclick="switchTab('events')">Events</a>
                 </nav>
 
                 <!-- Desktop CTA Buttons -->
@@ -930,218 +930,362 @@
         </section>
 
         <!-- =============================================================
-             TAB 3: INITIATIVES — Full Initiative Cards
+             TAB 3: EVENTS — Full Event Cards
              ============================================================= -->
-        <section id="tab-initiatives" class="tab-content h-full overflow-y-auto">
-            <div class="relative min-h-[calc(100vh-5rem)]">
-                <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; bottom: -100px; right: -150px;">
-                </div>
-
-                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-
-                    <div class="text-center mb-16 animate-on-scroll">
-                        <p class="section-label">// What We Do</p>
-                        <h2 class="section-title text-white">
-                            Core <span class="gradient-text">Initiatives</span>
-                        </h2>
-                        <p class="section-subtitle mx-auto">
-                            Three verticals driving innovation across hardware, software, and competitive engineering.
-                        </p>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-                        {% for initiative in initiatives %}
-                        <div class="holo-card p-[1px] group animate-on-scroll delay-{{ forloop.counter }} hover:-translate-y-2 transition-all duration-500 shadow-xl"
-                            id="initiative-card-{{ forloop.counter }}">
-                            <!-- Dynamic Holographic Border Colors Based on Loop Index -->
-                            {% if forloop.counter == 1 %}
-                            <div class="holo-card-border"
-                                style="background: linear-gradient(135deg, rgba(6,182,212,0.4), rgba(59,130,246,0.2), rgba(6,182,212,0.4));">
-                            </div>
-                            {% elif forloop.counter == 2 %}
-                            <div class="holo-card-border"
-                                style="background: linear-gradient(135deg, rgba(59,130,246,0.4), rgba(99,102,241,0.2), rgba(59,130,246,0.4));">
-                            </div>
-                            {% else %}
-                            <div class="holo-card-border"
-                                style="background: linear-gradient(135deg, rgba(168,85,247,0.4), rgba(59,130,246,0.2), rgba(168,85,247,0.4));">
-                            </div>
-                            {% endif %}
-
-                            <div
-                                class="relative h-full bg-[#0a1628]/90 backdrop-blur-xl rounded-[15px] p-8 overflow-hidden">
-                                <div class="card-scan-overlay absolute inset-0 z-0 opacity-50"></div>
-
-                                <div
-                                    class="relative z-10 w-16 h-16 rounded-2xl mb-6 flex items-center justify-center border transition-all duration-500
-                                    {% if forloop.counter == 1 %}bg-cyan-500/10 text-cyan-400 border-cyan-500/20 group-hover:bg-cyan-500/20 group-hover:shadow-[0_0_30px_rgba(6,182,212,0.3)]
-                                    {% elif forloop.counter == 2 %}bg-blue-500/10 text-blue-400 border-blue-500/20 group-hover:bg-blue-500/20 group-hover:shadow-[0_0_30px_rgba(59,130,246,0.3)]
-                                    {% else %}bg-purple-500/10 text-purple-400 border-purple-500/20 group-hover:bg-purple-500/20 group-hover:shadow-[0_0_30px_rgba(168,85,247,0.3)]{% endif %}">
-                                    {% if initiative.icon == 'chip' or forloop.counter == 1 %}
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z" />
-                                    </svg>
-                                    {% elif initiative.icon == 'eye' or forloop.counter == 2 %}
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z" />
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                                    </svg>
-                                    {% elif initiative.icon == 'code' or forloop.counter == 3 %}
-                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                                        stroke-width="1.5">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
-                                    </svg>
-                                    {% endif %}
-                                </div>
-                                <h3
-                                    class="relative z-10 text-xl font-bold text-white mb-3 transition-colors duration-300
-                                    {% if forloop.counter == 1 %}group-hover:text-cyan-300{% elif forloop.counter == 2 %}group-hover:text-blue-300{% else %}group-hover:text-purple-300{% endif %}">
-                                    {{ initiative.title }}
-                                </h3>
-                                <p
-                                    class="relative z-10 text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-300">
-                                    {{ initiative.description }}
-                                </p>
-                                <div
-                                    class="relative z-10 mt-6 flex items-center gap-2 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300
-                                    {% if forloop.counter == 1 %}text-cyan-400{% elif forloop.counter == 2 %}text-blue-400{% else %}text-purple-400{% endif %}">
-                                    <span class="text-[10px] font-mono tracking-widest uppercase font-bold">Initialize
-                                        Sequence</span>
-                                    <svg class="w-4 h-4 transform group-hover:translate-x-1 transition-transform"
-                                        fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <!-- ▓▓▓ OUR EVENTS SECTION ▓▓▓ -->
-                    <div class="mt-32 animate-on-scroll">
-                        <div class="text-center mb-16">
-                            <div
-                                class="inline-flex items-center gap-2 px-3 py-1 rounded-sm border border-purple-500/30 bg-purple-500/10 mb-6">
-                                <div class="w-2 h-2 bg-purple-400 rounded-full animate-pulse"></div>
-                                <span
-                                    class="text-[10px] font-mono font-bold text-purple-400 uppercase tracking-widest">Event
-                                    Telemetry</span>
-                            </div>
-                            <h2 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight glitch-title uppercase"
-                                data-text="Our Events">
-                                Our <span
-                                    class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500">Events</span>
+        <section id="tab-events" class="tab-content h-full overflow-y-auto">
+            <div class="relative min-h-[calc(100vh-5rem)] pb-20">
+                <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; bottom: -100px; right: -150px;"></div>
+                
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+                    
+                    <!-- Header Section with Calendar Icon -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-12 gap-8">
+                        <div class="max-w-2xl animate-on-scroll">
+                            <p class="section-label mb-2 uppercase tracking-widest text-cyan-400 font-bold text-xs">// EVENTS</p>
+                            <h2 class="text-5xl md:text-6xl font-black text-white mb-4 tracking-tight leading-tight">
+                                Explore <span class="text-cyan-400">Tech</span> Events
                             </h2>
-                            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base font-mono">
-                                High-impact hackathons, workshops, and industry collaborations.
+                            <p class="text-slate-400 text-lg md:text-xl leading-relaxed font-light mb-6">
+                                Discover hackathons, workshops, competitions and more.<br>
+                                Stay ahead. Build. Innovate. Lead.
                             </p>
+                            
+                            <!-- Stats Bar -->
+                            <div class="flex flex-wrap items-center gap-4 md:gap-6 bg-slate-900/50 backdrop-blur-md border border-slate-700/50 rounded-2xl p-4 mt-8">
+                                <!-- Stat 1 -->
+                                <div class="flex items-center gap-3 pr-4 md:pr-6 border-r border-slate-700/50 last:border-0">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold text-lg leading-tight">25+</div>
+                                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Events Hosted</div>
+                                    </div>
+                                </div>
+                                <!-- Stat 2 -->
+                                <div class="flex items-center gap-3 pr-4 md:pr-6 border-r border-slate-700/50 last:border-0">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold text-lg leading-tight">2000+</div>
+                                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Participants</div>
+                                    </div>
+                                </div>
+                                <!-- Stat 3 -->
+                                <div class="flex items-center gap-3 pr-4 md:pr-6 border-r border-slate-700/50 last:border-0">
+                                    <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold text-lg leading-tight">50+</div>
+                                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Winners Crowned</div>
+                                    </div>
+                                </div>
+                                <!-- Stat 4 -->
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-orange-500/20 text-orange-400 flex items-center justify-center">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-white font-bold text-lg leading-tight">10+</div>
+                                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-mono">Collaborations</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
-                        <!-- Featured Event: CHIP Nirman -->
-                        <div
-                            class="holo-card p-[1px] group relative overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(168,85,247,0.2)]">
-                            <div class="holo-card-border"
-                                style="background: linear-gradient(135deg, rgba(168,85,247,0.6), rgba(6,182,212,0.6), rgba(168,85,247,0.6));">
-                            </div>
-
-                            <div
-                                class="relative flex flex-col md:flex-row bg-[#0a1628]/95 backdrop-blur-xl h-full w-full z-10 rounded-[15px] overflow-hidden">
-                                <!-- Image Section -->
-                                <div
-                                    class="w-full md:w-2/5 relative h-64 md:h-auto border-b md:border-b-0 md:border-r border-slate-700/50 overflow-hidden">
-                                    <div
-                                        class="absolute inset-0 bg-gradient-to-br from-purple-900/40 to-blue-900/40 z-10">
+                        <!-- 3D Calendar Illustration -->
+                        <div class="hidden lg:block relative animate-on-scroll flex-shrink-0">
+                            <div class="absolute inset-0 bg-blue-500/20 blur-[100px] rounded-full"></div>
+                            <div class="relative w-64 h-64 lg:w-80 lg:h-80 flex items-center justify-center">
+                                <div class="w-48 h-48 lg:w-56 lg:h-56 bg-gradient-to-br from-indigo-500 to-blue-600 rounded-3xl shadow-[0_20px_60px_rgba(59,130,246,0.6)] border border-blue-400/40 flex flex-col overflow-hidden transform rotate-[-5deg] hover:rotate-0 transition-transform duration-500">
+                                    <div class="h-16 bg-blue-400/20 border-b border-blue-400/30 flex items-center justify-center relative shadow-inner">
+                                        <!-- Ring binders -->
+                                        <div class="absolute -top-4 left-8 w-6 h-10 bg-gradient-to-b from-slate-200 to-slate-400 rounded-full shadow-lg border border-slate-300/50"></div>
+                                        <div class="absolute -top-4 right-8 w-6 h-10 bg-gradient-to-b from-slate-200 to-slate-400 rounded-full shadow-lg border border-slate-300/50"></div>
                                     </div>
-                                    <div
-                                        class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1517048676732-d65bc937f952?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center transition-transform duration-700 group-hover:scale-105">
-                                    </div>
-                                    <div class="absolute top-4 left-4 z-20">
-                                        <span
-                                            class="inline-flex items-center px-2.5 py-1 rounded bg-green-500/20 border border-green-500/30 text-[10px] font-mono font-bold text-green-400 uppercase tracking-widest">
-                                            Successfully Conducted
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Content Section -->
-                                <div class="w-full md:w-3/5 p-8 md:p-12 relative flex flex-col justify-center">
-                                    <div class="card-scan-overlay absolute inset-0 z-0 opacity-50"></div>
-                                    <div class="relative z-10">
-                                        <div class="flex items-center gap-3 mb-4">
-                                            <span
-                                                class="text-sm font-mono text-purple-400 font-bold uppercase tracking-widest">Chip
-                                                Nirman</span>
-                                            <span class="text-slate-600">x</span>
-                                            <span
-                                                class="text-sm font-mono text-cyan-400 font-bold uppercase tracking-widest border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 rounded">TRUECHIP</span>
-                                        </div>
-                                        <h3
-                                            class="text-3xl md:text-4xl font-black text-white mb-6 tracking-tight leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-purple-400 group-hover:to-cyan-400 transition-all duration-300">
-                                            VLSI & Chip Design Hackathon
-                                        </h3>
-                                        <p class="text-slate-400 leading-relaxed mb-8 font-mono text-sm">
-                                            In an exclusive collaboration with industry leader TRUECHIP, the CECP club
-                                            hosted the Chip Nirman Hackathon. Students engaged in cutting-edge VLSI
-                                            challenges, designing efficient chip architectures and competing for top
-                                            honors.
-                                        </p>
-
-                                        <div
-                                            class="grid grid-cols-2 md:grid-cols-3 gap-6 pt-6 border-t border-slate-700/50">
-                                            <div>
-                                                <div
-                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
-                                                    Status</div>
-                                                <div class="text-white font-bold tracking-wide">Completed</div>
-                                            </div>
-                                            <div>
-                                                <div
-                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
-                                                    Participants</div>
-                                                <div class="text-white font-bold tracking-wide text-cyan-400">120+
-                                                    Hackers</div>
-                                            </div>
-                                            <div class="col-span-2 md:col-span-1">
-                                                <div
-                                                    class="text-[10px] font-mono text-slate-500 uppercase tracking-widest mb-1">
-                                                    Outcome</div>
-                                                <div
-                                                    class="text-white font-bold tracking-wide text-purple-400 flex items-center gap-2">
-                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                        viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                                            stroke-width="2"
-                                                            d="M16.5 18.75h-9m9 0a3 3 0 0 1 3 3h-15a3 3 0 0 1 3-3m9 0v-3.375c0-.621-.503-1.125-1.125-1.125h-.871M7.5 18.75v-3.375c0-.621.504-1.125 1.125-1.125h.872m5.007 0H9.497m5.007 0a7.454 7.454 0 0 1-.982-3.172M9.497 14.25a7.454 7.454 0 0 0 .981-3.172M5.25 4.236c-.982.143-1.954.317-2.916.52A6.003 6.003 0 0 0 7.73 9.728M5.25 4.236V4.5c0 2.108.966 3.99 2.48 5.228M5.25 4.236V2.721C7.456 2.41 9.71 2.25 12 2.25c2.291 0 4.545.16 6.75.47v1.516M7.73 9.728a6.726 6.726 0 0 0 2.748 1.35m8.272-6.842V4.5c0 2.108-.966 3.99-2.48 5.228m2.48-5.492a46.32 46.32 0 0 1 2.916.52 6.003 6.003 0 0 1-5.395 4.972m0 0a6.726 6.726 0 0 1-2.749 1.35m0 0a6.772 6.772 0 0 1-3.044 0" />
-                                                    </svg>
-                                                    Winners Crowned
-                                                </div>
+                                    <div class="flex-1 p-6 grid grid-cols-4 gap-3 relative">
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="col-span-2 row-span-2 relative">
+                                            <div class="absolute inset-0 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-xl shadow-[0_0_30px_rgba(34,211,238,0.6)] flex items-center justify-center border border-white/30">
+                                                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
                                             </div>
                                         </div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
+                                        <div class="bg-white/10 rounded-md border border-white/20"></div>
                                     </div>
+                                    <!-- A glowing base line -->
+                                    <div class="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-80"></div>
                                 </div>
+                                <!-- Base reflection/shadow -->
+                                <div class="absolute -bottom-6 left-1/2 -translate-x-1/2 w-64 h-8 bg-blue-500/40 blur-2xl rounded-full"></div>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Filters and Search -->
+                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-10 animate-on-scroll">
+                        <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                            <button class="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 text-sm font-medium flex items-center gap-2 hover:bg-slate-700 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                                All Events
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                                Hackathons
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                Workshops
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Competitions
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+                                Talks
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Ongoing
+                            </button>
+                            <button class="px-4 py-2 rounded-lg bg-transparent text-slate-400 border border-transparent hover:bg-slate-800/50 hover:text-slate-300 text-sm font-medium transition-colors">
+                                Past Events
+                            </button>
+                        </div>
+                        <div class="relative w-full lg:w-72 flex-shrink-0">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                            </div>
+                            <input type="text" class="bg-slate-900/80 border border-slate-700/80 text-white text-sm rounded-lg focus:ring-cyan-500 focus:border-cyan-500 block w-full pl-10 p-2.5 placeholder-slate-500 shadow-inner" placeholder="Search events...">
+                        </div>
+                    </div>
+
+                    <!-- Events Grid -->
+                    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 animate-on-scroll delay-1">
+                        
+                        <!-- Card 1: TECHNOMAX 5.0 -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)] transition-all duration-300 flex flex-col group relative">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-indigo-500 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-indigo-900/40 group-hover:bg-indigo-900/20 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-purple-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10">Featured</div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-cyan-400 mb-3 shadow-lg">Hackathon</div>
+                                <h3 class="text-xl font-bold text-white mb-2">TECHNOMAX 5.0</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">National level electronics hackathon. Innovate. Integrate. Inspire.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        24-26 May 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        CECP, Bhopal
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+                                        Register Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: PCB DESIGN WORKSHOP -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-green-500/50 hover:shadow-[0_0_30px_rgba(34,197,94,0.15)] transition-all duration-300 flex flex-col group relative">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-green-500 to-emerald-500 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1592503254549-ceb5b3a3250b?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-green-900/40 group-hover:bg-green-900/20 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-green-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span> Live Now
+                                </div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-blue-400 mb-3 shadow-lg">Workshop</div>
+                                <h3 class="text-xl font-bold text-white mb-2">PCB DESIGN WORKSHOP</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">Learn PCB designing from basics to advanced with hands-on practice.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        18 May 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        Electronics Lab
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+                                        View Details <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: CIRCUIT DEBUGGING -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all duration-300 flex flex-col group relative">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-500 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1620803553258-a53c1af7ebf1?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-cyan-900/40 group-hover:bg-cyan-900/20 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-cyan-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10">Upcoming</div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-purple-400 mb-3 shadow-lg">Competition</div>
+                                <h3 class="text-xl font-bold text-white mb-2">CIRCUIT DEBUGGING</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">Test your troubleshooting skills in real-world circuits.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        25 May 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        CECP, Bhopal
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+                                        Register Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: SOLDERING BOOTCAMP -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-blue-500/50 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)] transition-all duration-300 flex flex-col group relative">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-indigo-500 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1591523456382-78d1033068e2?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-blue-900/40 group-hover:bg-blue-900/20 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-blue-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10">Upcoming</div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-cyan-400 mb-3 shadow-lg">Workshop</div>
+                                <h3 class="text-xl font-bold text-white mb-2">SOLDERING BOOTCAMP</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">Master the art of soldering with expert guidance.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        1 June 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                                        Electronics Lab
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(37,99,235,0.3)]">
+                                        View Details <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Card 5: ROBO RUMBLE 2.0 -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-slate-500/50 hover:shadow-[0_0_30px_rgba(148,163,184,0.15)] transition-all duration-300 flex flex-col group relative opacity-80">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-slate-500 to-slate-400 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1485827404703-89b55fcc595e?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden filter grayscale-[50%]">
+                                <div class="absolute inset-0 bg-slate-900/60 group-hover:bg-slate-900/40 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-slate-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10">Completed</div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-purple-400 mb-3 shadow-lg">Competition</div>
+                                <h3 class="text-xl font-bold text-white mb-2">ROBO RUMBLE 2.0</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">An exciting robotics competition for tech innovators.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        10 May 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.243-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                                        CECP, Bhopal
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-slate-700 hover:bg-slate-600 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2">
+                                        View Highlights <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 6: INDUSTRY TALK -->
+                        <div class="bg-slate-900/80 border border-slate-700/60 rounded-2xl overflow-hidden hover:border-cyan-500/50 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] transition-all duration-300 flex flex-col group relative">
+                            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 to-blue-500 z-20"></div>
+                            <div class="h-40 bg-[url('https://images.unsplash.com/photo-1540317580384-e5d43867caa6?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center relative overflow-hidden">
+                                <div class="absolute inset-0 bg-cyan-900/40 group-hover:bg-cyan-900/20 transition-colors"></div>
+                                <div class="absolute top-3 left-3 bg-cyan-600 text-white text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded shadow-lg z-10">Upcoming</div>
+                            </div>
+                            <div class="p-5 flex-1 flex flex-col relative z-10 -mt-6">
+                                <div class="bg-slate-900 border border-slate-700 w-max px-3 py-1 rounded text-xs font-mono text-blue-400 mb-3 shadow-lg">Talk</div>
+                                <h3 class="text-xl font-bold text-white mb-2">INDUSTRY TALK</h3>
+                                <p class="text-sm text-slate-400 mb-4 line-clamp-2 leading-relaxed flex-1">Insights from industry experts on emerging technologies.</p>
+                                
+                                <div class="space-y-2 mb-6">
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        5 June 2025
+                                    </div>
+                                    <div class="flex items-center gap-2 text-xs text-slate-300 font-mono">
+                                        <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                                        Online (Zoom)
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between mt-auto">
+                                    <a href="#" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-medium py-2 px-4 rounded transition-colors flex items-center gap-2 shadow-[0_0_15px_rgba(79,70,229,0.3)]">
+                                        Register Now <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                    <button class="text-slate-400 hover:text-white transition-colors">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
-                <footer class="border-t border-slate-800/50 py-8">
+                <footer class="border-t border-slate-800/50 py-8 mt-12">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
                         <p class="text-xs text-slate-600">&copy; {% now "Y" %} CECP — Roorkee Institute of Technology
                         </p>
                     </div>
                 </footer>
             </div>
-        </section>
-
-        <!-- =============================================================
+        </section><!-- =============================================================
              TAB 4: PROJECTS — TECHFEST-LEVEL CYBERPUNK SHOWCASE
              ============================================================= -->
         <section id="tab-projects" class="tab-content h-full overflow-y-auto">
