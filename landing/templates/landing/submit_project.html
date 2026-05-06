@@ -236,7 +236,7 @@
 
                     <div id="achievementsContainer"></div>
 
-                    <button type="button" onclick="addAchievement()" class="add-btn mt-3">
+                    <button type="button" onclick="openAchievementModal()" class="add-btn mt-3">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
                         Add Achievement
                     </button>
@@ -300,74 +300,193 @@
         </div>
     </main>
 
+    <!-- Achievement Modal -->
+    <div id="achievementModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm transition-opacity" onclick="closeAchievementModal()"></div>
+        <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 m-4 overflow-y-auto max-h-[90vh]">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    <h3 class="text-xl font-bold text-white">Add Achievement</h3>
+                </div>
+                <button type="button" onclick="closeAchievementModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Achievement Title *</label>
+                        <input type="text" id="modalAchTitle" class="form-input" placeholder="e.g., Top 10 Finalist">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Event / Competition Name</label>
+                        <input type="text" id="modalAchEvent" class="form-input" placeholder="e.g., AI Summit 2026">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                        <select id="modalAchType" class="form-select">
+                            <option value="competition">Competition</option>
+                            <option value="award">Award</option>
+                            <option value="publication">Publication</option>
+                            <option value="milestone">Milestone</option>
+                            <option value="deployment">Deployment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Position / Rank</label>
+                        <input type="text" id="modalAchPosition" class="form-input" placeholder="e.g., 1st Place">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Date *</label>
+                        <input type="date" id="modalAchDate" class="form-input">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Certificate / Proof URL</label>
+                    <input type="url" id="modalAchURL" class="form-input" placeholder="https://...">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Or Upload Certificate File</label>
+                    <input type="file" id="modalAchFile" accept=".pdf,image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
+                    <p class="text-xs text-slate-500 mt-1 font-mono">Upload a PDF or Image</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3">
+                <button type="button" onclick="closeAchievementModal()" class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors font-medium text-sm">Cancel</button>
+                <button type="button" onclick="saveAchievement()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold text-sm hover:from-yellow-400 hover:to-amber-500 transition-colors shadow-lg shadow-yellow-500/20">Add to Project</button>
+            </div>
+        </div>
+    </div>
+
     <script>
     // ── Team Members Dynamic System ──
     let teamMembers = [];
     function addTeamMember() {
         const id = Date.now();
-        teamMembers.push({id, email: ''});
+        teamMembers.push({id, name: '', email: ''});
         const container = document.getElementById('teamMembersContainer');
         const div = document.createElement('div');
-        div.className = 'dynamic-entry flex items-center gap-3 mb-3';
+        div.className = 'dynamic-entry flex flex-col sm:flex-row items-center gap-3 mb-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800';
         div.id = `team-${id}`;
         div.innerHTML = `
-            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 flex-shrink-0">
+            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 flex-shrink-0 hidden sm:flex">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
             </div>
-            <input type="email" placeholder="teammate@gmail.com" class="flex-1"
-                onchange="updateTeamEmail(${id}, this.value)" oninput="updateTeamEmail(${id}, this.value)">
-            <button type="button" onclick="removeTeamMember(${id})" class="remove-btn">
+            <div class="flex-1 w-full grid grid-cols-2 gap-3">
+                <input type="text" placeholder="Full Name" class="w-full bg-transparent border-b border-slate-700 focus:border-cyan-500 outline-none text-sm py-1.5 text-white"
+                    onchange="updateTeamData(${id}, 'name', this.value)" oninput="updateTeamData(${id}, 'name', this.value)">
+                <input type="email" placeholder="teammate@gmail.com" class="w-full bg-transparent border-b border-slate-700 focus:border-cyan-500 outline-none text-sm py-1.5 text-white"
+                    onchange="updateTeamData(${id}, 'email', this.value)" oninput="updateTeamData(${id}, 'email', this.value)">
+            </div>
+            <button type="button" onclick="removeTeamMember(${id})" class="remove-btn self-end sm:self-center">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>`;
         container.appendChild(div);
     }
-    function updateTeamEmail(id, val) { const m = teamMembers.find(t => t.id === id); if (m) m.email = val; syncTeamJSON(); }
+    function updateTeamData(id, key, val) { const m = teamMembers.find(t => t.id === id); if (m) m[key] = val; syncTeamJSON(); }
     function removeTeamMember(id) { teamMembers = teamMembers.filter(t => t.id !== id); document.getElementById(`team-${id}`)?.remove(); syncTeamJSON(); }
-    function syncTeamJSON() { document.getElementById('team_member_emails_json').value = JSON.stringify(teamMembers.filter(t=>t.email).map(t=>t.email)); }
+    function syncTeamJSON() { document.getElementById('team_member_emails_json').value = JSON.stringify(teamMembers.filter(t=>t.email).map(({id, ...r})=>r)); }
 
-    // ── Achievements Dynamic System ──
+    // ── Achievements Dynamic System (Modal) ──
     let achievements = [];
-    function addAchievement() {
+    
+    function openAchievementModal() {
+        document.getElementById('achievementModal').style.display = 'flex';
+    }
+    function closeAchievementModal() {
+        document.getElementById('achievementModal').style.display = 'none';
+        // Clear modal inputs
+        ['Title', 'Event', 'Type', 'Position', 'Date', 'URL', 'File'].forEach(field => {
+            const el = document.getElementById('modalAch' + field);
+            if(el) {
+                if(el.type === 'file') el.value = '';
+                else if(el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            }
+        });
+    }
+
+    function saveAchievement() {
+        const title = document.getElementById('modalAchTitle').value;
+        const date = document.getElementById('modalAchDate').value;
+        if (!title || !date) {
+            alert('Title and Date are required!');
+            return;
+        }
+
         const id = Date.now();
-        achievements.push({id, title:'', achievement_type:'competition', event_name:'', position:'', date:'', description:'', certificate_url:''});
+        const ach = {
+            id,
+            title,
+            event_name: document.getElementById('modalAchEvent').value,
+            achievement_type: document.getElementById('modalAchType').value,
+            position: document.getElementById('modalAchPosition').value,
+            date,
+            certificate_url: document.getElementById('modalAchURL').value
+        };
+        
+        achievements.push(ach);
+
+        // Handle File Upload by appending a hidden input to the main form
+        const fileInput = document.getElementById('modalAchFile');
+        if (fileInput.files.length > 0) {
+            const form = document.getElementById('projectForm');
+            const newFileInput = fileInput.cloneNode(true);
+            newFileInput.name = `achievement_cert_${id}`;
+            newFileInput.id = `achievement_cert_${id}`;
+            newFileInput.style.display = 'none';
+            form.appendChild(newFileInput);
+            ach.has_file = true;
+        }
+
+        renderAchievement(ach);
+        syncAchJSON();
+        closeAchievementModal();
+    }
+
+    function renderAchievement(ach) {
         const container = document.getElementById('achievementsContainer');
         const div = document.createElement('div');
-        div.className = 'dynamic-entry p-5 rounded-xl bg-slate-900/50 border border-slate-800 mb-4';
-        div.id = `ach-${id}`;
+        div.className = 'dynamic-entry p-4 rounded-xl bg-slate-900/50 border border-slate-800 mb-4 flex items-center justify-between';
+        div.id = `ach-${ach.id}`;
+        
         div.innerHTML = `
-            <div class="flex items-center justify-between mb-4">
-                <div class="flex items-center gap-2">
-                    <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
-                    <span class="text-sm font-bold text-white">Achievement</span>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 uppercase">${ach.achievement_type}</span>
+                    ${ach.position ? `<span class="text-xs text-white font-medium">🏆 ${ach.position}</span>` : ''}
                 </div>
-                <button type="button" onclick="removeAchievement(${id})" class="remove-btn">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
+                <h4 class="text-sm font-bold text-white">${ach.title}</h4>
+                <p class="text-xs text-slate-400 mt-0.5">${ach.event_name ? ach.event_name + ' • ' : ''}${ach.date}</p>
+                ${ach.has_file ? '<p class="text-[10px] text-cyan-400 mt-1 font-mono">📎 Certificate Attached</p>' : ''}
             </div>
-            <div class="grid md:grid-cols-2 gap-4 mb-4">
-                <div><label class="block text-xs text-slate-400 mb-1.5">Achievement Title *</label>
-                    <input type="text" placeholder="e.g., Top 10 Finalist — OpenAI Hackathon" onchange="updateAch(${id},'title',this.value)" oninput="updateAch(${id},'title',this.value)"></div>
-                <div><label class="block text-xs text-slate-400 mb-1.5">Event / Competition Name</label>
-                    <input type="text" placeholder="e.g., Technomax 2025" onchange="updateAch(${id},'event_name',this.value)" oninput="updateAch(${id},'event_name',this.value)"></div>
-            </div>
-            <div class="grid md:grid-cols-3 gap-4 mb-4">
-                <div><label class="block text-xs text-slate-400 mb-1.5">Type</label>
-                    <select onchange="updateAch(${id},'achievement_type',this.value)">
-                        <option value="competition">Competition</option><option value="award">Award</option>
-                        <option value="publication">Publication</option><option value="milestone">Milestone</option>
-                        <option value="deployment">Deployment</option></select></div>
-                <div><label class="block text-xs text-slate-400 mb-1.5">Position / Rank</label>
-                    <input type="text" placeholder="e.g., 1st Place" onchange="updateAch(${id},'position',this.value)" oninput="updateAch(${id},'position',this.value)"></div>
-                <div><label class="block text-xs text-slate-400 mb-1.5">Date *</label>
-                    <input type="date" onchange="updateAch(${id},'date',this.value)"></div>
-            </div>
-            <div><label class="block text-xs text-slate-400 mb-1.5">Certificate / Proof URL</label>
-                <input type="url" placeholder="https://..." onchange="updateAch(${id},'certificate_url',this.value)" oninput="updateAch(${id},'certificate_url',this.value)"></div>`;
+            <button type="button" onclick="removeAchievement(${ach.id})" class="remove-btn ml-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        `;
         container.appendChild(div);
     }
-    function updateAch(id, key, val) { const a = achievements.find(a => a.id === id); if (a) a[key] = val; syncAchJSON(); }
-    function removeAchievement(id) { achievements = achievements.filter(a => a.id !== id); document.getElementById(`ach-${id}`)?.remove(); syncAchJSON(); }
-    function syncAchJSON() { document.getElementById('achievements_json').value = JSON.stringify(achievements.filter(a=>a.title&&a.date).map(({id,...r})=>r)); }
+
+    function removeAchievement(id) { 
+        achievements = achievements.filter(a => a.id !== id); 
+        document.getElementById(`ach-${id}`)?.remove();
+        const fileInput = document.getElementById(`achievement_cert_${id}`);
+        if(fileInput) fileInput.remove();
+        syncAchJSON(); 
+    }
+    
+    // Notice we map and INCLUDE 'id' so backend can find the file input
+    function syncAchJSON() { 
+        document.getElementById('achievements_json').value = JSON.stringify(achievements); 
+    }
 
     // ── Sync before submit ──
     document.getElementById('projectForm').addEventListener('submit', function() { syncTeamJSON(); syncAchJSON(); });

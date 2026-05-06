@@ -336,25 +336,25 @@ def submit_project(request):
             # --- Add the submitter as a team member ---
             project.team_members.add(member)
 
-            # --- Link team members by email ---
-            team_emails = form.cleaned_data.get('team_member_emails', [])
-            for email in team_emails:
-                # Find User by email (personal_email or auth email)
-                from django.contrib.auth.models import User as DjangoUser
-                from landing.models import ClubApplication
+            # --- Link team members by email / name ---
+            team_data = form.cleaned_data.get('team_members_json', [])
+            external_teammates = []
+            from django.contrib.auth.models import User as DjangoUser
+            from landing.models import ClubApplication
+
+            for tm in team_data:
+                email = tm['email']
+                name = tm['name']
                 user = DjangoUser.objects.filter(email__iexact=email).first()
                 if not user:
-                    # Also check personal_email in applications
-                    app = ClubApplication.objects.filter(
-                        personal_email__iexact=email, status='approved'
-                    ).first()
+                    app = ClubApplication.objects.filter(personal_email__iexact=email, status='approved').first()
                     if app and app.user:
                         user = app.user
+                
                 if user:
                     try:
                         team_member = user.club_profile
                         project.team_members.add(team_member)
-                        # Notify the team member
                         Notification.objects.create(
                             recipient=team_member,
                             notification_type='info',
@@ -363,7 +363,13 @@ def submit_project(request):
                             related_project=project,
                         )
                     except ClubMember.DoesNotExist:
-                        pass  # User exists but no club profile yet
+                        external_teammates.append({'name': name or email, 'email': email})
+                else:
+                    external_teammates.append({'name': name or email, 'email': email})
+            
+            if external_teammates:
+                project.external_team_members = external_teammates
+                project.save()
 
             # --- Create achievements ---
             achievements_data = form.cleaned_data.get('achievements_json', [])
@@ -372,7 +378,7 @@ def submit_project(request):
             for ach in achievements_data:
                 try:
                     ach_date = datetime.strptime(ach['date'], '%Y-%m-%d').date()
-                    ProjectAchievement.objects.create(
+                    achievement_obj = ProjectAchievement.objects.create(
                         project=project,
                         title=ach['title'],
                         achievement_type=ach.get('achievement_type', 'competition'),
@@ -382,6 +388,13 @@ def submit_project(request):
                         date=ach_date,
                         certificate_url=ach.get('certificate_url', ''),
                     )
+                    # Check for uploaded file if ID was passed
+                    ach_id = ach.get('id')
+                    if ach_id:
+                        cert_file = request.FILES.get(f'achievement_cert_{ach_id}')
+                        if cert_file:
+                            achievement_obj.certificate_file = cert_file
+                            achievement_obj.save()
                 except (ValueError, KeyError):
                     continue
 

@@ -198,6 +198,10 @@ class Project(models.Model):
         ClubMember, blank=True, related_name='projects',
         help_text="Members who worked on this project"
     )
+    external_team_members = models.JSONField(
+        default=list, blank=True,
+        help_text="List of dicts [{'name': '...', 'email': '...'}] for unregistered teammates"
+    )
 
     # --- External Links ---
     github_url = models.URLField(blank=True, help_text="GitHub repository URL")
@@ -272,6 +276,11 @@ class ProjectAchievement(models.Model):
     certificate_url = models.URLField(
         blank=True,
         help_text="Link to certificate or proof"
+    )
+    certificate_file = models.FileField(
+        upload_to='achievements/certificates/',
+        blank=True, null=True,
+        help_text="Upload certificate file (PDF/Image)"
     )
     created_at = models.DateTimeField(auto_now_add=True)
 

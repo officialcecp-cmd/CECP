@@ -140,11 +140,11 @@ class ProjectSubmissionForm(forms.ModelForm):
         help_text="Comma-separated list of technologies used"
     )
 
-    # Dynamic team member emails (up to 10 slots, handled via JS)
-    team_member_emails = forms.CharField(
+    # Dynamic team members (handled via JS, sent as JSON list of dicts)
+    team_members_json = forms.CharField(
         required=False,
         widget=forms.HiddenInput(attrs={'id': 'team_member_emails_json'}),
-        help_text="JSON array of team member email addresses"
+        help_text="JSON array of team member objects [{'name': '', 'email': ''}]"
     )
 
     # Dynamic achievements (handled via JS, sent as JSON)
@@ -180,21 +180,22 @@ class ProjectSubmissionForm(forms.ModelForm):
             return [t.strip() for t in raw.split(',') if t.strip()]
         return []
 
-    def clean_team_member_emails(self):
+    def clean_team_members_json(self):
         import json
-        raw = self.cleaned_data.get('team_member_emails', '')
+        raw = self.cleaned_data.get('team_members_json', '')
         if not raw:
             return []
         try:
-            emails = json.loads(raw)
-            if not isinstance(emails, list):
+            members = json.loads(raw)
+            if not isinstance(members, list):
                 return []
-            # Validate each email
             cleaned = []
-            for email in emails:
-                email = email.strip().lower()
-                if email and '@' in email:
-                    cleaned.append(email)
+            for mem in members:
+                if isinstance(mem, dict):
+                    email = str(mem.get('email', '')).strip().lower()
+                    name = str(mem.get('name', '')).strip()
+                    if email and '@' in email:
+                        cleaned.append({'name': name, 'email': email})
             return cleaned
         except (json.JSONDecodeError, TypeError):
             return []
