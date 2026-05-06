@@ -3,6 +3,7 @@
 # ==============================================================================
 from django.contrib import admin
 from .models import (
+    Event,
     Initiative, Project, ProjectAchievement,
     ClubMember, ProjectCategory, Notification, ClubApplication, Blog
 )
@@ -303,3 +304,13 @@ class BlogAdmin(admin.ModelAdmin):
         queryset.update(is_approved=False)
         
     actions = ['approve_blogs', 'reject_blogs']
+
+
+# --- Event Admin --------------------------------------------------------------
+
+@admin.register(Event)
+class EventAdmin(admin.ModelAdmin):
+    list_display = ('title', 'event_type', 'status', 'date_range', 'is_featured')
+    list_filter = ('event_type', 'status', 'is_featured')
+    search_fields = ('title', 'description', 'location')
+    list_editable = ('status', 'is_featured')

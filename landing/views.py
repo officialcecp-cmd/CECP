@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog
+    ClubApplication, Blog, Event
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
@@ -41,6 +41,7 @@ FALLBACK_INITIATIVES = [
 # ==============================================================================
 
 def index(request):
+    events = Event.objects.all()
     initiatives = fetch_initiatives()
     if initiatives is None:
         initiatives = FALLBACK_INITIATIVES
@@ -89,6 +90,7 @@ def index(request):
         is_cecp_team = request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()
 
     context = {
+        'events': events,
         'initiatives': initiatives,
         'projects': approved_projects,
         'featured_project': approved_projects.filter(is_featured=True).first(),

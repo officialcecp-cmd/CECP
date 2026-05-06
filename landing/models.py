@@ -619,3 +619,41 @@ class Blog(models.Model):
 
     def __str__(self):
         return self.title
+
+# ==============================================================================
+# EVENT
+# ==============================================================================
+
+class Event(models.Model):
+    EVENT_TYPES = [
+        ('Hackathon', 'Hackathon'),
+        ('Workshop', 'Workshop'),
+        ('Competition', 'Competition'),
+        ('Talk', 'Talk'),
+        ('Other', 'Other'),
+    ]
+    STATUS_CHOICES = [
+        ('Upcoming', 'Upcoming'),
+        ('Live Now', 'Live Now'),
+        ('Completed', 'Completed'),
+        ('Ongoing', 'Ongoing'),
+    ]
+
+    title = models.CharField(max_length=200, help_text='Event title')
+    event_type = models.CharField(max_length=50, choices=EVENT_TYPES, default='Other')
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Upcoming')
+    description = models.TextField(help_text='Brief event description')
+    date_range = models.CharField(max_length=100, help_text='e.g., 24-26 May 2025')
+    location = models.CharField(max_length=200, help_text='e.g., CECP, Bhopal')
+    image = models.ImageField(upload_to='events/', blank=True, null=True, help_text='Event cover image')
+    is_featured = models.BooleanField(default=False)
+    action_url = models.URLField(blank=True, help_text='Registration or View Details URL')
+    action_text = models.CharField(max_length=50, default='Register Now', help_text='Text for the button (e.g., Register Now, View Details, View Highlights)')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
