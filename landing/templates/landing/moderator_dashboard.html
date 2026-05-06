@@ -261,7 +261,18 @@
                         {% for app in pending_apps %}
                         <tr class="hover:bg-slate-800/20 transition-colors">
                             <td class="p-4 text-sm text-slate-300 font-mono">{{ app.created_at|date:"M d, Y" }}</td>
-                            <td class="p-4 text-sm font-semibold text-white">{{ app.full_name }}</td>
+                            <td class="p-4 text-sm font-semibold text-white">
+                                <div class="flex items-center gap-3">
+                                    {% if app.profile_photo %}
+                                    <img src="{{ app.profile_photo.url }}" alt="Photo" class="w-8 h-8 rounded-full object-cover border border-cyan-500/30">
+                                    {% else %}
+                                    <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-bold text-slate-400">
+                                        {{ app.full_name|first|upper }}
+                                    </div>
+                                    {% endif %}
+                                    {{ app.full_name }}
+                                </div>
+                            </td>
                             <td class="p-4 text-sm text-slate-300">
                                 <div>{{ app.email }}</div>
                                 <div class="text-xs text-slate-500 font-mono mt-0.5">{{ app.roll_number }}</div>
