@@ -109,10 +109,17 @@
                         {{ form.full_name }}
                         {% if form.full_name.errors %}<p class="field-error">{{ form.full_name.errors.0 }}</p>{% endif %}
                     </div>
-                    <div>
-                        <label class="field-label" for="id_profile_photo">Professional Profile Photo (Optional)</label>
-                        {{ form.profile_photo }}
-                        {% if form.profile_photo.errors %}<p class="field-error">{{ form.profile_photo.errors.0 }}</p>{% endif %}
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                        <div>
+                            <label class="field-label" for="id_profile_photo">Professional Profile Photo (Optional)</label>
+                            {{ form.profile_photo }}
+                            {% if form.profile_photo.errors %}<p class="field-error">{{ form.profile_photo.errors.0 }}</p>{% endif %}
+                        </div>
+                        <div>
+                            <label class="field-label" for="id_resume">Resume (PDF / DOC) *</label>
+                            {{ form.resume }}
+                            {% if form.resume.errors %}<p class="field-error">{{ form.resume.errors.0 }}</p>{% endif %}
+                        </div>
                     </div>
                     <div>
                         <label class="field-label" for="id_email">College Email *</label>

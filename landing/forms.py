@@ -217,7 +217,7 @@ class ClubApplicationForm(forms.ModelForm):
     class Meta:
         model = ClubApplication
         fields = [
-            'full_name', 'profile_photo', 'email', 'whatsapp_number', 'roll_number',
+            'full_name', 'profile_photo', 'resume', 'email', 'whatsapp_number', 'roll_number',
             'branch', 'current_year', 'domain_of_interest',
             'skill_level', 'motivation', 'quote',
             'github_url', 'linkedin_url',
@@ -231,6 +231,11 @@ class ClubApplicationForm(forms.ModelForm):
                 'class': 'apply-input file-input', 
                 'id': 'id_profile_photo',
                 'accept': 'image/*'
+            }),
+            'resume': forms.FileInput(attrs={
+                'class': 'apply-input file-input', 
+                'id': 'id_resume',
+                'accept': '.pdf,.doc,.docx'
             }),
             'email': forms.EmailInput(attrs={
                 'class': 'apply-input', 'placeholder': 'yourname@ritroorkee.com',

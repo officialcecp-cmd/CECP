@@ -649,7 +649,7 @@ def team_view(request):
             Q(user__email__in=approved_emails) |
             Q(category__in=['advisor', 'head'])
         )
-        .select_related('user')
+        .select_related('user', 'user__profile')
         .order_by('user__first_name')
     )
 

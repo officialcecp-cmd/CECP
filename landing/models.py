@@ -313,6 +313,7 @@ class ClubApplication(models.Model):
     # --- Section 1: Basic Identity ---
     full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
     profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo")
+    resume = models.FileField(upload_to='application_resumes/', null=True, blank=True, help_text="Resume (PDF)")
     email = models.EmailField(
         unique=True,
         validators=[rit_email_validator],
@@ -398,7 +399,8 @@ class ClubApplication(models.Model):
             # Sync to ClubMember
             member, _ = ClubMember.objects.get_or_create(user=user)
             member.display_name = self.full_name
-            member.category = self.assigned_category
+            if self.assigned_category:
+                member.category = self.assigned_category
             if self.assigned_role:
                 member.display_role = self.assigned_role
             if self.profile_photo:
@@ -406,7 +408,19 @@ class ClubApplication(models.Model):
                 member.profile_image.name = self.profile_photo.name
             if getattr(self, 'quote', None):
                 member.quote = self.quote
+            if getattr(self, 'github_url', None):
+                member.github_url = self.github_url
+            if getattr(self, 'linkedin_url', None):
+                member.linkedin_url = self.linkedin_url
             member.save()
+            
+            # Sync to UserProfile
+            profile, _ = UserProfile.objects.get_or_create(user=user)
+            if self.github_url:
+                profile.github_profile = self.github_url
+            if self.linkedin_url:
+                profile.linkedin_profile = self.linkedin_url
+            profile.save()
 
 
 # ==============================================================================
