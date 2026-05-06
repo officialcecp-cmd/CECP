@@ -9,7 +9,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.validators import RegexValidator
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 
 # ==============================================================================
@@ -314,7 +313,7 @@ class ClubApplication(models.Model):
     # --- Section 1: Basic Identity ---
     full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
     profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo")
-    resume = models.FileField(upload_to='application_resumes/', storage=RawMediaCloudinaryStorage(), null=True, blank=True, help_text="Resume (PDF)")
+    resume = models.FileField(upload_to='application_resumes/', null=True, blank=True, help_text="Resume (PDF)")
     email = models.EmailField(
         unique=True,
         validators=[rit_email_validator],

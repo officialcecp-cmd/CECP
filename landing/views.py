@@ -5,7 +5,7 @@ import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect, Http404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Count, Q
@@ -65,7 +65,7 @@ def index(request):
         'categories': ProjectCategory.objects.count(),
     }
 
-    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user').order_by('category', 'user__first_name')
+    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user', 'user__profile').order_by('category', 'user__first_name')
 
     user_application = None
     if request.user.is_authenticated:
@@ -83,7 +83,7 @@ def index(request):
         if session_email:
             user_application = ClubApplication.objects.filter(email__iexact=session_email).first()
 
-    approved_blogs = Blog.objects.filter(is_approved=True)
+    approved_blogs = Blog.objects.filter(is_approved=True).select_related('author', 'author__user').order_by('-created_at')[:10]
     is_cecp_team = False
     if request.user.is_authenticated:
         is_cecp_team = request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()
@@ -814,3 +814,50 @@ def review_application(request, application_id):
         'app': app,
         'page_title': f'Review Application: {app.full_name}'
     })
+
+
+@user_passes_test(is_admin, login_url='/login/')
+def download_resume(request, application_id):
+    """
+    Generates the correct Cloudinary download URL for an applicant's resume.
+    
+    Cloudinary's MediaCloudinaryStorage saves PDFs in the 'image/upload' pipeline
+    but strips the file extension from the DB field. The default .url property
+    generates a URL without the extension, which Cloudinary rejects with 401.
+    
+    This view uses the Cloudinary Admin API to look up the real secure_url
+    (with correct version number and .pdf extension) and redirects to it.
+    """
+    app = get_object_or_404(ClubApplication, id=application_id)
+    if not app.resume:
+        raise Http404("No resume uploaded for this application.")
+
+    import cloudinary
+    import cloudinary.api
+    import os
+
+    # The DB stores the public_id without extension, e.g.:
+    # "media/application_resumes/Aditya_Raj_Resume_ECE_zqet3f"
+    public_id = str(app.resume.name)
+
+    cloud_name = os.environ.get('CLOUDINARY_CLOUD_NAME', '')
+    if cloud_name:
+        try:
+            # Configure Cloudinary SDK
+            cloudinary.config(
+                cloud_name=cloud_name,
+                api_key=os.environ.get('CLOUDINARY_API_KEY', ''),
+                api_secret=os.environ.get('CLOUDINARY_API_SECRET', ''),
+            )
+            # Look up the actual resource to get the correct secure_url
+            result = cloudinary.api.resource(public_id, resource_type='image')
+            download_url = result.get('secure_url', '')
+            if download_url:
+                # Add fl_attachment to force browser download instead of inline display
+                download_url = download_url.replace('/upload/', '/upload/fl_attachment/')
+                return HttpResponseRedirect(download_url)
+        except Exception:
+            pass  # Fall through to fallback
+
+    # Fallback: try the default .url (may not work for PDFs)
+    return HttpResponseRedirect(app.resume.url)
