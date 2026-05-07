@@ -246,23 +246,53 @@
                 <div>
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
                         <span class="section-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">06</span>
-                        <h2 class="text-lg font-bold text-white">External Links</h2>
+                        <h2 class="text-lg font-bold text-white">External Links & Files</h2>
                     </div>
                     <div class="grid md:grid-cols-2 gap-5">
+                        <!-- GitHub Repository (Mandatory, GitHub only) -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">Repository</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                GitHub Repository <span class="text-red-400">*</span>
+                            </label>
                             {{ form.github_url }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only GitHub links accepted (https://github.com/...)</span>
+                            <span id="github-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.github_url.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.github_url.errors.0 }}</span>
+                            {% endif %}
                         </div>
+
+                        <!-- Live Demo (Optional, Google Drive only) -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">Live Demo</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Live Demo <span class="text-slate-600 text-xs">(Google Drive link)</span>
+                            </label>
                             {{ form.demo_url }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only Google Drive links accepted (https://drive.google.com/...)</span>
+                            <span id="demo-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.demo_url.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.demo_url.errors.0 }}</span>
+                            {% endif %}
                         </div>
+
+                        <!-- Docs / Paper / PPT (Mandatory, File Upload) -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">Docs / Paper</label>
-                            {{ form.documentation_url }}
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Docs / Paper / PPT <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.documentation_file }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, or PPTX (max 25MB)</span>
+                            <span id="docs-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.documentation_file.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.documentation_file.errors.0 }}</span>
+                            {% endif %}
                         </div>
+
+                        <!-- Video / YouTube (Optional) -->
                         <div>
-                            <label class="block text-sm font-medium text-slate-300 mb-2">Video / YouTube</label>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Video / YouTube <span class="text-slate-600 text-xs">(optional)</span>
+                            </label>
                             {{ form.video_url }}
                         </div>
                     </div>
@@ -488,8 +518,118 @@
         document.getElementById('achievements_json').value = JSON.stringify(achievements); 
     }
 
-    // ── Sync before submit ──
-    document.getElementById('projectForm').addEventListener('submit', function() { syncTeamJSON(); syncAchJSON(); });
+    // ── Sync before submit + Client-side validation ──
+    document.getElementById('projectForm').addEventListener('submit', function(e) { 
+        syncTeamJSON(); 
+        syncAchJSON();
+
+        let hasError = false;
+        const errors = [];
+
+        // Validate GitHub URL (mandatory, must be github.com)
+        const githubInput = document.querySelector('[name="github_url"]');
+        const githubError = document.getElementById('github-error');
+        if (githubInput) {
+            const githubVal = githubInput.value.trim();
+            if (!githubVal) {
+                githubError.textContent = '⚠ GitHub repository link is required.';
+                githubError.classList.remove('hidden');
+                githubInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else if (!githubVal.startsWith('https://github.com/') && !githubVal.startsWith('http://github.com/') && !githubVal.startsWith('https://www.github.com/')) {
+                githubError.textContent = '⚠ Only GitHub links are allowed (https://github.com/...).';
+                githubError.classList.remove('hidden');
+                githubInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else {
+                githubError.classList.add('hidden');
+                githubInput.style.borderColor = '';
+            }
+        }
+
+        // Validate Demo URL (optional, but if filled must be Google Drive)
+        const demoInput = document.querySelector('[name="demo_url"]');
+        const demoError = document.getElementById('demo-error');
+        if (demoInput) {
+            const demoVal = demoInput.value.trim();
+            if (demoVal && !demoVal.startsWith('https://drive.google.com/') && !demoVal.startsWith('http://drive.google.com/')) {
+                demoError.textContent = '⚠ Only Google Drive links are allowed (https://drive.google.com/...).';
+                demoError.classList.remove('hidden');
+                demoInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else {
+                demoError.classList.add('hidden');
+                demoInput.style.borderColor = '';
+            }
+        }
+
+        // Validate Documentation File (mandatory)
+        const docsInput = document.getElementById('id_documentation_file');
+        const docsError = document.getElementById('docs-error');
+        if (docsInput) {
+            if (!docsInput.files || docsInput.files.length === 0) {
+                docsError.textContent = '⚠ Documentation / Paper / PPT file is required.';
+                docsError.classList.remove('hidden');
+                hasError = true;
+            } else {
+                const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
+                const fileName = docsInput.files[0].name.toLowerCase();
+                const ext = fileName.substring(fileName.lastIndexOf('.'));
+                if (!allowedExts.includes(ext)) {
+                    docsError.textContent = '⚠ Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.';
+                    docsError.classList.remove('hidden');
+                    hasError = true;
+                } else if (docsInput.files[0].size > 25 * 1024 * 1024) {
+                    docsError.textContent = '⚠ File size must be under 25MB.';
+                    docsError.classList.remove('hidden');
+                    hasError = true;
+                } else {
+                    docsError.classList.add('hidden');
+                }
+            }
+        }
+
+        if (hasError) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('[id$="-error"]:not(.hidden)');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+
+    // Real-time validation on blur
+    const githubField = document.querySelector('[name="github_url"]');
+    if (githubField) {
+        githubField.addEventListener('blur', function() {
+            const val = this.value.trim();
+            const err = document.getElementById('github-error');
+            if (val && !val.startsWith('https://github.com/') && !val.startsWith('http://github.com/') && !val.startsWith('https://www.github.com/')) {
+                err.textContent = '⚠ Only GitHub links are allowed.';
+                err.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+            } else {
+                err.classList.add('hidden');
+                this.style.borderColor = '';
+            }
+        });
+    }
+    const demoField = document.querySelector('[name="demo_url"]');
+    if (demoField) {
+        demoField.addEventListener('blur', function() {
+            const val = this.value.trim();
+            const err = document.getElementById('demo-error');
+            if (val && !val.startsWith('https://drive.google.com/') && !val.startsWith('http://drive.google.com/')) {
+                err.textContent = '⚠ Only Google Drive links are allowed.';
+                err.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+            } else {
+                err.classList.add('hidden');
+                this.style.borderColor = '';
+            }
+        });
+    }
     </script>
 </body>
 </html>

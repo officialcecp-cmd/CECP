@@ -213,6 +213,10 @@ class Project(models.Model):
     github_url = models.URLField(blank=True, help_text="GitHub repository URL")
     demo_url = models.URLField(blank=True, help_text="Live demo or video URL")
     documentation_url = models.URLField(blank=True, help_text="Documentation or report URL")
+    documentation_file = models.FileField(
+        upload_to='projects/docs/', blank=True, null=True,
+        help_text="Upload documentation file (PDF/DOC/PPT)"
+    )
     video_url = models.URLField(blank=True, help_text="YouTube or demo video URL")
 
     # --- Ordering & Display ---

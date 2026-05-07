@@ -10,24 +10,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='initiative',
-            name='action_text',
-        ),
-        migrations.RemoveField(
-            model_name='initiative',
-            name='action_url',
-        ),
-        migrations.RemoveField(
-            model_name='initiative',
-            name='image',
-        ),
-        migrations.RemoveField(
-            model_name='initiative',
-            name='status',
-        ),
-        migrations.RemoveField(
-            model_name='initiative',
-            name='tag',
-        ),
+        # These removals are already handled by
+        # 0028_delete_event_remove_initiative_action_text_and_more
+        # Keeping this as a no-op to preserve the migration graph.
     ]
