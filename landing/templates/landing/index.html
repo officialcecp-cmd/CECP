@@ -48,6 +48,10 @@
 
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
+    <!-- Horizontal scroll fix (minimal — does NOT override custom.css tab system) -->
+    <style>
+        html, body, main { overflow-x: hidden !important; }
+    </style>
 
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
