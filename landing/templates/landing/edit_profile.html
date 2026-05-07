@@ -4,349 +4,332 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Profile — CECP</title>
+    <title>Edit Nexus Identity — CECP</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <style>
-        * { font-family: 'Inter', sans-serif; }
-        body { background: #020617; color: #e2e8f0; min-height: 100vh; }
+        :root {
+            --neon-cyan: #06b6d4;
+            --neon-blue: #3b82f6;
+            --deep-slate: #020617;
+            --glass-bg: rgba(15, 23, 42, 0.8);
+        }
+
+        * { font-family: 'Outfit', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        body { 
+            background: var(--deep-slate); 
+            color: #e2e8f0; 
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ── FUTURISTIC NANO-GRID BACKGROUND ── */
+        .nexus-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 10%, rgba(59, 130, 246, 0.05) 0%, transparent 30%);
+        }
+        .nexus-bg::after {
+            content: ''; position: absolute; inset: 0;
+            background-image: 
+                linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
+            background-size: 60px 60px;
+            animation: gridMove 30s linear infinite;
+        }
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 1000px; }
+        }
 
         /* ── NAVBAR ── */
         .dash-nav {
-            position: sticky; top: 0; z-index: 50;
+            position: sticky; top: 0; z-index: 100;
             background: rgba(2, 6, 23, 0.85);
-            backdrop-filter: blur(24px);
-            border-bottom: 1px solid rgba(6, 182, 212, 0.12);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
         }
-        
-        /* ── Form Styling ── */
-        .form-group label {
+
+        /* ── GLASS CONTAINER ── */
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-panel::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+        }
+
+        /* ── FORM ELEMENTS ── */
+        .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            color: #94a3b8;
-        }
-        .form-group p {
-            margin-bottom: 1rem;
-        }
-        .form-group .helptext {
+            margin-bottom: 0.75rem;
             font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
             color: #64748b;
-            margin-top: 0.25rem;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .form-group .errorlist {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
+
+        input, select, textarea {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-radius: 12px !important;
+            padding: 12px 16px !important;
+            color: #fff !important;
+            width: 100%;
+            transition: all 0.3s !important;
+            outline: none !important;
         }
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--neon-cyan) !important;
+            background: rgba(15, 23, 42, 0.9) !important;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2) !important;
+        }
+
+        .helptext {
+            font-size: 0.7rem;
+            color: #475569;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+            color: white;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 16px 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(6, 182, 212, 0.3);
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(6, 182, 212, 0.5);
+            filter: brightness(1.1);
+        }
+
+        /* Section Dividers */
+        .section-header {
+            display: flex; align-items: center; gap: 15px; margin: 40px 0 25px;
+        }
+        .section-header h3 { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: var(--neon-cyan); }
+        .section-line { flex: 1; height: 1px; background: rgba(255, 255, 255, 0.05); }
+
+        .errorlist { color: #f87171; font-size: 0.75rem; margin-top: 5px; list-style: none; padding: 0; }
     </style>
     <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
 </head>
 <body>
+
+<div class="nexus-bg"></div>
 
 <!-- ═══════════════════════════════════════════════
      PREMIUM NAVBAR
 ═══════════════════════════════════════════════ -->
 <header class="dash-nav">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-
-        <!-- Left: Logo -->
         <div class="flex items-center gap-3">
             <a href="/" class="flex items-center gap-2 group">
                 <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#06b6d4,#6366f1);">
                     <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
-                <span class="font-black text-lg tracking-tight" style="background: linear-gradient(135deg,#06b6d4,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CECP</span>
+                <span class="font-black text-lg tracking-tight mono" style="background: linear-gradient(135deg,#06b6d4,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CECP.NEXUS</span>
             </a>
-            <div class="hidden sm:block w-px h-5 bg-slate-700"></div>
-            <span class="hidden sm:block text-xs text-slate-500 font-medium tracking-widest uppercase font-mono">Edit Profile</span>
         </div>
-
-        <!-- Right: User Controls -->
-        <div class="flex items-center gap-3">
-            <!-- User Profile Dropdown -->
-            {% if request.user.is_authenticated %}
-            <div class="relative group inline-block z-50">
-                <!-- Trigger Button -->
-                <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700">
-                    <!-- Avatar -->
-                    {% if request.user.profile.profile_picture %}
-                        <img src="{{ request.user.profile.profile_picture.url }}" alt="{{ request.user.username }}" class="w-8 h-8 rounded-full object-cover border border-cyan-500">
-                    {% else %}
-                        <div class="w-8 h-8 rounded-full bg-cyan-900 text-cyan-400 flex items-center justify-center font-bold border border-cyan-500">
-                            {{ request.user.username|make_list|first|upper }}
-                        </div>
-                    {% endif %}
-                    <!-- Chevron -->
-                    <svg class="w-4 h-4 text-gray-400 group-hover:text-cyan-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </button>
-
-                <!-- Dropdown Menu -->
-                <div class="absolute right-0 mt-2 w-56 bg-slate-900 border border-slate-700 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform origin-top-right">
-                    <!-- User Info Header -->
-                    <div class="px-4 py-3 bg-slate-800/50 rounded-t-lg">
-                        <p class="text-sm font-semibold text-white truncate">
-                            {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
-                        </p>
-                        <p class="text-xs text-gray-400 truncate">{{ request.user.email }}</p>
-                    </div>
-                    
-                    <div class="border-t border-slate-700"></div>
-                    
-                    <!-- Links -->
-                    <div class="py-1">
-                        <a href="{% url 'landing:profile' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
-                            My Profile
-                        </a>
-                        <a href="{% url 'landing:dashboard' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
-                            Dashboard
-                        </a>
-                        
-                        {% if request.user.is_superuser %}
-                        <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
-                            Superuser Dashboard
-                        </a>
-                        {% elif request.user.is_staff %}
-                        <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-300 hover:bg-slate-800 hover:text-cyan-400 transition-colors">
-                            Admin Dashboard
-                        </a>
-                        {% endif %}
-                    </div>
-                    
-                    <div class="border-t border-slate-700"></div>
-                    
-                    <!-- Logout -->
-                    <div class="py-1">
-                        <form action="{% url 'landing:logout' %}" method="post" class="m-0 p-0 block">
-                            {% csrf_token %}
-                            <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-red-400 hover:bg-red-900/30 hover:text-red-300 transition-colors rounded-b-lg font-medium">
-                                Log Out
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-            {% endif %}
-        </div>
+        <a href="{% url 'landing:profile' %}" class="text-xs font-bold text-slate-400 hover:text-white transition-colors uppercase tracking-widest mono">Cancel</a>
     </div>
 </header>
 
-<div class="min-h-screen bg-slate-950 py-12 px-4 sm:px-6 lg:px-8 text-gray-200">
-    <div class="max-w-4xl mx-auto mt-8">
-        
-        <!-- Header -->
-        <div class="mb-8 flex flex-col md:flex-row justify-between items-center md:items-end border-b border-slate-800 pb-6">
-            <div class="text-center md:text-left">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-                    Edit <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Details</span>
-                </h1>
-                <p class="mt-2 text-sm text-slate-400">Update your personal information and social links.</p>
-            </div>
-            <a href="{% url 'landing:profile' %}" class="mt-4 md:mt-0 flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-sm font-medium">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-                Back to Profile
-            </a>
-        </div>
+<main class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
+    
+    <div class="mb-10 text-center md:text-left">
+        <h1 class="text-4xl font-black text-white tracking-tight mb-2">Configure <span class="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500">Nexus Identity</span></h1>
+        <p class="text-slate-500 font-medium">Synchronize your professional data with the club core.</p>
+    </div>
 
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden p-8">
-            
-            <!-- Static Name Display -->
-            <div class="mb-8 p-4 bg-slate-800/50 rounded-xl border border-slate-700/50 flex items-center space-x-4">
-                <div class="p-3 bg-cyan-900/30 rounded-lg text-cyan-400 border border-cyan-800/50">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+    <div class="glass-panel p-8 md:p-12">
+        <form method="POST" enctype="multipart/form-data" class="space-y-8">
+            {% csrf_token %}
+
+            <!-- Identity Core -->
+            <div class="section-header">
+                <div class="w-2 h-2 rounded-full bg-cyan-500"></div>
+                <h3>Identity Core</h3>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div>
+                    <label class="form-label">Profile Visualization</label>
+                    <div id="profile-pic-wrap" class="relative">
+                        {{ form.profile_picture }}
+                        <input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
+                        {% if form.instance.profile_picture %}
+                            <img id="current-thumb" src="{{ form.instance.profile_picture.url }}" class="mt-4 w-24 h-24 rounded-2xl object-cover border-2 border-cyan-500/40 shadow-lg shadow-cyan-500/10">
+                        {% endif %}
+                    </div>
+                    {% if form.profile_picture.help_text %}<p class="helptext">{{ form.profile_picture.help_text }}</p>{% endif %}
+                    {{ form.profile_picture.errors }}
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <label class="form-label">Entity Name (Static)</label>
+                        <input type="text" value="{{ request.user.get_full_name|default:request.user.username }}" disabled class="opacity-50">
+                    </div>
+                    <div>
+                        <label class="form-label">Personal Signature (Quote)</label>
+                        {{ form.quote }}
+                        {% if form.quote.help_text %}<p class="helptext">{{ form.quote.help_text }}</p>{% endif %}
+                        {{ form.quote.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Vector -->
+            <div class="section-header">
+                <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                <h3>Academic Vector</h3>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                    <label class="form-label">Course</label>
+                    {{ form.course }}
+                    {{ form.course.errors }}
+                </div>
+                <div id="branch-container">
+                    <label class="form-label">Branch</label>
+                    {{ form.branch }}
+                    {{ form.branch.errors }}
                 </div>
                 <div>
-                    <p class="text-xs text-slate-500 uppercase font-semibold tracking-wider">Registered Name (Static)</p>
-                    <p class="text-lg font-bold text-white">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <label class="form-label">Batch Cycle</label>
+                    {{ form.graduation_year }}
+                    {{ form.graduation_year.errors }}
                 </div>
             </div>
 
-            <!-- Edit Form -->
-            <form method="POST" enctype="multipart/form-data" class="space-y-6 form-group">
-                {% csrf_token %}
-                
+            <!-- Professional Arsenal -->
+            <div class="section-header">
+                <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                <h3>Professional Arsenal</h3>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Column 1 -->
-                    <div class="space-y-6">
-                        <div>
-                            {{ form.profile_picture.label_tag }}
-                            <!-- data-cropper-input triggers the crop modal -->
-                            <div id="profile-pic-wrap">
-                                {{ form.profile_picture }}
-                                <!-- Hidden field stores the cropped base64 -->
-                                <input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
-                                <!-- Thumbnail shown after crop -->
-                                {% if form.instance.profile_picture %}
-                                <img id="current-thumb" src="{{ form.instance.profile_picture.url }}"
-                                     class="mt-2 w-[72px] h-[72px] rounded-full object-cover border-2 border-cyan-500/60"
-                                     alt="Current photo">
-                                {% endif %}
-                            </div>
-                            {% if form.profile_picture.help_text %}<p class="helptext">{{ form.profile_picture.help_text }}</p>{% endif %}
-                            {{ form.profile_picture.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.course.label_tag }}
-                            {{ form.course }}
-                            {% if form.course.help_text %}<p class="helptext">{{ form.course.help_text }}</p>{% endif %}
-                            {{ form.course.errors }}
-                        </div>
-
-                        <div id="branch-container">
-                            {{ form.branch.label_tag }}
-                            {{ form.branch }}
-                            {% if form.branch.help_text %}<p class="helptext">{{ form.branch.help_text }}</p>{% endif %}
-                            {{ form.branch.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.graduation_year.label_tag }}
-                            {{ form.graduation_year }}
-                            {% if form.graduation_year.help_text %}<p class="helptext">{{ form.graduation_year.help_text }}</p>{% endif %}
-                            {{ form.graduation_year.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.college_roll_number.label_tag }}
-                            {{ form.college_roll_number }}
-                            {% if form.college_roll_number.help_text %}<p class="helptext">{{ form.college_roll_number.help_text }}</p>{% endif %}
-                            {{ form.college_roll_number.errors }}
-                        </div>
-                        
-                        <div>
-                            {{ form.date_of_birth.label_tag }}
-                            {{ form.date_of_birth }}
-                            {% if form.date_of_birth.help_text %}<p class="helptext">{{ form.date_of_birth.help_text }}</p>{% endif %}
-                            {{ form.date_of_birth.errors }}
-                        </div>
+                    <div>
+                        <label class="form-label">Area of Interest</label>
+                        {{ form.area_of_interest }}
+                        {{ form.area_of_interest.errors }}
                     </div>
-
-                    <!-- Column 2 -->
-                    <div class="space-y-6">
-                        <div>
-                            {{ form.gender.label_tag }}
-                            {{ form.gender }}
-                            {% if form.gender.help_text %}<p class="helptext">{{ form.gender.help_text }}</p>{% endif %}
-                            {{ form.gender.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.hometown.label_tag }}
-                            {{ form.hometown }}
-                            {% if form.hometown.help_text %}<p class="helptext">{{ form.hometown.help_text }}</p>{% endif %}
-                            {{ form.hometown.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.mobile_number.label_tag }}
-                            {{ form.mobile_number }}
-                            {% if form.mobile_number.help_text %}<p class="helptext">{{ form.mobile_number.help_text }}</p>{% endif %}
-                            {{ form.mobile_number.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.github_profile.label_tag }}
-                            {{ form.github_profile }}
-                            {% if form.github_profile.help_text %}<p class="helptext">{{ form.github_profile.help_text }}</p>{% endif %}
-                            {{ form.github_profile.errors }}
-                        </div>
-
-                        <div>
-                            {{ form.linkedin_profile.label_tag }}
-                            {{ form.linkedin_profile }}
-                            {% if form.linkedin_profile.help_text %}<p class="helptext">{{ form.linkedin_profile.help_text }}</p>{% endif %}
-                            {{ form.linkedin_profile.errors }}
-                        </div>
-
-                        {% if is_accepted %}
-                        <div class="mt-2">
-                            <div class="flex items-center gap-2 mb-3">
-                                <svg class="w-4 h-4 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h6m-6 4h8"/></svg>
-                                {{ form.quote.label_tag }}
-                            </div>
-                            {{ form.quote }}
-                            <p class="helptext mt-1">{{ form.quote.help_text }} (max 100 characters)</p>
-                            {{ form.quote.errors }}
-                        </div>
-                        {% endif %}
-
+                    <div>
+                        <label class="form-label">Tech Stack (Comma Separated)</label>
+                        {{ form.core_technologies }}
+                        {{ form.core_technologies.errors }}
                     </div>
                 </div>
-
-                <!-- Submit Button -->
-                <div class="pt-8 border-t border-slate-800 flex justify-end">
-                    <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-cyan-500/30 transition-all duration-300 transform hover:-translate-y-1">
-                        Save Changes
-                    </button>
+                <div>
+                    <label class="form-label">Future Trajectory & Goals</label>
+                    {{ form.future_goals }}
+                    {{ form.future_goals.errors }}
                 </div>
-            </form>
+                <div>
+                    <label class="form-label">Achievement Records</label>
+                    {{ form.achievements_summary }}
+                    {{ form.achievements_summary.errors }}
+                </div>
+            </div>
 
-        </div>
+            <!-- Neural Connectivity -->
+            <div class="section-header">
+                <div class="w-2 h-2 rounded-full bg-purple-500"></div>
+                <h3>Neural Connectivity</h3>
+                <div class="section-line"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="form-label">LinkedIn Protocol</label>
+                    {{ form.linkedin_profile }}
+                    {{ form.linkedin_profile.errors }}
+                </div>
+                <div>
+                    <label class="form-label">GitHub Repository</label>
+                    {{ form.github_profile }}
+                    {{ form.github_profile.errors }}
+                </div>
+                <div>
+                    <label class="form-label">Personal Nexus (Portfolio)</label>
+                    {{ form.personal_website }}
+                    {{ form.personal_website.errors }}
+                </div>
+                <div>
+                    <label class="form-label">Comms (Mobile)</label>
+                    {{ form.mobile_number }}
+                    {{ form.mobile_number.errors }}
+                </div>
+            </div>
+
+            <div class="pt-12 flex justify-end">
+                <button type="submit" class="btn-submit">Synchronize Identity</button>
+            </div>
+        </form>
     </div>
-</div>
+</main>
 
 <script src="{% static 'js/image_cropper.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
-    // ── 1. Bind the crop modal to the profile picture input ──────────────────
     var fileInput = document.getElementById('id_profile_picture');
-    if (fileInput) {
-        // Tell the cropper which hidden field to write the base64 into
+    if (fileInput && window.CECP_Cropper) {
         fileInput.setAttribute('data-cropper-hidden', 'id_profile_picture_cropped');
-        // Directly call the public API — no attribute-scan race condition
-        if (window.CECP_Cropper) {
-            window.CECP_Cropper.bind(fileInput);
-        }
+        window.CECP_Cropper.bind(fileInput);
     }
 
-    // ── 2. Intercept form submit: base64 → File so Django receives the upload ──
-    var form = document.querySelector('form[enctype="multipart/form-data"]');
+    var form = document.querySelector('form');
     if (form && fileInput) {
         form.addEventListener('submit', function (e) {
             var hidden = document.getElementById('id_profile_picture_cropped');
-            if (!hidden || !hidden.value) return; // no crop done — submit normally
-
+            if (!hidden || !hidden.value) return;
             e.preventDefault();
-
-            fetch(hidden.value)
-                .then(function(r) { return r.blob(); })
-                .then(function(blob) {
-                    var file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
-                    var dt   = new DataTransfer();
-                    dt.items.add(file);
-                    fileInput.files = dt.files;
-                    hidden.value = '';
-                    form.submit();
-                });
+            fetch(hidden.value).then(r => r.blob()).then(blob => {
+                var file = new File([blob], 'profile.jpg', { type: 'image/jpeg' });
+                var dt = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;
+                hidden.value = '';
+                form.submit();
+            });
         });
     }
 
-    // ── 3. Course / Branch toggle ─────────────────────────────────────────────
-    var courseSelect    = document.getElementById('id_course');
+    var courseSelect = document.getElementById('id_course');
     var branchContainer = document.getElementById('branch-container');
-    var branchSelect    = document.getElementById('id_branch');
-
-    if (courseSelect && branchContainer && branchSelect) {
-        function toggleBranch() {
-            if (courseSelect.value === 'B.Tech') {
-                branchContainer.style.display = 'block';
-            } else {
-                branchContainer.style.display = 'none';
-                branchSelect.value = '';
-            }
-        }
-        toggleBranch();
-        courseSelect.addEventListener('change', toggleBranch);
+    if (courseSelect && branchContainer) {
+        function toggle() { branchContainer.style.display = courseSelect.value === 'B.Tech' ? 'block' : 'none'; }
+        toggle();
+        courseSelect.addEventListener('change', toggle);
     }
 });
 </script>
+
 </body>
 </html>

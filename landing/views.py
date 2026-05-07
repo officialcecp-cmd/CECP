@@ -776,16 +776,28 @@ def edit_profile_view(request):
         if form.is_valid():
             saved_profile = form.save()
 
-            # --- Sync profile_picture → ClubMember.profile_image ---
-            # So that the public Team/Management cards always show the correct image.
-            if saved_profile.profile_picture:
-                try:
-                    club_member = request.user.club_profile  # OneToOne related_name
-                    if club_member.profile_image.name != saved_profile.profile_picture.name:
-                        club_member.profile_image = saved_profile.profile_picture
-                        club_member.save(update_fields=['profile_image'])
-                except Exception:
-                    pass  # User may not have a ClubMember record yet
+            # --- Sync profile_picture, core_technologies, area_of_interest → ClubMember ---
+            # So that the public Team/Management cards always show the correct data.
+            try:
+                club_member = request.user.club_profile
+                updated_fields = []
+                
+                if saved_profile.profile_picture and club_member.profile_image.name != saved_profile.profile_picture.name:
+                    club_member.profile_image = saved_profile.profile_picture
+                    updated_fields.append('profile_image')
+                
+                if saved_profile.core_technologies and club_member.core_technologies != saved_profile.core_technologies:
+                    club_member.core_technologies = saved_profile.core_technologies
+                    updated_fields.append('core_technologies')
+                    
+                if saved_profile.area_of_interest and club_member.area_of_interest != saved_profile.area_of_interest:
+                    club_member.area_of_interest = saved_profile.area_of_interest
+                    updated_fields.append('area_of_interest')
+
+                if updated_fields:
+                    club_member.save(update_fields=updated_fields)
+            except Exception:
+                pass  # User may not have a ClubMember record yet
 
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('landing:profile')

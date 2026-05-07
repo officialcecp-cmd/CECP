@@ -594,10 +594,17 @@ class UserProfile(models.Model):
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
     github_profile = models.URLField(max_length=200, blank=True, null=True)
     linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
+    personal_website = models.URLField(max_length=200, blank=True, null=True, help_text="Portfolio or personal blog")
+    
     quote = models.CharField(
         max_length=100, blank=True, null=True,
         help_text='Your personal quote'
     )
+    
+    core_technologies = models.TextField(blank=True, null=True, help_text="List your technical skills (e.g., Python, Arduino, React)")
+    future_goals = models.TextField(blank=True, null=True, help_text="Career aspirations or future research goals")
+    area_of_interest = models.CharField(max_length=255, blank=True, null=True, help_text="e.g., Robotics, AI, Embedded Systems")
+    achievements_summary = models.TextField(blank=True, null=True, help_text="Certifications, awards, or competition results")
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
