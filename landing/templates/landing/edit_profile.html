@@ -176,7 +176,18 @@
                     <div class="space-y-6">
                         <div>
                             {{ form.profile_picture.label_tag }}
-                            {{ form.profile_picture }}
+                            <!-- data-cropper-input triggers the crop modal -->
+                            <div id="profile-pic-wrap">
+                                {{ form.profile_picture }}
+                                <!-- Hidden field stores the cropped base64 -->
+                                <input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
+                                <!-- Thumbnail shown after crop -->
+                                {% if form.instance.profile_picture %}
+                                <img id="current-thumb" src="{{ form.instance.profile_picture.url }}"
+                                     class="mt-2 w-[72px] h-[72px] rounded-full object-cover border-2 border-cyan-500/60"
+                                     alt="Current photo">
+                                {% endif %}
+                            </div>
                             {% if form.profile_picture.help_text %}<p class="helptext">{{ form.profile_picture.help_text }}</p>{% endif %}
                             {{ form.profile_picture.errors }}
                         </div>
@@ -281,8 +292,40 @@
     </div>
 </div>
 
+<script src="{% static 'js/image_cropper.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// ── Wire up the file input for cropping ──────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function () {
+    const fileInput = document.getElementById('id_profile_picture');
+    if (fileInput) {
+        fileInput.setAttribute('data-cropper-input', '');
+        fileInput.setAttribute('data-cropper-hidden', 'id_profile_picture_cropped');
+    }
+
+    // ── Intercept form submit: convert base64 → File before POST ─────────────
+    const form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (!form) return;
+
+    form.addEventListener('submit', function (e) {
+        const hidden = document.getElementById('id_profile_picture_cropped');
+        if (!hidden || !hidden.value) return; // no crop done – submit normally
+
+        e.preventDefault();
+
+        // Convert base64 DataURL → Blob → File
+        fetch(hidden.value)
+            .then(r => r.blob())
+            .then(blob => {
+                const file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
+                const dt   = new DataTransfer();
+                dt.items.add(file);
+                fileInput.files = dt.files;  // inject cropped file into the input
+                hidden.value = '';           // clear base64 so it's not double-sent
+                form.submit();
+            });
+    });
+});
+</script>
     const courseSelect = document.getElementById('id_course');
     const branchContainer = document.getElementById('branch-container');
     const branchSelect = document.getElementById('id_branch');
@@ -292,14 +335,10 @@ document.addEventListener('DOMContentLoaded', function() {
             branchContainer.style.display = 'block';
         } else {
             branchContainer.style.display = 'none';
-            branchSelect.value = ''; // clear value if not B.Tech
+            branchSelect.value = '';
         }
     }
-
-    // Initialize state
     toggleBranch();
-
-    // Listen for changes
     courseSelect.addEventListener('change', toggleBranch);
 });
 </script>

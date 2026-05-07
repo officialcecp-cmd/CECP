@@ -738,7 +738,22 @@ def edit_profile_view(request):
                 request.user.save()
     
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        # ── Handle cropped base64 fallback (for browsers without DataTransfer) ──
+        cropped_b64 = request.POST.get('profile_picture_cropped', '').strip()
+        mutable_files = request.FILES.copy() if request.FILES else {}
+
+        if cropped_b64 and 'profile_picture' not in request.FILES:
+            import base64
+            from django.core.files.base import ContentFile
+            try:
+                # Strip the data:image/...;base64, header
+                header, data = cropped_b64.split(',', 1)
+                img_data = base64.b64decode(data)
+                mutable_files['profile_picture'] = ContentFile(img_data, name='profile_picture.jpg')
+            except Exception:
+                pass
+
+        form = UserProfileForm(request.POST, mutable_files or request.FILES, instance=profile)
         if form.is_valid():
             saved_profile = form.save()
 

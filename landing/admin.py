@@ -60,6 +60,9 @@ class ClubMemberAdmin(admin.ModelAdmin):
             Q(category__in=['advisor', 'head'])
         ).distinct()
 
+    class Media:
+        js = ('js/image_cropper.js',)
+
 
 # --- Project Category Admin ---------------------------------------------------
 
@@ -194,6 +197,9 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" width="120" height="120" style="border-radius: 8px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3);" />', obj.profile_photo.url)
         return "No Photo Provided"
     photo_preview.short_description = 'Photo Preview'
+
+    class Media:
+        js = ('js/image_cropper.js',)
 
     def _sync_club_member(self, obj):
         """
