@@ -207,7 +207,7 @@
 
         // Admin: bind specific field IDs used in ClubMember + ClubApplication admins
         ['id_profile_image', 'id_profile_photo'].forEach(function (id) {
-            const el = document.getElementById(id);
+            var el = document.getElementById(id);
             if (el) {
                 el.setAttribute('data-cropper-input', '');
                 el.setAttribute('data-cropper-hidden', id + '_cropped');
@@ -221,4 +221,8 @@
     } else {
         init();
     }
+
+    // ── Public API (allows page scripts to manually bind inputs) ─────────────
+    window.CECP_Cropper = { bind: bindInput, init: init };
+
 })();

@@ -294,52 +294,58 @@
 
 <script src="{% static 'js/image_cropper.js' %}"></script>
 <script>
-// ── Wire up the file input for cropping ──────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function () {
-    const fileInput = document.getElementById('id_profile_picture');
+
+    // ── 1. Bind the crop modal to the profile picture input ──────────────────
+    var fileInput = document.getElementById('id_profile_picture');
     if (fileInput) {
-        fileInput.setAttribute('data-cropper-input', '');
+        // Tell the cropper which hidden field to write the base64 into
         fileInput.setAttribute('data-cropper-hidden', 'id_profile_picture_cropped');
-    }
-
-    // ── Intercept form submit: convert base64 → File before POST ─────────────
-    const form = document.querySelector('form[enctype="multipart/form-data"]');
-    if (!form) return;
-
-    form.addEventListener('submit', function (e) {
-        const hidden = document.getElementById('id_profile_picture_cropped');
-        if (!hidden || !hidden.value) return; // no crop done – submit normally
-
-        e.preventDefault();
-
-        // Convert base64 DataURL → Blob → File
-        fetch(hidden.value)
-            .then(r => r.blob())
-            .then(blob => {
-                const file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
-                const dt   = new DataTransfer();
-                dt.items.add(file);
-                fileInput.files = dt.files;  // inject cropped file into the input
-                hidden.value = '';           // clear base64 so it's not double-sent
-                form.submit();
-            });
-    });
-});
-</script>
-    const courseSelect = document.getElementById('id_course');
-    const branchContainer = document.getElementById('branch-container');
-    const branchSelect = document.getElementById('id_branch');
-
-    function toggleBranch() {
-        if (courseSelect.value === 'B.Tech') {
-            branchContainer.style.display = 'block';
-        } else {
-            branchContainer.style.display = 'none';
-            branchSelect.value = '';
+        // Directly call the public API — no attribute-scan race condition
+        if (window.CECP_Cropper) {
+            window.CECP_Cropper.bind(fileInput);
         }
     }
-    toggleBranch();
-    courseSelect.addEventListener('change', toggleBranch);
+
+    // ── 2. Intercept form submit: base64 → File so Django receives the upload ──
+    var form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (form && fileInput) {
+        form.addEventListener('submit', function (e) {
+            var hidden = document.getElementById('id_profile_picture_cropped');
+            if (!hidden || !hidden.value) return; // no crop done — submit normally
+
+            e.preventDefault();
+
+            fetch(hidden.value)
+                .then(function(r) { return r.blob(); })
+                .then(function(blob) {
+                    var file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
+                    var dt   = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    hidden.value = '';
+                    form.submit();
+                });
+        });
+    }
+
+    // ── 3. Course / Branch toggle ─────────────────────────────────────────────
+    var courseSelect    = document.getElementById('id_course');
+    var branchContainer = document.getElementById('branch-container');
+    var branchSelect    = document.getElementById('id_branch');
+
+    if (courseSelect && branchContainer && branchSelect) {
+        function toggleBranch() {
+            if (courseSelect.value === 'B.Tech') {
+                branchContainer.style.display = 'block';
+            } else {
+                branchContainer.style.display = 'none';
+                branchSelect.value = '';
+            }
+        }
+        toggleBranch();
+        courseSelect.addEventListener('change', toggleBranch);
+    }
 });
 </script>
 </body>
