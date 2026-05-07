@@ -1595,10 +1595,10 @@
                         <div class="text-center mb-12">
                             <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Faculty Coordinators</h3>
                         </div>
-                        <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div class="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
                             {% for member in team_members %}
                             {% if member.category == 'advisor' %}
-                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'" style="cursor:pointer;" >
+                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl w-full sm:w-[400px]" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'" style="cursor:pointer;" >
                                 <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-cyan-400/60 overflow-hidden shadow-[0_0_15px_rgba(34,211,238,0.15)] flex-shrink-0">
                                     {% if member.profile_image %}
                                     <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover object-top">
@@ -1639,10 +1639,10 @@
                         <div class="text-center mb-12">
                             <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Head</h3>
                         </div>
-                        <div class="grid sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                        <div class="flex flex-wrap justify-center gap-8 max-w-4xl mx-auto">
                             {% for member in team_members %}
                             {% if member.category == 'head' %}
-                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-cyan-500/30 shadow-xl shadow-cyan-500/5" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'" style="cursor:pointer;" >
+                            <div class="bg-[#0a0f18] rounded-2xl p-8 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-cyan-500/30 shadow-xl shadow-cyan-500/5 w-full sm:w-[400px]" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'" style="cursor:pointer;" >
                                 <div class="w-[120px] h-[120px] mb-5 rounded-full border-2 border-cyan-400 overflow-hidden shadow-[0_0_20px_rgba(34,211,238,0.25)] flex-shrink-0">
                                     {% if member.profile_image %}
                                     <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover object-top">

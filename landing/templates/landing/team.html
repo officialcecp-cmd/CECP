@@ -219,12 +219,7 @@
                     <p class="text-xs italic text-cyan-300 mt-1 line-clamp-1">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
                     {% else %}
                     <p class="text-xs font-semibold text-cyan-400 mt-1">{{ member.team_role_label }}</p>
-<<<<<<< HEAD
                     {% endif %}
-=======
-                    <!-- Quote -->
-                    {% if member.quote %}<p class="text-[11px] text-emerald-400/90 italic mt-1.5 line-clamp-2">"{{ member.quote }}"</p>{% endif %}
->>>>>>> 48952258530259f8c47339af731b466b33453846
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -271,19 +266,10 @@
                     </div>
                     <!-- Name -->
                     <h3 class="text-sm font-bold text-white truncate">{{ member.get_display_name }}</h3>
-<<<<<<< HEAD
-                    <!-- Role or Quote -->
-                    {% if member.user.profile.quote %}
-                    <p class="text-[10px] italic text-cyan-300 mt-1 truncate">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
-                    {% else %}
-                    <p class="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider truncate">Club Member</p>
-                    {% endif %}
-=======
                     <!-- Role -->
                     <p class="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider truncate">{{ member.team_role_label }}</p>
                     <!-- Quote -->
                     {% if member.quote %}<p class="text-[10px] text-emerald-400/90 italic mt-1 truncate">"{{ member.quote }}"</p>{% endif %}
->>>>>>> 48952258530259f8c47339af731b466b33453846
                     <!-- Socials -->
                     <div class="mt-2 flex justify-center gap-2">
                         {% if member.github_url or member.user.profile.github_profile %}
