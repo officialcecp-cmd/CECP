@@ -1,324 +1,504 @@
-{% load static %}
+{% load static custom_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexus Profile — {{ request.user.username|upper }}</title>
+    <title>CECP.NEXUS — System Profile</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        nexus: {
+                            bg: '#050816',
+                            blue: '#00C2FF',
+                            purple: '#8B5CF6',
+                            cyan: '#00F5D4',
+                            dark: '#0f172a',
+                            panel: 'rgba(15, 23, 42, 0.45)',
+                        }
+                    },
+                    backgroundImage: {
+                        'tech-grid': 'linear-gradient(rgba(0, 194, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 194, 255, 0.05) 1px, transparent 1px)',
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --cecp-cyan: #06b6d4;
-            --cecp-blue: #3b82f6;
-            --cecp-dark: #020617;
-            --cecp-card: rgba(15, 23, 42, 0.7);
-        }
-
-        * { font-family: 'Outfit', sans-serif; cursor: default; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
         body {
-            background-color: var(--cecp-dark);
-            background-image: url('{% static "images/profile_bg.png" %}');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: #f8fafc;
-            min-height: 100vh;
+            background-color: theme('colors.nexus.bg');
+            color: #e2e8f0;
             overflow-x: hidden;
+            background-image: theme('backgroundImage.tech-grid');
+            background-size: 40px 40px;
+            background-position: center;
         }
 
-        /* ── GLASSMORPHISM ── */
+        /* ── Glassmorphism & Neon Shadows ── */
         .glass-panel {
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .glass-card {
-            background: rgba(30, 41, 59, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: theme('colors.nexus.panel');
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(0, 194, 255, 0.15);
+            border-radius: 1.25rem;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
         }
 
-        .glass-card:hover {
-            background: rgba(30, 41, 59, 0.6);
-            border-color: rgba(6, 182, 212, 0.3);
-            transform: translateY(-4px);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.4);
+        .glass-panel:hover {
+            border-color: rgba(0, 194, 255, 0.5);
+            box-shadow: 0 0 25px rgba(0, 194, 255, 0.15), inset 0 0 15px rgba(0, 194, 255, 0.05);
+            transform: translateY(-2px);
         }
 
-        /* ── ANIMATIONS ── */
-        .animate-in { animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .glass-panel::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(0, 194, 255, 0.5), transparent);
+            opacity: 0.5;
         }
 
-        .shimmer {
-            position: relative; overflow: hidden;
+        /* ── Typography & Gradients ── */
+        .neon-text-blue {
+            background: linear-gradient(to right, #00C2FF, #8B5CF6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 194, 255, 0.3);
         }
-        .shimmer::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.03), transparent);
-            transform: rotate(45deg); animation: shimmer 6s infinite;
-        }
-        @keyframes shimmer {
-            0% { transform: translate(-100%, -100%) rotate(45deg); }
-            100% { transform: translate(100%, 100%) rotate(45deg); }
-        }
-
-        /* ── NAVBAR ── */
-        .nav-blur {
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* ── CUSTOM SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--cecp-dark); }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--cecp-cyan); }
-
-        .tech-pill {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.2);
-            color: var(--cecp-cyan);
-            padding: 4px 12px; border-radius: 100px;
-            font-size: 0.75rem; font-weight: 600;
-            letter-spacing: 0.02em;
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 100%);
+        
+        .neon-text-cyan {
+            background: linear-gradient(to right, #00F5D4, #00C2FF);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
-        .action-btn {
-            background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
-            transition: all 0.3s; box-shadow: 0 10px 20px -5px rgba(6, 182, 212, 0.4);
-            cursor: pointer;
+        /* ── Buttons ── */
+        .btn-neon {
+            background: rgba(0, 194, 255, 0.1);
+            border: 1px solid rgba(0, 194, 255, 0.4);
+            color: #00C2FF;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0, 194, 255, 0.1);
         }
-        .action-btn:hover {
-            transform: scale(1.02); box-shadow: 0 15px 25px -5px rgba(6, 182, 212, 0.6);
+        .btn-neon:hover {
+            background: rgba(0, 194, 255, 0.2);
+            box-shadow: 0 0 20px rgba(0, 194, 255, 0.4);
+            border-color: #00C2FF;
+            color: #fff;
+            transform: scale(1.02);
         }
-        .action-btn * { cursor: pointer; }
+
+        .btn-solid-neon {
+            background: linear-gradient(135deg, #00C2FF, #8B5CF6);
+            color: #fff;
+            border: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 194, 255, 0.4);
+        }
+        .btn-solid-neon:hover {
+            box-shadow: 0 0 25px rgba(139, 92, 246, 0.6);
+            transform: scale(1.02);
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 194, 255, 0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00C2FF; }
+
+        /* ── Sidebar Link Hover ── */
+        .sidebar-link {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .sidebar-link:hover, .sidebar-link.active {
+            background: rgba(0, 194, 255, 0.1);
+            color: #00C2FF;
+            border-right: 3px solid #00C2FF;
+        }
+        .sidebar-link:hover svg, .sidebar-link.active svg {
+            color: #00C2FF;
+            filter: drop-shadow(0 0 5px rgba(0,194,255,0.5));
+        }
+
+        /* ── Image Glow ── */
+        .profile-img-glow {
+            box-shadow: 0 0 30px rgba(0, 194, 255, 0.4), inset 0 0 20px rgba(0, 194, 255, 0.4);
+            animation: pulse-glow 4s infinite alternate;
+        }
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(0, 194, 255, 0.3); }
+            100% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.5); }
+        }
+
+        /* ── Ambient Background Glows ── */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ── Mobile Menu Toggle ── */
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.open { transform: translateX(0); }
+        }
     </style>
 </head>
-<body class="pb-20">
 
-    <!-- ── NAVIGATION ── -->
-    <nav class="nav-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-3 group cursor-pointer">
-                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
-                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <span class="font-black text-2xl tracking-tighter gradient-text">CECP NEXUS</span>
+<body class="flex h-screen overflow-hidden">
+
+    <!-- Ambient Glows -->
+    <div class="ambient-glow bg-[#00C2FF] w-[500px] h-[500px] top-[-100px] left-[-100px]"></div>
+    <div class="ambient-glow bg-[#8B5CF6] w-[600px] h-[600px] bottom-[-200px] right-[-100px]"></div>
+
+    <!-- ── SIDEBAR NAVIGATION ── -->
+    <aside class="sidebar w-64 h-full bg-[#050816]/90 backdrop-blur-xl border-r border-[#00C2FF]/20 fixed lg:static z-50 flex flex-col">
+        <!-- Logo -->
+        <div class="h-20 flex items-center justify-between px-6 border-b border-[#00C2FF]/10">
+            <a href="/" class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-[#00C2FF] drop-shadow-[0_0_8px_rgba(0,194,255,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span class="font-bold text-xl tracking-wider text-white mono">CECP<span class="text-[#00C2FF]">.NEXUS</span></span>
             </a>
-
-            <div class="flex items-center gap-6">
-                <a href="{% url 'landing:dashboard' %}" class="text-sm font-semibold text-slate-400 hover:text-cyan-400 transition-colors cursor-pointer">Dashboard</a>
-                <a href="{% url 'landing:edit_profile' %}" class="action-btn px-6 py-2.5 rounded-xl text-sm font-bold text-white cursor-pointer">Edit Profile</a>
-            </div>
+            <!-- Mobile Close -->
+            <button class="lg:hidden text-slate-400 hover:text-white" onclick="document.querySelector('.sidebar').classList.remove('open')">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
         </div>
-    </nav>
 
-    <main class="max-w-7xl mx-auto px-6 pt-12 lg:pt-20">
-        
-        <!-- ── HERO SECTION ── -->
-        <div class="grid lg:grid-cols-12 gap-12 items-start">
+        <!-- Links -->
+        <nav class="flex-1 py-6 flex flex-col gap-2 px-3">
+            <a href="{% url 'landing:dashboard' %}" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                Dashboard
+            </a>
+            <a href="#" class="sidebar-link active flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                System Profile
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                Projects
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                Achievements
+            </a>
+            <a href="#" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                Activity
+            </a>
+            <div class="mt-auto">
+                <a href="{% url 'landing:edit_profile' %}" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-slate-400 font-medium">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    Settings
+                </a>
+                <a href="{% url 'landing:logout' %}" class="sidebar-link flex items-center gap-4 px-4 py-3 rounded-lg text-rose-400 hover:text-rose-300 font-medium hover:bg-rose-500/10 hover:border-rose-500">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    Logout
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- ── MAIN CONTENT ── -->
+    <main class="flex-1 h-full overflow-y-auto">
+        <!-- Topbar -->
+        <header class="h-20 px-6 flex items-center justify-between sticky top-0 z-40 bg-[#050816]/80 backdrop-blur-md border-b border-[#00C2FF]/10">
+            <div class="flex items-center gap-4">
+                <button class="lg:hidden text-white" onclick="document.querySelector('.sidebar').classList.add('open')">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                </button>
+                <h1 class="text-xl font-bold uppercase tracking-widest text-slate-200">System <span class="text-[#00C2FF]">Profile</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="{% url 'landing:dashboard' %}" class="btn-neon px-5 py-2 rounded-lg text-sm font-semibold tracking-wide hidden sm:block">Back to Dashboard</a>
+                <a href="{% url 'landing:edit_profile' %}" class="btn-solid-neon px-5 py-2 rounded-lg text-sm font-semibold tracking-wide flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                    Update
+                </a>
+            </div>
+        </header>
+
+        <div class="p-6 max-w-7xl mx-auto space-y-6 mb-20">
             
-            <!-- LEFT COLUMN: Profile Info -->
-            <div class="lg:col-span-4 space-y-8 animate-in">
-                <div class="glass-panel p-8 rounded-[2.5rem] text-center relative overflow-hidden shimmer">
-                    <div class="relative z-10">
-                        <div class="relative w-48 h-48 mx-auto mb-6">
-                            <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500 to-blue-600 rounded-full animate-pulse blur-xl opacity-30"></div>
-                            {% if profile.profile_picture %}
-                                <img src="{{ profile.profile_picture.url }}" alt="{{ request.user.username }}" class="w-full h-full rounded-full object-cover border-4 border-slate-800/80 shadow-2xl relative z-10">
-                            {% else %}
-                                <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-6xl font-black text-cyan-400 border-4 border-slate-800/80 shadow-2xl relative z-10">
-                                    {{ request.user.username|make_list|first|upper }}
-                                </div>
-                            {% endif %}
-                            <a href="{% url 'landing:edit_profile' %}" class="absolute bottom-2 right-2 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-xl border-4 border-slate-900 z-20 hover:scale-110 transition-transform cursor-pointer">
-                                <svg class="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                            </a>
-                        </div>
-
-                        <h1 class="text-3xl font-black text-white mb-2">{{ request.user.get_full_name|default:request.user.username }}</h1>
-                        <div class="flex flex-wrap justify-center gap-2 mb-6">
-                            {% if is_accepted %}
-                            <span class="tech-pill bg-emerald-500/10 border-emerald-500/20 text-emerald-400">Validated Member</span>
-                            {% endif %}
-                            <span class="tech-pill">{{ profile.course|default:"B.Tech" }} | {{ profile.branch|default:"Engineering" }}</span>
-                        </div>
-
-                        {% if profile.quote %}
-                        <p class="text-slate-400 italic font-medium leading-relaxed mb-8">"{{ profile.quote }}"</p>
-                        {% endif %}
-
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="glass-card p-4 rounded-2xl text-left">
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Batch</p>
-                                <p class="text-sm font-bold text-white">{{ profile.graduation_year|default:"2025-29" }}</p>
-                            </div>
-                            <div class="glass-card p-4 rounded-2xl text-left">
-                                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Nexus ID</p>
-                                <p class="text-sm font-bold text-white font-mono">#{{ profile.college_roll_number|default:"N/A" }}</p>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-center gap-4 mt-8">
-                            {% if profile.github_profile %}
-                            <a href="{{ profile.github_profile }}" target="_blank" class="w-12 h-12 glass-card flex items-center justify-center rounded-xl hover:text-cyan-400 transition-colors cursor-pointer">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
-                            </a>
-                            {% endif %}
-                            {% if profile.linkedin_profile %}
-                            <a href="{{ profile.linkedin_profile }}" target="_blank" class="w-12 h-12 glass-card flex items-center justify-center rounded-xl hover:text-blue-500 transition-colors cursor-pointer">
-                                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                            </a>
-                            {% endif %}
-                        </div>
-                    </div>
+            <!-- ── HERO PROFILE CARD ── -->
+            <div class="glass-panel p-8 md:p-10 flex flex-col md:flex-row items-center md:items-start gap-8 relative">
+                <!-- Decorative Right Side Tech Illustration -->
+                <div class="absolute right-0 top-0 h-full w-1/3 pointer-events-none hidden lg:block opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] mix-blend-screen" style="mask-image: linear-gradient(to left, black, transparent); -webkit-mask-image: linear-gradient(to left, black, transparent);"></div>
+                <div class="absolute right-10 top-1/2 -translate-y-1/2 hidden lg:flex items-center justify-center opacity-40">
+                    <svg class="w-48 h-48 text-[#00C2FF] drop-shadow-[0_0_15px_rgba(0,194,255,0.8)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="0.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
                 </div>
 
-                <!-- Contact Info -->
-                <div class="glass-panel p-6 rounded-3xl space-y-4">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                        </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Official Email</p>
-                            <p class="text-sm font-medium text-slate-200">{{ request.user.email }}</p>
-                        </div>
+                <!-- Avatar -->
+                <div class="relative flex-shrink-0">
+                    <div class="w-32 h-32 md:w-40 md:h-40 rounded-full border-2 border-[#00C2FF] p-1 profile-img-glow bg-[#050816]">
+                        {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" alt="Profile" class="w-full h-full rounded-full object-cover">
+                        {% else %}
+                            <div class="w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-5xl font-black text-[#00C2FF]">
+                                {{ request.user.get_full_name|default:request.user.username|make_list|first|upper }}
+                            </div>
+                        {% endif %}
                     </div>
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                    <!-- Status Indicator -->
+                    <div class="absolute bottom-2 right-2 w-5 h-5 bg-[#00F5D4] border-4 border-[#050816] rounded-full shadow-[0_0_10px_#00F5D4]" title="Online"></div>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 text-center md:text-left z-10">
+                    <div class="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                        <h2 class="text-3xl md:text-4xl font-black text-white tracking-tight">{{ request.user.get_full_name|default:request.user.username }}</h2>
+                        {% if is_accepted %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#00F5D4]/10 text-[#00F5D4] border border-[#00F5D4]/30 uppercase tracking-widest mt-2 md:mt-0">
+                            Verified Engineer
+                        </span>
+                        {% endif %}
+                    </div>
+                    <p class="text-[#00C2FF] font-medium tracking-widest uppercase text-sm mb-1 mono">
+                        {{ profile.get_role_display|default:"System User" }}
+                    </p>
+                    <p class="text-slate-400 text-sm mb-4">
+                        {{ profile.course|default:"B.Tech" }} — {{ profile.branch|default:"Engineering" }} (Batch {{ profile.graduation_year|default:"N/A" }})
+                    </p>
+                    
+                    {% if profile.quote %}
+                    <div class="inline-block bg-[#00C2FF]/10 border-l-4 border-[#00C2FF] px-4 py-2 mb-6">
+                        <p class="text-slate-300 italic text-sm">"{{ profile.quote }}"</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Contact Bar -->
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-6 text-sm text-slate-400 font-mono">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#8B5CF6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            {{ request.user.email }}
                         </div>
-                        <div>
-                            <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Encrypted Line</p>
-                            <p class="text-sm font-medium text-slate-200">{{ profile.mobile_number|default:"+91 XXXXXXXXXX" }}</p>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#00F5D4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            RIT Roorkee
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-[#00C2FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            ID: #{{ profile.college_roll_number|default:"0000" }}
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Professional Details -->
-            <div class="lg:col-span-8 space-y-8 animate-in" style="animation-delay: 0.2s;">
+            <!-- ── GLOWING STAT CARDS ── -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <!-- Stat 1 -->
+                <div class="glass-panel p-5 text-center group cursor-default">
+                    <div class="w-10 h-10 mx-auto bg-[#00C2FF]/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#00C2FF]/20 transition-colors">
+                        <svg class="w-5 h-5 text-[#00C2FF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    </div>
+                    <h3 class="text-3xl font-black text-white mb-1">{{ request.user.submitted_projects.count|default:"0" }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Projects</p>
+                </div>
+                <!-- Stat 2 -->
+                <div class="glass-panel p-5 text-center group cursor-default">
+                    <div class="w-10 h-10 mx-auto bg-[#8B5CF6]/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#8B5CF6]/20 transition-colors">
+                        <svg class="w-5 h-5 text-[#8B5CF6]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    </div>
+                    <h3 class="text-3xl font-black text-white mb-1">{{ request.user.club_profile.achievements.count|default:"0" }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Achievements</p>
+                </div>
+                <!-- Stat 3 -->
+                <div class="glass-panel p-5 text-center group cursor-default">
+                    <div class="w-10 h-10 mx-auto bg-[#00F5D4]/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-[#00F5D4]/20 transition-colors">
+                        <svg class="w-5 h-5 text-[#00F5D4]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    </div>
+                    <h3 class="text-3xl font-black text-white mb-1">{{ profile.core_technologies.split|length|default:"0" }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tech Mastered</p>
+                </div>
+                <!-- Stat 4 -->
+                <div class="glass-panel p-5 text-center group cursor-default">
+                    <div class="w-10 h-10 mx-auto bg-rose-500/10 rounded-lg flex items-center justify-center mb-3 group-hover:bg-rose-500/20 transition-colors">
+                        <svg class="w-5 h-5 text-rose-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                    </div>
+                    <h3 class="text-3xl font-black text-white mb-1">{{ request.user.club_profile.blogs.count|default:"0" }}</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Contributions</p>
+                </div>
+            </div>
+
+            <!-- ── INFORMATION GRID ── -->
+            <div class="grid lg:grid-cols-3 gap-6">
                 
-                <!-- Professional Bio & Tech Stack -->
-                <div class="glass-panel p-10 rounded-[2.5rem]">
-                    <div class="flex items-center gap-3 mb-8">
-                        <div class="w-2 h-8 rounded-full bg-cyan-500"></div>
-                        <h2 class="text-2xl font-black text-white uppercase tracking-tight">Professional Dossier</h2>
+                <!-- Left Column (Bio & Tech) -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- About Me -->
+                    <div class="glass-panel p-8">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-sm font-bold text-[#00C2FF] uppercase tracking-widest mono border-l-2 border-[#00C2FF] pl-3">About Me</h3>
+                            <a href="{% url 'landing:edit_profile' %}" class="text-xs text-slate-400 hover:text-[#00C2FF] transition-colors underline decoration-slate-600 underline-offset-4">Edit Intro</a>
+                        </div>
+                        <p class="text-slate-300 leading-relaxed font-medium">
+                            {{ profile.professional_bio|default:"No introduction provided. Access settings to update your professional dossier." }}
+                        </p>
                     </div>
 
-                    <div class="grid md:grid-cols-2 gap-10">
-                        <div class="space-y-6">
-                            <div>
-                                <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-3">Core Technologies</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    {% if profile.core_technologies %}
-                                        {% for tech in profile.core_technologies.split %}
-                                            <span class="tech-pill">{{ tech|cut:"," }}</span>
-                                        {% endfor %}
-                                    {% else %}
-                                        <p class="text-sm text-slate-500 italic">No technologies listed.</p>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div>
-                                <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-3">Future Focus</h3>
-                                <p class="text-slate-300 text-lg font-bold">{{ profile.future_field|default:"Engineering Innovation" }}</p>
-                                <p class="text-xs text-slate-500 mt-1">Specialization and career path focus</p>
+                    <!-- Technical Arsenal -->
+                    <div class="glass-panel p-8">
+                        <h3 class="text-sm font-bold text-[#8B5CF6] uppercase tracking-widest mono border-l-2 border-[#8B5CF6] pl-3 mb-6">Technical Arsenal</h3>
+                        
+                        <div class="mb-6">
+                            <div class="flex flex-wrap gap-3">
+                                {% if profile.core_technologies %}
+                                    {% for tech in profile.core_technologies.split %}
+                                        <span class="px-4 py-1.5 rounded-md bg-[#8B5CF6]/10 border border-[#8B5CF6]/30 text-[#8B5CF6] text-sm font-semibold tracking-wide shadow-[0_0_10px_rgba(139,92,246,0.1)]">
+                                            {{ tech|cut:"," }}
+                                        </span>
+                                    {% endfor %}
+                                {% else %}
+                                    <span class="text-sm text-slate-500 italic">Arsenal empty. Initialize tech stack in settings.</span>
+                                {% endif %}
                             </div>
                         </div>
 
-                        <div class="space-y-6">
+                        <!-- Mock Progress Bars -->
+                        <div class="space-y-4 border-t border-slate-700/50 pt-6 mt-4">
                             <div>
-                                <h3 class="text-xs font-bold text-cyan-400 uppercase tracking-[0.2em] mb-3">Professional Bio</h3>
-                                <p class="text-sm text-slate-400 leading-relaxed font-medium">
-                                    {{ profile.professional_bio|default:"No bio provided yet. Engineering students at RIT are encouraged to showcase their journey and specialization here." }}
+                                <div class="flex justify-between text-xs font-bold text-slate-400 mb-1">
+                                    <span>HARDWARE & IOT</span>
+                                    <span class="text-[#00F5D4]">85%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#00C2FF] to-[#00F5D4] w-[85%] shadow-[0_0_10px_#00F5D4]"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs font-bold text-slate-400 mb-1">
+                                    <span>SOFTWARE & ALGORITHMS</span>
+                                    <span class="text-[#8B5CF6]">70%</span>
+                                </div>
+                                <div class="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                                    <div class="h-full bg-gradient-to-r from-[#00C2FF] to-[#8B5CF6] w-[70%] shadow-[0_0_10px_#8B5CF6]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column (Radar, Trajectory, Socials) -->
+                <div class="space-y-6">
+                    <!-- Strategic Focus -->
+                    <div class="glass-panel p-8 relative overflow-hidden group">
+                        <!-- Radar Graphic Overlay -->
+                        <div class="absolute top-[-50px] right-[-50px] w-48 h-48 border border-[#00C2FF]/20 rounded-full flex items-center justify-center opacity-30 group-hover:rotate-90 transition-transform duration-1000">
+                            <div class="w-32 h-32 border border-[#00C2FF]/40 rounded-full"></div>
+                            <div class="absolute w-full h-px bg-[#00C2FF]/30 rotate-45"></div>
+                            <div class="absolute h-full w-px bg-[#00C2FF]/30 -rotate-45"></div>
+                        </div>
+                        
+                        <h3 class="text-sm font-bold text-[#00F5D4] uppercase tracking-widest mono border-l-2 border-[#00F5D4] pl-3 mb-6 relative z-10">Strategic Focus</h3>
+                        <p class="text-xl font-black text-white leading-tight mb-2 relative z-10">{{ profile.future_field|default:"Unassigned" }}</p>
+                        <p class="text-xs text-slate-400 uppercase tracking-widest relative z-10">Primary Specialization</p>
+                    </div>
+
+                    <!-- Future Trajectory -->
+                    <div class="glass-panel p-8">
+                        <h3 class="text-sm font-bold text-[#00C2FF] uppercase tracking-widest mono border-l-2 border-[#00C2FF] pl-3 mb-6">Future Trajectory</h3>
+                        <div class="relative pl-6 border-l-2 border-slate-700/50 space-y-6">
+                            <div class="relative">
+                                <div class="absolute w-3 h-3 bg-[#8B5CF6] rounded-full -left-[31px] top-1 shadow-[0_0_10px_#8B5CF6]"></div>
+                                <p class="text-xs font-bold text-slate-500 mb-1 uppercase tracking-widest">Target Objective</p>
+                                <p class="text-sm text-slate-300 font-medium line-clamp-3">
+                                    {{ profile.career_goals|default:"Establish a dominant presence in the tech industry. Set career goals to outline your roadmap." }}
                                 </p>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <!-- Career Goals & Interests -->
-                <div class="grid md:grid-cols-2 gap-8">
-                    <!-- Career Ambitions -->
-                    <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.307a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m-.921 6.507 2.053 2.053m-2.053-2.053L22.5 10.5M20.25 18.75a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z"/></svg>
+                    <!-- Neural Links -->
+                    <div class="glass-panel p-8">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest mono border-l-2 border-white pl-3 mb-6">Neural Links</h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            {% if profile.github_profile %}
+                            <a href="{{ profile.github_profile }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-white hover:bg-slate-700 transition-colors text-slate-300 hover:text-white group">
+                                <svg class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                                <span class="text-xs font-mono font-bold">GitHub</span>
+                            </a>
+                            {% endif %}
+                            
+                            {% if profile.linkedin_profile %}
+                            <a href="{{ profile.linkedin_profile }}" target="_blank" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-[#0077b5] hover:bg-slate-700 transition-colors text-slate-300 hover:text-[#0077b5] group">
+                                <svg class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                                <span class="text-xs font-mono font-bold">LinkedIn</span>
+                            </a>
+                            {% endif %}
+
+                            <a href="mailto:{{ request.user.email }}" class="flex flex-col items-center justify-center p-4 rounded-xl bg-slate-800/50 border border-slate-700 hover:border-rose-400 hover:bg-slate-700 transition-colors text-slate-300 hover:text-rose-400 group col-span-2">
+                                <svg class="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                <span class="text-xs font-mono font-bold">Direct Comm</span>
+                            </a>
                         </div>
-                        <h3 class="text-xs font-bold text-blue-400 uppercase tracking-[0.2em] mb-6">Career Ambitions</h3>
-                        <p class="text-sm text-slate-300 leading-relaxed relative z-10">
-                            {{ profile.career_goals|default:"Where do you see yourself in 5 years? Define your long-term engineering and professional goals here." }}
-                        </p>
                     </div>
+                </div>
+            </div>
 
-                    <!-- Personal Interests -->
-                    <div class="glass-panel p-8 rounded-[2rem] relative overflow-hidden group">
-                        <div class="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                            <svg class="w-24 h-24 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.25 8.25 0 0 1 12 21 8.25 8.25 0 0 1 6.038 7.047 8.287 8.287 0 0 0 9 9.601a8.983 8.983 0 0 1 3.361-6.867 8.21 8.21 0 0 0 3 2.48Z"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 18a3.75 3.75 0 0 0 .495-7.468 5.99 5.99 0 0 0-1.925 3.547 4.508 4.508 0 0 1-1.041 1.956A3.75 3.75 0 0 0 12 18Z"/></svg>
-                        </div>
-                        <h3 class="text-xs font-bold text-purple-400 uppercase tracking-[0.2em] mb-6">Personal Interests</h3>
-                        <div class="flex flex-wrap gap-2 relative z-10">
+            <!-- ── ACHIEVEMENT LEDGER ── -->
+            <div class="glass-panel p-8">
+                <h3 class="text-sm font-bold text-rose-400 uppercase tracking-widest mono border-l-2 border-rose-400 pl-3 mb-6">Achievement Ledger & Interests</h3>
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- Interests -->
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">Personal Protocols</p>
+                        <div class="flex flex-wrap gap-2">
                             {% if profile.personal_interests %}
                                 {% for interest in profile.personal_interests.split %}
-                                    <span class="tech-pill bg-purple-500/10 border-purple-500/20 text-purple-400">{{ interest|cut:"," }}</span>
+                                    <span class="px-3 py-1 rounded border border-slate-700 bg-slate-800/50 text-slate-300 text-xs font-mono hover:border-slate-500 transition-colors">
+                                        {{ interest|cut:"," }}
+                                    </span>
                                 {% endfor %}
                             {% else %}
-                                <p class="text-sm text-slate-500 italic">No interests listed.</p>
+                                <span class="text-sm text-slate-500 italic">No protocols defined.</span>
                             {% endif %}
                         </div>
                     </div>
+                    <!-- Mock Achievements -->
+                    <div>
+                        <p class="text-xs font-bold text-slate-500 mb-3 uppercase tracking-widest">System Log</p>
+                        <ul class="space-y-3">
+                            <li class="flex items-start gap-3">
+                                <div class="w-2 h-2 mt-1.5 rounded-full bg-[#00F5D4] shadow-[0_0_5px_#00F5D4]"></div>
+                                <div>
+                                    <p class="text-sm text-white font-semibold">Nexus Account Initialized</p>
+                                    <p class="text-xs text-slate-500 mono">Date: {{ user.date_joined|date:"M d, Y" }}</p>
+                                </div>
+                            </li>
+                            {% if is_accepted %}
+                            <li class="flex items-start gap-3">
+                                <div class="w-2 h-2 mt-1.5 rounded-full bg-[#00C2FF] shadow-[0_0_5px_#00C2FF]"></div>
+                                <div>
+                                    <p class="text-sm text-white font-semibold">Validation Granted</p>
+                                    <p class="text-xs text-slate-500 mono">Official CECP Member Status</p>
+                                </div>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
                 </div>
-
-                <!-- Footer Stats -->
-                <div class="glass-panel p-8 rounded-[2rem] flex flex-wrap items-center justify-around gap-8 text-center">
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Nexus Status</p>
-                        <p class="text-xl font-black text-emerald-400">ACTIVE</p>
-                    </div>
-                    <div class="w-px h-12 bg-slate-800 hidden md:block"></div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Projects</p>
-                        <p class="text-xl font-black text-white">{{ request.user.submitted_projects.count }}</p>
-                    </div>
-                    <div class="w-px h-12 bg-slate-800 hidden md:block"></div>
-                    <div>
-                        <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Blogs</p>
-                        <p class="text-xl font-black text-white">{{ request.user.club_profile.blogs.count }}</p>
-                    </div>
-                </div>
-
             </div>
-        </div>
 
-        <!-- Footer -->
-        <div class="mt-20 text-center">
-            <p class="text-xs text-slate-600 font-mono tracking-widest uppercase">
-                &copy; {% now "Y" %} Centre for Electronics & Coding Projects — ROORKEE INSTITUTE OF TECHNOLOGY
-            </p>
         </div>
     </main>
 
-    <script>
-        // System identity check
-        console.log("Nexus Profile Initialized for System Identity: {{ request.user.username }}");
-    </script>
 </body>
+
 </html>
