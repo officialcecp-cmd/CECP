@@ -356,10 +356,16 @@
                     {% endif %}
 
                     <div class="mt-4 pt-4 border-t border-slate-800 flex justify-between items-center">
-                        <a href="#" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors">
+                        <a href="{% url 'landing:project_detail' project.id %}" class="text-xs text-cyan-400 hover:text-cyan-300 font-semibold flex items-center gap-1 transition-colors">
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                             View
                         </a>
+                        {% if project.documentation_file %}
+                        <a href="{{ project.documentation_file.url }}" target="_blank" class="text-xs text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 transition-colors">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                            Doc
+                        </a>
+                        {% endif %}
                         <form method="post" action="{% url 'landing:delete_project' project.id %}" onsubmit="return confirm('Delete this project? This cannot be undone.');">
                             {% csrf_token %}
                             <button type="submit" class="text-[11px] text-red-500 hover:text-red-400 border border-red-500/25 hover:border-red-500/60 px-3 py-1 rounded-lg bg-red-900/10 hover:bg-red-900/20 transition-all font-mono uppercase tracking-wider">

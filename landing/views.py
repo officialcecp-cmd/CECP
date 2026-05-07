@@ -346,17 +346,24 @@ def submit_project(request):
             project.submitted_by = member
             project.project_lead = member
             project.tech_stack = form.cleaned_data.get('tech_stack_input', [])
-            if project.spec:
-                project.level = categorize_project_level(project.spec)
-            if member.can_approve_projects:
-                project.approval_status = 'approved'
-                project.is_approved = True
-                project.approved_by = member
-                messages.success(request, f'Project "{project.title}" published!')
-            else:
-                project.approval_status = 'pending'
-                messages.success(request, f'Project "{project.title}" submitted for review!')
-            project.save()
+            try:
+                if project.spec:
+                    project.level = categorize_project_level(project.spec)
+                if member.can_approve_projects:
+                    project.approval_status = 'approved'
+                    project.is_approved = True
+                    project.approved_by = member
+                    messages.success(request, f'Project "{project.title}" published!')
+                else:
+                    project.approval_status = 'pending'
+                    messages.success(request, f'Project "{project.title}" submitted for review!')
+                project.save()
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Project save error: {e}")
+                messages.error(request, f'Error during project submission: {str(e)}')
+                return render(request, 'landing/submit_project.html', {'form': form, 'page_title': 'Submit Project'})
 
             # --- Add the submitter as a team member ---
             project.team_members.add(member)

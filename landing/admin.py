@@ -78,7 +78,7 @@ class ProjectCategoryAdmin(admin.ModelAdmin):
 class ProjectAchievementInline(admin.TabularInline):
     model = ProjectAchievement
     extra = 0
-    fields = ('title', 'achievement_type', 'event_name', 'position', 'date', 'certificate_url')
+    fields = ('title', 'achievement_type', 'event_name', 'position', 'date', 'certificate_url', 'certificate_file')
 
 
 # --- Project Admin (with AI auto-categorization) ------------------------------
@@ -107,7 +107,7 @@ class ProjectAdmin(admin.ModelAdmin):
             'fields': ('approval_status', 'submitted_by', 'approved_by', 'rejection_reason')
         }),
         ('Links', {
-            'fields': ('github_url', 'demo_url', 'documentation_url', 'video_url'),
+            'fields': ('github_url', 'demo_url', 'documentation_url', 'documentation_file', 'video_url'),
             'classes': ('collapse',)
         }),
         ('Team & Display', {

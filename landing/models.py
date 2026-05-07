@@ -216,7 +216,9 @@ class Project(models.Model):
     demo_url = models.URLField(blank=True, help_text="Live demo or video URL")
     documentation_url = models.URLField(blank=True, help_text="Documentation or report URL")
     documentation_file = models.FileField(
-        upload_to='projects/docs/', blank=True, null=True,
+        upload_to='projects/docs/',
+        storage=RawMediaCloudinaryStorage(),
+        blank=True, null=True,
         help_text="Upload documentation file (PDF/DOC/PPT)"
     )
     video_url = models.URLField(blank=True, help_text="YouTube or demo video URL")
@@ -291,6 +293,7 @@ class ProjectAchievement(models.Model):
     )
     certificate_file = models.FileField(
         upload_to='achievements/certificates/',
+        storage=RawMediaCloudinaryStorage(),
         blank=True, null=True,
         help_text="Upload certificate file (PDF/Image)"
     )
