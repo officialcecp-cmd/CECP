@@ -73,9 +73,11 @@ class ClubMember(models.Model):
     
     joined_at = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=999, help_text="Order in which this member appears on the frontend.")
 
     class Meta:
-        ordering = ['category', 'user__first_name']
+        ordering = ['display_order', 'category', 'user__first_name']
+
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} — {self.get_category_display()}"
@@ -661,3 +663,20 @@ class Event(models.Model):
 
     def __str__(self):
         return self.title
+
+# ==============================================================================
+# EVENT STATS
+# ==============================================================================
+
+class EventStat(models.Model):
+    events_hosted = models.CharField(max_length=50, default='25+', help_text='e.g., 25+')
+    participants = models.CharField(max_length=50, default='2000+', help_text='e.g., 2000+')
+    winners_crowned = models.CharField(max_length=50, default='50+', help_text='e.g., 50+')
+    collaborations = models.CharField(max_length=50, default='10+', help_text='e.g., 10+')
+
+    class Meta:
+        verbose_name = "Event Stat"
+        verbose_name_plural = "Event Stats"
+
+    def __str__(self):
+        return "Event Section Stats"

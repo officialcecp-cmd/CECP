@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event
+    ClubApplication, Blog, Event, EventStat
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
@@ -42,6 +42,7 @@ FALLBACK_INITIATIVES = [
 
 def index(request):
     events = Event.objects.all()
+    event_stats = EventStat.objects.first()
     initiatives = fetch_initiatives()
     if initiatives is None:
         initiatives = FALLBACK_INITIATIVES
@@ -66,7 +67,7 @@ def index(request):
         'categories': ProjectCategory.objects.count(),
     }
 
-    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user', 'user__profile').order_by('category', 'user__first_name')
+    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user', 'user__profile').order_by('display_order', 'category', 'user__first_name')
 
     user_application = None
     if request.user.is_authenticated:
@@ -91,6 +92,7 @@ def index(request):
 
     context = {
         'events': events,
+        'event_stats': event_stats,
         'initiatives': initiatives,
         'projects': approved_projects,
         'featured_project': approved_projects.filter(is_featured=True).first(),
@@ -736,9 +738,36 @@ def edit_profile_view(request):
                 request.user.save()
     
     if request.method == 'POST':
-        form = UserProfileForm(request.POST, request.FILES, instance=profile)
+        # ── Handle cropped base64 fallback (for browsers without DataTransfer) ──
+        cropped_b64 = request.POST.get('profile_picture_cropped', '').strip()
+        mutable_files = request.FILES.copy() if request.FILES else {}
+
+        if cropped_b64 and 'profile_picture' not in request.FILES:
+            import base64
+            from django.core.files.base import ContentFile
+            try:
+                # Strip the data:image/...;base64, header
+                header, data = cropped_b64.split(',', 1)
+                img_data = base64.b64decode(data)
+                mutable_files['profile_picture'] = ContentFile(img_data, name='profile_picture.jpg')
+            except Exception:
+                pass
+
+        form = UserProfileForm(request.POST, mutable_files or request.FILES, instance=profile)
         if form.is_valid():
-            form.save()
+            saved_profile = form.save()
+
+            # --- Sync profile_picture → ClubMember.profile_image ---
+            # So that the public Team/Management cards always show the correct image.
+            if saved_profile.profile_picture:
+                try:
+                    club_member = request.user.club_profile  # OneToOne related_name
+                    if club_member.profile_image.name != saved_profile.profile_picture.name:
+                        club_member.profile_image = saved_profile.profile_picture
+                        club_member.save(update_fields=['profile_image'])
+                except Exception:
+                    pass  # User may not have a ClubMember record yet
+
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('landing:profile')
     else:
@@ -781,7 +810,7 @@ def team_view(request):
             Q(category__in=['advisor', 'head'])
         )
         .select_related('user', 'user__profile')
-        .order_by('user__first_name')
+        .order_by('display_order', 'user__first_name')
     )
 
     context = {

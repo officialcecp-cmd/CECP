@@ -176,7 +176,18 @@
                     <div class="space-y-6">
                         <div>
                             {{ form.profile_picture.label_tag }}
-                            {{ form.profile_picture }}
+                            <!-- data-cropper-input triggers the crop modal -->
+                            <div id="profile-pic-wrap">
+                                {{ form.profile_picture }}
+                                <!-- Hidden field stores the cropped base64 -->
+                                <input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
+                                <!-- Thumbnail shown after crop -->
+                                {% if form.instance.profile_picture %}
+                                <img id="current-thumb" src="{{ form.instance.profile_picture.url }}"
+                                     class="mt-2 w-[72px] h-[72px] rounded-full object-cover border-2 border-cyan-500/60"
+                                     alt="Current photo">
+                                {% endif %}
+                            </div>
                             {% if form.profile_picture.help_text %}<p class="helptext">{{ form.profile_picture.help_text }}</p>{% endif %}
                             {{ form.profile_picture.errors }}
                         </div>
@@ -281,26 +292,60 @@
     </div>
 </div>
 
+<script src="{% static 'js/image_cropper.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const courseSelect = document.getElementById('id_course');
-    const branchContainer = document.getElementById('branch-container');
-    const branchSelect = document.getElementById('id_branch');
+document.addEventListener('DOMContentLoaded', function () {
 
-    function toggleBranch() {
-        if (courseSelect.value === 'B.Tech') {
-            branchContainer.style.display = 'block';
-        } else {
-            branchContainer.style.display = 'none';
-            branchSelect.value = ''; // clear value if not B.Tech
+    // ── 1. Bind the crop modal to the profile picture input ──────────────────
+    var fileInput = document.getElementById('id_profile_picture');
+    if (fileInput) {
+        // Tell the cropper which hidden field to write the base64 into
+        fileInput.setAttribute('data-cropper-hidden', 'id_profile_picture_cropped');
+        // Directly call the public API — no attribute-scan race condition
+        if (window.CECP_Cropper) {
+            window.CECP_Cropper.bind(fileInput);
         }
     }
 
-    // Initialize state
-    toggleBranch();
+    // ── 2. Intercept form submit: base64 → File so Django receives the upload ──
+    var form = document.querySelector('form[enctype="multipart/form-data"]');
+    if (form && fileInput) {
+        form.addEventListener('submit', function (e) {
+            var hidden = document.getElementById('id_profile_picture_cropped');
+            if (!hidden || !hidden.value) return; // no crop done — submit normally
 
-    // Listen for changes
-    courseSelect.addEventListener('change', toggleBranch);
+            e.preventDefault();
+
+            fetch(hidden.value)
+                .then(function(r) { return r.blob(); })
+                .then(function(blob) {
+                    var file = new File([blob], 'profile_picture.jpg', { type: 'image/jpeg' });
+                    var dt   = new DataTransfer();
+                    dt.items.add(file);
+                    fileInput.files = dt.files;
+                    hidden.value = '';
+                    form.submit();
+                });
+        });
+    }
+
+    // ── 3. Course / Branch toggle ─────────────────────────────────────────────
+    var courseSelect    = document.getElementById('id_course');
+    var branchContainer = document.getElementById('branch-container');
+    var branchSelect    = document.getElementById('id_branch');
+
+    if (courseSelect && branchContainer && branchSelect) {
+        function toggleBranch() {
+            if (courseSelect.value === 'B.Tech') {
+                branchContainer.style.display = 'block';
+            } else {
+                branchContainer.style.display = 'none';
+                branchSelect.value = '';
+            }
+        }
+        toggleBranch();
+        courseSelect.addEventListener('change', toggleBranch);
+    }
 });
 </script>
 </body>

@@ -3,7 +3,7 @@
 # ==============================================================================
 from django.contrib import admin
 from .models import (
-    Event,
+    Event, EventStat,
     Initiative, Project, ProjectAchievement,
     ClubMember, ProjectCategory, Notification, ClubApplication, Blog
 )
@@ -18,9 +18,9 @@ from django.utils.html import format_html
 
 @admin.register(ClubMember)
 class ClubMemberAdmin(admin.ModelAdmin):
-    list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
+    list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'display_order', 'is_active', 'joined_at')
     list_select_related = ('user',)
-    list_editable = ('role', 'category', 'display_role', 'is_active')
+    list_editable = ('role', 'category', 'display_role', 'display_order', 'is_active')
     list_filter = ('role', 'category', 'is_active')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id', 'display_role')
     raw_id_fields = ('user',)
@@ -30,7 +30,7 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
         }),
         ('Team Page Display', {
-            'fields': ('category', 'display_role', 'display_name', 'profile_image', 'bio', 'quote'),
+            'fields': ('display_order', 'category', 'display_role', 'display_name', 'profile_image', 'bio', 'quote'),
             'description': 'These fields control how the member appears on the public /team/ page.'
         }),
         ('Detailed Profile Info', {
@@ -42,6 +42,26 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        from .models import ClubApplication
+        from django.db.models import Q
+        
+        # Get approved applications' linked users and emails
+        approved_apps = ClubApplication.objects.filter(status='approved')
+        approved_users = approved_apps.exclude(user__isnull=True).values('user')
+        approved_emails = approved_apps.values('email')
+        
+        # Only show members who have an approved application OR are advisors/heads
+        return qs.filter(
+            Q(user__in=approved_users) | 
+            Q(user__email__in=approved_emails) |
+            Q(category__in=['advisor', 'head'])
+        ).distinct()
+
+    class Media:
+        js = ('js/image_cropper.js',)
 
 
 # --- Project Category Admin ---------------------------------------------------
@@ -177,6 +197,9 @@ class ClubApplicationAdmin(admin.ModelAdmin):
             return format_html('<img src="{}" width="120" height="120" style="border-radius: 8px; object-fit: cover; box-shadow: 0 4px 6px rgba(0,0,0,0.3);" />', obj.profile_photo.url)
         return "No Photo Provided"
     photo_preview.short_description = 'Photo Preview'
+
+    class Media:
+        js = ('js/image_cropper.js',)
 
     def _sync_club_member(self, obj):
         """
@@ -314,3 +337,8 @@ class EventAdmin(admin.ModelAdmin):
     list_filter = ('event_type', 'status', 'is_featured')
     search_fields = ('title', 'description', 'location')
     list_editable = ('status', 'is_featured')
+
+
+@admin.register(EventStat)
+class EventStatAdmin(admin.ModelAdmin):
+    list_display = ('events_hosted', 'participants', 'winners_crowned', 'collaborations')
