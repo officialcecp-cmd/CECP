@@ -43,6 +43,23 @@ class ClubMemberAdmin(admin.ModelAdmin):
         }),
     )
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        from .models import ClubApplication
+        from django.db.models import Q
+        
+        # Get approved applications' linked users and emails
+        approved_apps = ClubApplication.objects.filter(status='approved')
+        approved_users = approved_apps.exclude(user__isnull=True).values('user')
+        approved_emails = approved_apps.values('email')
+        
+        # Only show members who have an approved application OR are advisors/heads
+        return qs.filter(
+            Q(user__in=approved_users) | 
+            Q(user__email__in=approved_emails) |
+            Q(category__in=['advisor', 'head'])
+        ).distinct()
+
 
 # --- Project Category Admin ---------------------------------------------------
 
