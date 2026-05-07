@@ -116,7 +116,7 @@
                         <!-- User Profile Dropdown -->
                         <div class="relative group inline-block z-50">
                             <!-- Trigger Button -->
-                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700 event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn" onclick="filterEvents('status:Completed', this)" onclick="filterEvents('status:Ongoing', this)" onclick="filterEvents('Talk', this)" onclick="filterEvents('Competition', this)" onclick="filterEvents('Workshop', this)" onclick="filterEvents('Hackathon', this)" onclick="filterEvents('all', this)">
+                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700">
                                 <!-- Avatar -->
                                 {% if request.user.profile.profile_picture %}
                                     <img src="{{ request.user.profile.profile_picture.url }}" alt="{{ request.user.username }}" class="w-8 h-8 rounded-full object-cover border border-cyan-500">
@@ -201,7 +201,7 @@
     <!-- ===================================================================
          MAIN CONTENT AREA — All tabs layered, shown/hidden via JS
          =================================================================== -->
-    <main class="pt-16 lg:pt-20 h-full">
+    <main class="pt-16 lg:pt-20 h-full overflow-x-hidden">
 
         
         <!-- ===================================================================
@@ -916,7 +916,7 @@
         <!-- =============================================================
              TAB 3: EVENTS — Full Event Cards
              ============================================================= -->
-        <section id="tab-events" class="tab-content h-full overflow-y-auto">
+        <section id="tab-events" class="tab-content h-full overflow-y-auto overflow-x-hidden">
             <div class="relative min-h-[calc(100vh-5rem)] pb-20">
                 <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; bottom: -100px; right: -150px;"></div>
                 
@@ -1098,7 +1098,7 @@
         </section><!-- =============================================================
              TAB 4: PROJECTS — TECHFEST-LEVEL CYBERPUNK SHOWCASE
              ============================================================= -->
-        <section id="tab-projects" class="tab-content h-full overflow-y-auto">
+        <section id="tab-projects" class="tab-content h-full overflow-y-auto overflow-x-hidden">
             <div class="relative min-h-[calc(100vh-5rem)] projects-universe" id="projects-universe">
 
                 <!-- ▓▓▓ PREMIUM MESH & GRID BACKGROUND ▓▓▓ -->
@@ -1640,7 +1640,7 @@
         <!-- =============================================================
              TAB 6: BLOGS — Research & Articles
              ============================================================= -->
-        <section id="tab-blogs" class="tab-content h-full overflow-y-auto">
+        <section id="tab-blogs" class="tab-content h-full overflow-y-auto overflow-x-hidden">
             <div class="relative min-h-[calc(100vh-5rem)] flex flex-col">
                 <div class="ambient-orb orb-purple" style="width: 450px; height: 450px; top: 10%; right: -100px;"></div>
                 <div class="ambient-orb orb-cyan" style="width: 400px; height: 400px; bottom: 10%; left: -100px;"></div>
