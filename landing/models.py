@@ -594,17 +594,32 @@ class UserProfile(models.Model):
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
     github_profile = models.URLField(max_length=200, blank=True, null=True)
     linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
-    personal_website = models.URLField(max_length=200, blank=True, null=True, help_text="Portfolio or personal blog")
-    
     quote = models.CharField(
         max_length=100, blank=True, null=True,
         help_text='Your personal quote'
     )
-    
-    core_technologies = models.TextField(blank=True, null=True, help_text="List your technical skills (e.g., Python, Arduino, React)")
-    future_goals = models.TextField(blank=True, null=True, help_text="Career aspirations or future research goals")
-    area_of_interest = models.CharField(max_length=255, blank=True, null=True, help_text="e.g., Robotics, AI, Embedded Systems")
-    achievements_summary = models.TextField(blank=True, null=True, help_text="Certifications, awards, or competition results")
+
+    # --- Enhanced Professional Details ---
+    core_technologies = models.CharField(
+        max_length=255, blank=True, null=True, 
+        help_text="Skills you are proficient in (e.g., Python, React, IoT)"
+    )
+    future_field = models.CharField(
+        max_length=100, blank=True, null=True, 
+        help_text="The field you want to pursue (e.g., Robotics, AI Research, Software Engineering)"
+    )
+    personal_interests = models.CharField(
+        max_length=255, blank=True, null=True, 
+        help_text="Hobbies or things you love (e.g., Playing Guitar, Sketching, Chess)"
+    )
+    professional_bio = models.TextField(
+        blank=True, null=True, 
+        help_text="A brief professional summary of your journey and skills."
+    )
+    career_goals = models.TextField(
+        blank=True, null=True, 
+        help_text="Where do you see yourself in 5 years? Your long-term ambitions."
+    )
 
     def __str__(self):
         return f"{self.user.username}'s Profile"
@@ -690,19 +705,3 @@ class EventStat(models.Model):
 
     def __str__(self):
         return "Event Section Stats"
-
-
-class SiteSettings(models.Model):
-    is_application_open = models.BooleanField(default=False, help_text="Toggle whether new users can apply to join the club.")
-
-    class Meta:
-        verbose_name = "Site Setting"
-        verbose_name_plural = "Site Settings"
-
-    def __str__(self):
-        return "Global Site Settings"
-
-    def save(self, *args, **kwargs):
-        if not self.pk and SiteSettings.objects.exists():
-            return SiteSettings.objects.first()
-        return super().save(*args, **kwargs)

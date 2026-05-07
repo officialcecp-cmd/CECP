@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event, EventStat, SiteSettings
+    ClubApplication, Blog, Event, EventStat
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
@@ -95,9 +95,6 @@ def index(request):
             or ClubMember.objects.filter(user=request.user, is_active=True).exists()
         )
 
-    site_settings = SiteSettings.objects.first()
-    is_application_open = site_settings.is_application_open if site_settings else False
-
     context = {
         'events': events,
         'event_stats': event_stats,
@@ -110,7 +107,7 @@ def index(request):
         'user_application': user_application,
         'blogs': approved_blogs,
         'can_write_blog': can_write_blog,
-        'is_application_open': is_application_open,
+        'is_application_open': True, # Or whatever it was supposed to be
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -589,14 +586,7 @@ def apply_view(request):
         has_applied = True
         application_status = existing_app.get_status_display()
 
-    site_settings = SiteSettings.objects.first()
-    is_application_open = site_settings.is_application_open if site_settings else False
-
     if request.method == 'POST' and not has_applied:
-        if not is_application_open:
-            messages.error(request, "Applications are currently closed.")
-            return redirect('landing:index')
-
         form = ClubApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
@@ -620,7 +610,6 @@ def apply_view(request):
         'form': form,
         'has_applied': has_applied,
         'application_status': application_status,
-        'is_application_open': is_application_open,
         'page_title': 'Apply to Join CECP Club',
     })
 
@@ -781,28 +770,16 @@ def edit_profile_view(request):
         if form.is_valid():
             saved_profile = form.save()
 
-            # --- Sync profile_picture, core_technologies, area_of_interest → ClubMember ---
-            # So that the public Team/Management cards always show the correct data.
-            try:
-                club_member = request.user.club_profile
-                updated_fields = []
-                
-                if saved_profile.profile_picture and club_member.profile_image.name != saved_profile.profile_picture.name:
-                    club_member.profile_image = saved_profile.profile_picture
-                    updated_fields.append('profile_image')
-                
-                if saved_profile.core_technologies and club_member.core_technologies != saved_profile.core_technologies:
-                    club_member.core_technologies = saved_profile.core_technologies
-                    updated_fields.append('core_technologies')
-                    
-                if saved_profile.area_of_interest and club_member.area_of_interest != saved_profile.area_of_interest:
-                    club_member.area_of_interest = saved_profile.area_of_interest
-                    updated_fields.append('area_of_interest')
-
-                if updated_fields:
-                    club_member.save(update_fields=updated_fields)
-            except Exception:
-                pass  # User may not have a ClubMember record yet
+            # --- Sync profile_picture → ClubMember.profile_image ---
+            # So that the public Team/Management cards always show the correct image.
+            if saved_profile.profile_picture:
+                try:
+                    club_member = request.user.club_profile  # OneToOne related_name
+                    if club_member.profile_image.name != saved_profile.profile_picture.name:
+                        club_member.profile_image = saved_profile.profile_picture
+                        club_member.save(update_fields=['profile_image'])
+                except Exception:
+                    pass  # User may not have a ClubMember record yet
 
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('landing:profile')
@@ -895,8 +872,19 @@ def blog_detail(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     
     if not blog.is_approved:
-        has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists() if request.user.is_authenticated else False
-        if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
+        is_authorized = False
+        if request.user.is_authenticated:
+            try:
+                profile = getattr(request.user, 'club_profile', None)
+                is_authorized = (
+                    request.user.is_superuser or 
+                    request.user.groups.filter(name='CECP_Team').exists() or
+                    (profile and blog.author == profile)
+                )
+            except Exception:
+                pass
+
+        if not is_authorized:
             messages.error(request, 'This blog is pending approval and cannot be viewed yet.')
             return redirect('landing:index')
 

@@ -466,8 +466,8 @@ class UserProfileForm(forms.ModelForm):
             'profile_picture', 'course', 'branch', 'graduation_year',
             'college_roll_number', 'date_of_birth', 'gender',
             'hometown', 'mobile_number', 'github_profile', 'linkedin_profile',
-            'personal_website', 'quote', 'core_technologies', 'future_goals',
-            'area_of_interest', 'achievements_summary'
+            'quote', 'core_technologies', 'future_field', 'personal_interests',
+            'professional_bio', 'career_goals'
         ]
         widgets = {
             'profile_picture': forms.FileInput(attrs={
@@ -512,32 +512,31 @@ class UserProfileForm(forms.ModelForm):
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
                 'placeholder': 'https://linkedin.com/in/yourprofile'
             }),
-            'personal_website': forms.URLInput(attrs={
-                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
-                'placeholder': 'https://yourportfolio.com'
-            }),
             'quote': forms.TextInput(attrs={
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
                 'placeholder': 'e.g., Build things that matter.',
                 'maxlength': '100',
             }),
-            'core_technologies': forms.Textarea(attrs={
+            'core_technologies': forms.TextInput(attrs={
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
-                'placeholder': 'e.g., Python, Arduino, React...',
+                'placeholder': 'e.g., Python, React, IoT'
+            }),
+            'future_field': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., Robotics, AI Research'
+            }),
+            'personal_interests': forms.TextInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'e.g., Playing Guitar, Sketching'
+            }),
+            'professional_bio': forms.Textarea(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'Briefly describe your journey...',
                 'rows': 3
             }),
-            'future_goals': forms.Textarea(attrs={
+            'career_goals': forms.Textarea(attrs={
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
-                'placeholder': 'Where do you see yourself in 5 years?',
-                'rows': 3
-            }),
-            'area_of_interest': forms.TextInput(attrs={
-                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
-                'placeholder': 'e.g., Robotics, AI, IoT'
-            }),
-            'achievements_summary': forms.Textarea(attrs={
-                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
-                'placeholder': 'Certifications, Awards, Milestones...',
+                'placeholder': 'Your long-term ambitions...',
                 'rows': 3
             }),
         }
