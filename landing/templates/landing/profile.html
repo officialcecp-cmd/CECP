@@ -7,359 +7,661 @@
     <title>Nexus Profile — CECP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/custom.css' %}" />
     <style>
         :root {
-            --neon-cyan: #06b6d4;
             --neon-blue: #3b82f6;
-            --deep-slate: #020617;
-            --glass-bg: rgba(15, 23, 42, 0.7);
+            --neon-purple: #8b5cf6;
+            --neon-cyan: #06b6d4;
+            --deep-bg: #090B14;
+            --card-bg: #111526;
+            --card-border: rgba(59, 130, 246, 0.2);
+            --text-muted: #8F9BB3;
         }
-
-        * { font-family: 'Outfit', sans-serif; cursor: default; }
-        .mono { font-family: 'JetBrains Mono', monospace; }
 
         body { 
-            background: var(--deep-slate); 
-            color: #e2e8f0; 
-            min-height: 100vh;
-            overflow-x: hidden;
-            position: relative;
-        }
-
-        /* ── FUTURISTIC NANO-GRID BACKGROUND ── */
-        .nexus-bg {
-            position: fixed; inset: 0; z-index: -1;
-            background: 
-                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-                radial-gradient(circle at 10% 10%, rgba(59, 130, 246, 0.1) 0%, transparent 30%);
-        }
-        .nexus-bg::after {
-            content: ''; position: absolute; inset: 0;
+            background: var(--deep-bg); 
+            color: #ffffff; 
+            font-family: 'Outfit', sans-serif; 
             background-image: 
-                linear-gradient(rgba(6, 182, 212, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(6, 182, 212, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            perspective: 1000px;
-            transform: rotateX(45deg) scale(2);
-            transform-origin: top;
-            animation: gridMove 20s linear infinite;
+                radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.05) 0%, transparent 60%),
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
         }
-        @keyframes gridMove {
-            from { background-position: 0 0; }
-            to { background-position: 0 1000px; }
+        
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        .scanning-line {
-            position: fixed; top: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-            box-shadow: 0 0 20px var(--neon-cyan);
-            opacity: 0.3;
-            animation: scan 8s linear infinite;
-            z-index: -1;
-        }
-        @keyframes scan {
-            from { transform: translateY(-100vh); }
-            to { transform: translateY(200vh); }
-        }
-
-        /* ── NAVBAR ── */
-        .dash-nav {
-            position: sticky; top: 0; z-index: 100;
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(6, 182, 212, 0.2);
-        }
-
-        /* ── CARDS & GLASS ── */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        .avatar-glow {
             position: relative;
-            overflow: hidden;
         }
-        .glass-card:hover {
-            border-color: rgba(6, 182, 212, 0.4);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(6, 182, 212, 0.1);
-        }
-        .glass-card::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.05), transparent);
-            transition: 0.5s;
-        }
-        .glass-card:hover::before { left: 100%; }
-
-        .neon-accent {
-            position: absolute; top: 0; left: 0; width: 4px; height: 100%;
-            background: linear-gradient(to bottom, var(--neon-cyan), var(--neon-blue));
-        }
-
-        /* ── AVATAR ── */
-        .avatar-container {
-            position: relative; width: 160px; height: 160px;
-        }
-        .avatar-ring {
-            position: absolute; inset: -8px;
-            border: 2px dashed var(--neon-cyan);
+        .avatar-glow::before {
+            content: '';
+            position: absolute;
+            inset: -4px;
             border-radius: 50%;
-            animation: rotate 15s linear infinite;
-            opacity: 0.5;
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            z-index: 0;
+            animation: spin 4s linear infinite;
         }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        .status-pulse {
-            width: 12px; height: 12px; border-radius: 50%;
-            background: #10b981;
-            box-shadow: 0 0 10px #10b981;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.5); opacity: 0.5; }
-            100% { transform: scale(1); opacity: 1; }
+        .avatar-img {
+            position: relative;
+            z-index: 1;
+            border: 4px solid var(--deep-bg);
         }
 
-        .tech-tag {
-            background: rgba(6, 182, 212, 0.1);
-            border: 1px solid rgba(6, 182, 212, 0.2);
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            background-color: #10B981;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #10B981;
+        }
+
+        .btn-gradient {
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-blue));
+            color: white;
+            font-weight: 600;
+            border: none;
+            transition: all 0.3s;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+        }
+        .btn-outline:hover {
+            border-color: var(--neon-cyan);
             color: var(--neon-cyan);
+        }
+
+        /* Sidebar Item */
+        .sidebar-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 500;
+            transition: all 0.3s;
+            padding: 12px 0;
+            width: 100%;
+            position: relative;
+        }
+        .sidebar-item:hover {
+            color: white;
+        }
+        .sidebar-item.active {
+            color: white;
+        }
+        .sidebar-item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 10%;
+            height: 80%;
+            width: 3px;
+            background: var(--neon-purple);
+            border-radius: 0 4px 4px 0;
+            box-shadow: 0 0 10px var(--neon-purple);
+        }
+        .sidebar-item.active .icon-container {
+            border: 1px solid var(--neon-purple);
+            box-shadow: inset 0 0 15px rgba(139, 92, 246, 0.2);
+            color: var(--neon-cyan);
+        }
+        .icon-container {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        /* Tags */
+        .tech-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 4px 12px;
             border-radius: 100px;
             font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            transition: all 0.3s;
-        }
-        .tech-tag:hover {
-            background: var(--neon-cyan);
-            color: var(--deep-slate);
-            box-shadow: 0 0 15px var(--neon-cyan);
+            color: #E2E8F0;
         }
 
-        .section-label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-            color: #64748b;
+        /* Stat Block */
+        .stat-block {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .stat-block:last-child {
+            border-right: none;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--neon-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Progress Bar */
+        .progress-track {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            border-radius: 10px;
+        }
+
+        /* Hexagon Icon */
+        .hex-icon {
+            width: 40px;
+            height: 44px;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        /* Neural Links */
+        .neural-link {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: white;
+            margin-bottom: 8px;
+        }
+        .neural-link:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .section-title {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            margin-bottom: 20px;
         }
-        .section-label::after { content: ''; flex: 1; height: 1px; background: rgba(255, 255, 255, 0.05); }
-
-        .link-btn {
-            display: flex; align-items: center; gap: 10px;
-            padding: 12px 20px; border-radius: 14px;
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s;
-            text-decoration: none; color: #94a3b8;
-        }
-        .link-btn:hover {
-            background: rgba(255, 255, 255, 0.07);
-            border-color: rgba(255, 255, 255, 0.2);
-            color: #fff; transform: translateX(5px);
-        }
-
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--deep-slate); }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--deep-bg); }
+        ::-webkit-scrollbar-thumb { background: #2D3748; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4A5568; }
     </style>
 </head>
-<body>
+<body class="flex h-screen overflow-hidden">
 
-<div class="nexus-bg"></div>
-<div class="scanning-line"></div>
+    <!-- ── SIDEBAR ── -->
+    <aside class="w-24 border-r border-white/5 flex flex-col items-center py-8 shrink-0 bg-[#090B14] z-20">
+        <!-- Dashboard -->
+        <a href="{% url 'landing:dashboard' %}" class="sidebar-item">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+            </div>
+            Dashboard
+        </a>
+        <!-- Profile (Active) -->
+        <a href="{% url 'landing:profile' %}" class="sidebar-item active">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            Profile
+        </a>
+        <!-- Projects -->
+        <a href="{% url 'landing:dashboard' %}" class="sidebar-item">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            </div>
+            Projects
+        </a>
+        <!-- Achievements -->
+        <a href="#" class="sidebar-item">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+            </div>
+            Achievements
+        </a>
+        <!-- Activity -->
+        <a href="#" class="sidebar-item">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+            </div>
+            Activity
+        </a>
+        <!-- Settings -->
+        <a href="{% url 'landing:edit_profile' %}" class="sidebar-item mt-auto">
+            <div class="icon-container">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+            Settings
+        </a>
+        <!-- Logout -->
+        <a href="{% url 'landing:logout' %}" class="sidebar-item hover:text-red-400">
+            <div class="icon-container">
+                <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+            </div>
+            Logout
+        </a>
+    </aside>
 
-<!-- ═══════════════════════════════════════════════
-     PREMIUM NAVBAR
-═══════════════════════════════════════════════ -->
-<header class="dash-nav">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <a href="/" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background: linear-gradient(135deg,#06b6d4,#6366f1);">
-                    <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <span class="font-black text-lg tracking-tight mono" style="background: linear-gradient(135deg,#06b6d4,#818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">CECP.NEXUS</span>
-            </a>
-            <div class="hidden sm:block w-px h-5 bg-slate-700"></div>
-            <span class="hidden sm:block text-[10px] text-slate-500 font-bold tracking-[0.3em] uppercase mono">System Profile</span>
-        </div>
-
-        <div class="flex items-center gap-4">
-            <a href="{% url 'landing:dashboard' %}" class="text-xs font-bold text-slate-400 hover:text-cyan-400 transition-colors uppercase tracking-widest mono">Dashboard</a>
-            <div class="w-px h-4 bg-slate-800"></div>
-            <a href="{% url 'landing:edit_profile' %}" class="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-widest hover:bg-cyan-500 hover:text-slate-900 transition-all duration-300">
-                Update
-            </a>
-        </div>
-    </div>
-</header>
-
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 relative z-10">
-
-    <!-- Hero Identity Section -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
+    <!-- ── MAIN CONTENT ── -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-10">
         
-        <!-- Identity Card -->
-        <div class="lg:col-span-5 glass-card p-10 flex flex-col items-center text-center">
-            <div class="neon-accent"></div>
+        <!-- TOP HEADER -->
+        <div class="flex justify-between items-center mb-6">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded bg-blue-600 flex items-center justify-center transform -skew-x-12">
+                    <svg class="w-5 h-5 text-white transform skew-x-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                </div>
+                <div class="text-sm font-bold tracking-widest text-slate-300 mono">
+                    <span class="text-white">CECP.NEXUS</span> | <span class="text-slate-500">SYSTEM PROFILE</span>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <a href="{% url 'landing:dashboard' %}" class="btn-outline px-6 py-2 rounded-full text-xs font-semibold flex items-center gap-2">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                    BACK TO DASHBOARD
+                </a>
+                <a href="{% url 'landing:edit_profile' %}" class="btn-gradient px-6 py-2 rounded-full text-xs tracking-wide flex items-center">
+                    UPDATE PROFILE
+                </a>
+            </div>
+        </div>
+
+        <!-- ── PROFILE HERO CARD ── -->
+        <div class="glass-panel p-8 mb-6 relative overflow-hidden">
             
-            <div class="avatar-container mb-8">
-                <div class="avatar-ring"></div>
-                {% if profile.profile_picture %}
-                    <img src="{{ profile.profile_picture.url }}" alt="{{ request.user.get_full_name }}" class="w-full h-full rounded-full object-cover border-4 border-slate-950 shadow-2xl">
-                {% else %}
-                    <div class="w-full h-full rounded-full bg-slate-800 text-cyan-400 flex items-center justify-center text-6xl font-black border-4 border-slate-950 shadow-2xl mono">
-                        {{ request.user.username|make_list|first|upper }}
+            <div class="flex flex-col md:flex-row items-center md:items-start gap-8 relative z-10">
+                <!-- Avatar -->
+                <div class="flex flex-col items-center">
+                    <div class="avatar-glow w-40 h-40 rounded-full mb-3">
+                        {% if profile.profile_picture %}
+                            <img src="{{ profile.profile_picture.url }}" class="avatar-img w-full h-full rounded-full object-cover">
+                        {% else %}
+                            <div class="avatar-img w-full h-full rounded-full bg-slate-800 flex items-center justify-center text-6xl font-bold">
+                                {{ request.user.username|make_list|first|upper }}
+                            </div>
+                        {% endif %}
                     </div>
-                {% endif %}
-                <div class="absolute bottom-2 right-2 p-1 bg-slate-950 rounded-full">
-                    <div class="status-pulse"></div>
+                    <div class="flex items-center gap-2 bg-black/40 px-3 py-1 rounded-full border border-white/5">
+                        <div class="status-dot"></div>
+                        <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">ONLINE</span>
+                    </div>
+                </div>
+
+                <!-- Info -->
+                <div class="mt-2 text-center md:text-left">
+                    <div class="inline-block bg-blue-500/20 text-blue-400 px-3 py-1 rounded text-[10px] font-bold uppercase tracking-widest mb-3">
+                        {% if club_member %}{{ club_member.get_category_display|upper }}{% else %}ECE ENGINEER{% endif %}
+                    </div>
+                    <h1 class="text-4xl font-bold text-white mb-1 tracking-tight">{{ request.user.get_full_name|default:request.user.username }}</h1>
+                    <p class="text-blue-400 font-semibold text-lg mb-4">{{ profile.course|default:"B.Tech" }} - {{ profile.branch|default:"ECE" }}</p>
+                    
+                    <p class="text-slate-400 italic flex items-center justify-center md:justify-start gap-2 mb-6">
+                        <svg class="w-4 h-4 text-purple-400" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM5.017 21L5.017 18C5.017 16.8954 5.91243 16 7.01701 16H10.017C11.1216 16 12.017 16.8954 12.017 18V21C12.017 22.1046 11.1216 23 10.017 23H7.01701C5.91243 23 5.017 22.1046 5.017 21Z"/></svg>
+                        {{ profile.quote|default:"Born to Build Tech" }}
+                    </p>
+
+                    <!-- Meta info -->
+                    <div class="flex flex-wrap justify-center md:justify-start items-center gap-6 text-sm text-slate-400">
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            {{ request.user.email }}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                            {{ profile.hometown|default:"Bhopal, India" }}
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            Joined {{ request.user.date_joined|date:"M Y" }}
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <h1 class="text-4xl font-black text-white tracking-tight mb-2">
-                {{ request.user.get_full_name|default:request.user.username }}
-            </h1>
-            <p class="text-cyan-400 font-bold mono text-sm uppercase tracking-[0.2em] mb-6">
-                {{ profile.course|default:"Nexus Entity" }} — {{ profile.branch|default:"Core" }}
-            </p>
-            
-            {% if profile.quote %}
-            <div class="relative px-8 py-4 mb-8">
-                <svg class="absolute top-0 left-0 w-6 h-6 text-slate-800 opacity-50" fill="currentColor" viewBox="0 0 24 24"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C20.1216 16 21.017 16.8954 21.017 18V21C21.017 22.1046 20.1216 23 19.017 23H16.017C14.9124 23 14.017 22.1046 14.017 21ZM5.017 21L5.017 18C5.017 16.8954 5.91243 16 7.01701 16H10.017C11.1216 16 12.017 16.8954 12.017 18V21C12.017 22.1046 11.1216 23 10.017 23H7.01701C5.91243 23 5.017 22.1046 5.017 21Z"/></svg>
-                <p class="text-slate-300 italic text-lg leading-relaxed relative z-10">
-                    {{ profile.quote }}
-                </p>
+            <!-- Server Illustration -->
+            <div class="absolute right-10 top-1/2 -translate-y-1/2 opacity-70 z-0 pointer-events-none hidden xl:block">
+                <svg width="250" height="250" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="100" cy="100" r="80" fill="url(#paint0_radial)" />
+                    <!-- Nodes and connections -->
+                    <path d="M60 80 L140 120 M140 80 L60 120" stroke="#38BDF8" stroke-width="1" stroke-dasharray="2 2" opacity="0.5"/>
+                    <circle cx="140" cy="80" r="4" fill="#38BDF8"/>
+                    <circle cx="60" cy="120" r="4" fill="#38BDF8"/>
+                    
+                    <path d="M100 40 L160 70 L100 100 L40 70 Z" fill="#0EA5E9" fill-opacity="0.2" stroke="#0EA5E9" stroke-width="2" />
+                    <path d="M100 50 L150 75 L100 100 L50 75 Z" fill="#0284C7" fill-opacity="0.4" stroke="#0284C7" stroke-width="1.5" />
+                    <path d="M100 65 L140 85 L100 105 L60 85 Z" fill="#0369A1" fill-opacity="0.8" stroke="#38BDF8" stroke-width="2" />
+                    <path d="M100 105 L140 85 L140 120 L100 140 Z" fill="#0C4A6E" stroke="#0EA5E9" stroke-width="1" />
+                    <path d="M100 105 L60 85 L60 120 L100 140 Z" fill="#075985" stroke="#0EA5E9" stroke-width="1" />
+                    
+                    <defs>
+                        <radialGradient id="paint0_radial" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(100 100) rotate(90) scale(80)">
+                            <stop stop-color="#3B82F6" stop-opacity="0.3"/>
+                            <stop offset="1" stop-color="#020617" stop-opacity="0"/>
+                        </radialGradient>
+                    </defs>
+                </svg>
             </div>
-            {% endif %}
 
-            <div class="grid grid-cols-2 gap-4 w-full">
-                <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 mono">Batch</p>
-                    <p class="text-white font-bold">{{ profile.graduation_year|default:"N/A" }}</p>
+            <!-- Bottom Stats Bar -->
+            <div class="mt-8 bg-[#0C101C]/80 rounded-xl border border-white/5 py-4 px-2 flex justify-between overflow-x-auto relative z-10">
+                <div class="stat-block flex-1 min-w-[150px]">
+                    <div class="stat-icon"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
+                    <div>
+                        <div class="text-xl font-bold text-white">{{ projects_completed }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500">Projects<br>Completed</div>
+                    </div>
                 </div>
-                <div class="bg-slate-800/40 p-4 rounded-2xl border border-slate-700/50">
-                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest mb-1 mono">ID Unit</p>
-                    <p class="text-white font-bold">{{ profile.college_roll_number|default:"N/A" }}</p>
+                <div class="stat-block flex-1 min-w-[150px]">
+                    <div class="stat-icon text-yellow-500 bg-yellow-500/10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
+                    <div>
+                        <div class="text-xl font-bold text-white">{{ achievements_count }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500">Achievements<br>Unlocked</div>
+                    </div>
+                </div>
+                <div class="stat-block flex-1 min-w-[150px]">
+                    <div class="stat-icon text-purple-500 bg-purple-500/10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg></div>
+                    <div>
+                        <div class="text-xl font-bold text-white">{{ tech_count }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500">Technologies<br>Mastered</div>
+                    </div>
+                </div>
+                <div class="stat-block flex-1 min-w-[150px]">
+                    <div class="stat-icon text-pink-500 bg-pink-500/10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg></div>
+                    <div>
+                        <div class="text-xl font-bold text-white">{{ collaborations_count }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500">Collaborations<br>Worldwide</div>
+                    </div>
+                </div>
+                <div class="stat-block flex-1 min-w-[150px]">
+                    <div class="stat-icon text-cyan-400 bg-cyan-400/10"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div>
+                    <div>
+                        <div class="text-xl font-bold text-white">{{ contributions_count }}</div>
+                        <div class="text-[10px] uppercase tracking-wider text-slate-500">Contributions<br>This Year</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Professional Core -->
-        <div class="lg:col-span-7 flex flex-col gap-8">
+        <!-- ── LOWER GRID ── -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             
-            <!-- Tech Stack & Interests -->
-            <div class="glass-card p-8">
-                <div class="neon-accent" style="background: linear-gradient(to bottom, #10b981, #059669);"></div>
-                <div class="section-label mono">Technical Arsenal</div>
-                <div class="flex flex-wrap gap-3 mb-8">
+            <!-- ABOUT ME -->
+            <div class="glass-panel p-6 flex flex-col">
+                <div class="section-title">
+                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    ABOUT ME
+                </div>
+                <p class="text-slate-300 text-sm leading-relaxed mb-6 flex-1">
+                    {% if club_member and club_member.bio %}
+                        {{ club_member.bio }}
+                    {% elif profile.experience %}
+                        {{ profile.experience }}
+                    {% else %}
+                        Passionate about electronics, innovation and building solutions that make an impact. I love turning ideas into real-world tech.
+                    {% endif %}
+                </p>
+                <a href="{% url 'landing:edit_profile' %}" class="btn-outline px-5 py-2 rounded-full text-xs font-bold uppercase self-start tracking-wider">
+                    EDIT PROFILE
+                </a>
+            </div>
+
+            <!-- TECHNICAL ARSENAL -->
+            <div class="glass-panel p-6 flex flex-col">
+                <div class="section-title">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                    TECHNICAL ARSENAL
+                </div>
+                <div class="flex flex-wrap gap-2 mb-8 flex-1">
                     {% if profile.core_technologies %}
                         {% for tech in profile.core_technologies|split:"," %}
-                            <span class="tech-tag">{{ tech|trim }}</span>
+                            <span class="tech-badge">{{ tech|trim }}</span>
                         {% endfor %}
                     {% else %}
-                        <p class="text-slate-500 italic text-sm">No technologies listed yet.</p>
+                        <span class="tech-badge">C/C++</span>
+                        <span class="tech-badge">Python</span>
+                        <span class="tech-badge">Verilog</span>
+                        <span class="tech-badge">MATLAB</span>
+                        <span class="tech-badge">KiCad</span>
+                        <span class="tech-badge">Arduino</span>
+                        <span class="tech-badge">IoT</span>
+                        <span class="tech-badge">PCB Design</span>
                     {% endif %}
                 </div>
-
-                <div class="section-label mono">Strategic Focus</div>
-                <div class="bg-emerald-500/5 border border-emerald-500/10 p-5 rounded-2xl">
-                    <p class="text-emerald-400 font-bold text-lg mb-1">{{ profile.area_of_interest|default:"Awaiting Specialization" }}</p>
-                    <p class="text-slate-400 text-sm leading-relaxed">Primary area of research and technical execution within the CECP ecosystem.</p>
+                <div class="mt-auto">
+                    <div class="flex justify-between text-xs text-slate-400 font-bold mb-1">
+                        <span>Overall Proficiency</span>
+                        <span class="text-white">78%</span>
+                    </div>
+                    <div class="progress-track w-full">
+                        <div class="progress-fill w-[78%]"></div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Career Compass & Future Goals -->
-            <div class="glass-card p-8">
-                <div class="neon-accent" style="background: linear-gradient(to bottom, #8b5cf6, #6366f1);"></div>
-                <div class="section-label mono">Future Trajectory</div>
-                <div class="space-y-4">
-                    {% if profile.future_goals %}
-                        <p class="text-white text-lg leading-relaxed font-medium">
-                            {{ profile.future_goals }}
-                        </p>
-                    {% else %}
-                        <p class="text-slate-500 italic">No future goals documented.</p>
-                    {% endif %}
+            <!-- STRATEGIC FOCUS -->
+            <div class="glass-panel p-6 flex flex-col">
+                <div class="section-title">
+                    <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
+                    STRATEGIC FOCUS
+                </div>
+                <div class="border border-white/5 bg-white/[0.02] rounded-xl p-5 relative overflow-hidden flex-1 flex flex-col justify-center">
+                    <h3 class="text-emerald-400 font-bold text-lg mb-2 relative z-10">
+                        {{ profile.area_of_interest|default:"Awaiting Specialization" }}
+                    </h3>
+                    <p class="text-slate-400 text-xs leading-relaxed max-w-[85%] relative z-10">
+                        Primary area of research and technical execution within the CECP ecosystem.
+                    </p>
+                    
+                    <!-- Radar Icon Faded -->
+                    <svg class="absolute -right-6 -bottom-6 w-32 h-32 text-blue-500/10" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0zM12 9a3 3 0 100 6 3 3 0 000-6zM12 3v3M12 18v3M3 12h3M18 12h3"/></svg>
                 </div>
             </div>
 
-        </div>
-    </div>
-
-    <!-- Secondary Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        
-        <!-- Achievements Card -->
-        <div class="lg:col-span-2 glass-card p-8">
-            <div class="neon-accent" style="background: linear-gradient(to bottom, #fbbf24, #d97706);"></div>
-            <div class="section-label mono">Achievement Ledger</div>
-            <div class="space-y-6">
-                {% if profile.achievements_summary %}
-                    <div class="bg-slate-800/30 p-6 rounded-2xl border border-slate-700/30 relative">
-                        <div class="absolute -left-3 top-6 w-6 h-6 bg-amber-500 rounded-full flex items-center justify-center text-slate-900">
-                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
-                        </div>
-                        <p class="text-slate-200 leading-relaxed pl-4">
-                            {{ profile.achievements_summary|linebreaks }}
-                        </p>
-                    </div>
-                {% else %}
-                    <p class="text-slate-500 italic">Record your milestones to inspire others.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Connect Card -->
-        <div class="glass-card p-8">
-            <div class="section-label mono">Neural Links</div>
-            <div class="space-y-4">
-                <a href="mailto:{{ request.user.email }}" class="link-btn">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <div class="flex flex-col">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 mono">Email</span>
-                        <span class="text-sm truncate max-w-[180px]">{{ request.user.email }}</span>
-                    </div>
-                </a>
+            <!-- FUTURE TRAJECTORY -->
+            <div class="glass-panel p-6 relative overflow-hidden h-[280px]">
+                <div class="section-title relative z-10">
+                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                    FUTURE TRAJECTORY
+                </div>
+                <p class="text-slate-400 text-sm italic relative z-10">
+                    {{ profile.future_goals|default:"No future goals documented." }}
+                </p>
                 
-                {% if profile.linkedin_profile %}
-                <a href="{{ profile.linkedin_profile }}" target="_blank" class="link-btn">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
-                    <span class="text-sm font-bold">LinkedIn</span>
-                </a>
-                {% endif %}
-
-                {% if profile.github_profile %}
-                <a href="{{ profile.github_profile }}" target="_blank" class="link-btn">
-                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
-                    <span class="text-sm font-bold">GitHub</span>
-                </a>
-                {% endif %}
-
-                {% if profile.personal_website %}
-                <a href="{{ profile.personal_website }}" target="_blank" class="link-btn">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"/></svg>
-                    <span class="text-sm font-bold">Portfolio</span>
-                </a>
-                {% endif %}
+                <!-- Purple Road SVG Illustration -->
+                <div class="absolute bottom-0 left-0 right-0 h-[180px] pointer-events-none opacity-80 flex items-end">
+                    <svg width="100%" height="100%" viewBox="0 0 300 180" fill="none" preserveAspectRatio="none">
+                        <!-- Glow paths -->
+                        <path d="M0 150 C 100 150, 150 100, 200 120 S 250 50, 300 70" stroke="#8B5CF6" stroke-width="4" fill="none" style="filter: drop-shadow(0 0 10px #8B5CF6);" />
+                        <path d="M0 160 C 100 160, 150 110, 200 130 S 250 60, 300 80" stroke="rgba(139, 92, 246, 0.2)" stroke-width="1" fill="none" />
+                        
+                        <!-- Nodes -->
+                        <circle cx="100" cy="125" r="3" fill="#fff" style="filter: drop-shadow(0 0 5px #fff);" />
+                        <circle cx="200" cy="120" r="3" fill="#fff" style="filter: drop-shadow(0 0 5px #fff);" />
+                        <circle cx="270" cy="65" r="3" fill="#fff" style="filter: drop-shadow(0 0 5px #fff);" />
+                        
+                        <!-- Flags -->
+                        <path d="M200 120 L200 90 L215 95 L200 100" fill="rgba(139, 92, 246, 0.8)" stroke="#8B5CF6" stroke-width="1"/>
+                        <path d="M270 65 L270 35 L285 40 L270 45" fill="rgba(139, 92, 246, 0.8)" stroke="#8B5CF6" stroke-width="1"/>
+                    </svg>
+                </div>
             </div>
+
+            <!-- ACHIEVEMENT LEDGER -->
+            <div class="glass-panel p-6 flex flex-col h-[280px]">
+                <div class="section-title">
+                    <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                    ACHIEVEMENT LEDGER
+                </div>
+                
+                <div class="flex-1 overflow-y-auto pr-2 space-y-4">
+                    {% if achievements %}
+                        {% for ach in achievements %}
+                        <div class="flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="hex-icon {% cycle 'bg-emerald-500/10 text-emerald-400' 'bg-amber-500/10 text-amber-400' 'bg-red-500/10 text-red-400' %} group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">{{ ach.title }}</h4>
+                                    <p class="text-xs text-slate-400">{{ ach.event_name|default:ach.project.title }}</p>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 font-mono tracking-wider">{{ ach.date|date:"M Y" }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <!-- Mock data for the visual match -->
+                        <div class="flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="hex-icon bg-emerald-500/10 text-emerald-400 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Hackathon Winner</h4>
+                                    <p class="text-xs text-slate-400">Technomax 5.0</p>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 font-mono tracking-wider">May 2025</div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="hex-icon bg-amber-500/10 text-amber-400 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">PCB Design Expert</h4>
+                                    <p class="text-xs text-slate-400">Workshop Certification</p>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 font-mono tracking-wider">Mar 2025</div>
+                        </div>
+
+                        <div class="flex items-center justify-between group">
+                            <div class="flex items-center gap-3">
+                                <div class="hex-icon bg-red-500/10 text-red-400 group-hover:scale-110 transition-transform">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                </div>
+                                <div>
+                                    <h4 class="text-sm font-bold text-white">Top Contributor</h4>
+                                    <p class="text-xs text-slate-400">CECP Open Source</p>
+                                </div>
+                            </div>
+                            <div class="text-[10px] text-slate-500 font-mono tracking-wider">Jan 2025</div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <a href="#" class="btn-outline w-full py-2.5 rounded-lg text-xs font-bold uppercase text-center mt-4 tracking-widest flex items-center justify-center gap-2">
+                    VIEW ALL ACHIEVEMENTS <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+                </a>
+            </div>
+
+            <!-- NEURAL LINKS -->
+            <div class="glass-panel p-6 h-[280px] overflow-y-auto">
+                <div class="section-title">
+                    <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                    NEURAL LINKS
+                </div>
+                
+                <div class="space-y-2">
+                    <!-- Email -->
+                    <div class="neural-link cursor-pointer" onclick="navigator.clipboard.writeText('{{ request.user.email }}'); alert('Email copied!');">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-[10px] font-bold text-slate-500 uppercase">Email</div>
+                                <div class="text-xs font-medium">{{ request.user.email }}</div>
+                            </div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-500 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                    </div>
+
+                    <!-- LinkedIn -->
+                    <a href="{{ profile.linkedin_profile|default:'#' }}" target="_blank" class="neural-link">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-blue-600/10 text-blue-500 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+                            </div>
+                            <div class="text-xs font-bold text-white">LinkedIn</div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-500 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+
+                    <!-- GitHub -->
+                    <a href="{{ profile.github_profile|default:'#' }}" target="_blank" class="neural-link">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-slate-700/30 text-white flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path></svg>
+                            </div>
+                            <div class="text-xs font-bold text-white">GitHub</div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-500 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+
+                    <!-- LeetCode / Portfolio -->
+                    <a href="{{ profile.personal_website|default:'#' }}" target="_blank" class="neural-link">
+                        <div class="flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-lg bg-yellow-500/10 text-yellow-500 flex items-center justify-center">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                            </div>
+                            <div class="text-xs font-bold text-white">LeetCode / Web</div>
+                        </div>
+                        <svg class="w-4 h-4 text-slate-500 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    </a>
+                </div>
+            </div>
+
         </div>
 
-    </div>
-
-</main>
+    </main>
 
 </body>
 </html>

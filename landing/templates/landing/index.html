@@ -116,7 +116,7 @@
                         <!-- User Profile Dropdown -->
                         <div class="relative group inline-block z-50">
                             <!-- Trigger Button -->
-                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700 event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn event-filter-btn" onclick="filterEvents('status:Completed', this)" onclick="filterEvents('status:Ongoing', this)" onclick="filterEvents('Talk', this)" onclick="filterEvents('Competition', this)" onclick="filterEvents('Workshop', this)" onclick="filterEvents('Hackathon', this)" onclick="filterEvents('all', this)">
+                            <button class="flex items-center space-x-2 bg-slate-900 hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-cyan-500 rounded-full px-3 py-2 transition-all duration-300 border border-slate-700">
                                 <!-- Avatar -->
                                 {% if request.user.profile.profile_picture %}
                                     <img src="{{ request.user.profile.profile_picture.url }}" alt="{{ request.user.username }}" class="w-8 h-8 rounded-full object-cover border border-cyan-500">
@@ -275,7 +275,7 @@
         <!-- =============================================================
              TAB 1: HOME — Hero + About Preview (IIT Indore Style)
              ============================================================= -->
-        <section id="tab-home" class="tab-content active-tab h-full overflow-y-auto">
+        <section id="tab-home" class="tab-content active-tab h-full overflow-y-auto overflow-x-hidden">
             <div class="flex flex-col">
 
                 <!-- MESSAGES -->
@@ -526,7 +526,7 @@
         <!-- =============================================================
              TAB 2: ABOUT US — Detailed About Page
              ============================================================= -->
-        <section id="tab-about" class="tab-content h-full overflow-y-auto relative bg-cecp-black about-parallax-bg"
+        <section id="tab-about" class="tab-content h-full overflow-y-auto overflow-x-hidden relative bg-cecp-black about-parallax-bg"
             style="background-image: url('{% static 'images/about-bg.jpg' %}');" aria-label="About CECP">
 
             <!-- Global Overlay for the entire Background Image -->
@@ -916,7 +916,7 @@
         <!-- =============================================================
              TAB 3: EVENTS — Full Event Cards
              ============================================================= -->
-        <section id="tab-events" class="tab-content h-full overflow-y-auto">
+        <section id="tab-events" class="tab-content h-full overflow-y-auto overflow-x-hidden">
             <div class="relative min-h-[calc(100vh-5rem)] pb-20">
                 <div class="ambient-orb orb-indigo" style="width: 500px; height: 500px; bottom: -100px; right: -150px;"></div>
                 
@@ -1018,8 +1018,8 @@
                     </div>
 
                     <!-- Filters and Search -->
-                    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-10 animate-on-scroll">
-                                                <div class="flex flex-wrap gap-2 w-full lg:w-auto">
+                        <div class="flex flex-col lg:flex-row justify-between items-center gap-6 mb-12 animate-on-scroll">
+                            <div class="flex flex-wrap justify-center gap-3 w-full lg:w-auto">
                             <button class="px-4 py-2 rounded-lg bg-slate-800 text-white border border-slate-600 text-sm font-medium flex items-center gap-2 transition-colors event-filter-btn" onclick="filterEvents('all', this)">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
                                 All Events
@@ -1098,8 +1098,8 @@
         </section><!-- =============================================================
              TAB 4: PROJECTS — TECHFEST-LEVEL CYBERPUNK SHOWCASE
              ============================================================= -->
-        <section id="tab-projects" class="tab-content h-full overflow-y-auto">
-            <div class="relative min-h-[calc(100vh-5rem)] projects-universe" id="projects-universe">
+        <section id="tab-projects" class="tab-content h-full overflow-y-auto overflow-x-hidden">
+            <div class="relative min-h-[calc(100vh-5rem)] projects-universe overflow-hidden" id="projects-universe">
 
                 <!-- ▓▓▓ PREMIUM MESH & GRID BACKGROUND ▓▓▓ -->
                 <div class="absolute inset-0 pointer-events-none" style="z-index: 0;">
@@ -1170,7 +1170,7 @@
                 <!-- ▓▓▓ FILTER COMMAND BAR ▓▓▓ -->
                 <div class="sticky top-16 z-30 py-3 filter-command-bar" id="filterBar">
                     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                        <div class="flex flex-wrap justify-center items-center gap-2 pb-1">
                             <button onclick="filterProjects('all')" class="filter-chip active" data-filter="all">
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1569,12 +1569,12 @@
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
                                     {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
@@ -1612,12 +1612,12 @@
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
                                     {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
                                     {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
@@ -1640,7 +1640,7 @@
         <!-- =============================================================
              TAB 6: BLOGS — Research & Articles
              ============================================================= -->
-        <section id="tab-blogs" class="tab-content h-full overflow-y-auto">
+        <section id="tab-blogs" class="tab-content h-full overflow-y-auto overflow-x-hidden relative bg-cecp-black">
             <div class="relative min-h-[calc(100vh-5rem)] flex flex-col">
                 <div class="ambient-orb orb-purple" style="width: 450px; height: 450px; top: 10%; right: -100px;"></div>
                 <div class="ambient-orb orb-cyan" style="width: 400px; height: 400px; bottom: 10%; left: -100px;"></div>
