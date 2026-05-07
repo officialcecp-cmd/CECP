@@ -67,7 +67,7 @@ def index(request):
         'categories': ProjectCategory.objects.count(),
     }
 
-    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user', 'user__profile').order_by('category', 'user__first_name')
+    team_members = ClubMember.objects.filter(is_active=True).filter(valid_member_filter).select_related('user', 'user__profile').order_by('display_order', 'category', 'user__first_name')
 
     user_application = None
     if request.user.is_authenticated:
@@ -783,7 +783,7 @@ def team_view(request):
             Q(category__in=['advisor', 'head'])
         )
         .select_related('user', 'user__profile')
-        .order_by('user__first_name')
+        .order_by('display_order', 'user__first_name')
     )
 
     context = {

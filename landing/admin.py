@@ -18,9 +18,9 @@ from django.utils.html import format_html
 
 @admin.register(ClubMember)
 class ClubMemberAdmin(admin.ModelAdmin):
-    list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'is_active', 'joined_at')
+    list_display = ('get_display_name', 'member_id', 'role', 'category', 'display_role', 'display_order', 'is_active', 'joined_at')
     list_select_related = ('user',)
-    list_editable = ('role', 'category', 'display_role', 'is_active')
+    list_editable = ('role', 'category', 'display_role', 'display_order', 'is_active')
     list_filter = ('role', 'category', 'is_active')
     search_fields = ('user__username', 'user__first_name', 'user__last_name', 'member_id', 'display_role')
     raw_id_fields = ('user',)
@@ -30,7 +30,7 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'fields': ('user', 'member_id', 'role', 'is_active', 'joined_at')
         }),
         ('Team Page Display', {
-            'fields': ('category', 'display_role', 'display_name', 'profile_image', 'bio', 'quote'),
+            'fields': ('display_order', 'category', 'display_role', 'display_name', 'profile_image', 'bio', 'quote'),
             'description': 'These fields control how the member appears on the public /team/ page.'
         }),
         ('Detailed Profile Info', {

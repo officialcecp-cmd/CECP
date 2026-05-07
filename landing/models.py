@@ -73,9 +73,11 @@ class ClubMember(models.Model):
     
     joined_at = models.DateField(default=timezone.now)
     is_active = models.BooleanField(default=True)
+    display_order = models.PositiveIntegerField(default=999, help_text="Order in which this member appears on the frontend.")
 
     class Meta:
-        ordering = ['category', 'user__first_name']
+        ordering = ['display_order', 'category', 'user__first_name']
+
 
     def __str__(self):
         return f"{self.user.get_full_name() or self.user.username} — {self.get_category_display()}"
