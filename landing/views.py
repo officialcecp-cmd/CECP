@@ -724,58 +724,10 @@ def profile_view(request):
             Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email), status='approved'
         ).exists()
 
-    from landing.models import Project, ProjectAchievement
-    
-    club_member = None
-    if hasattr(request.user, 'club_profile'):
-        club_member = request.user.club_profile
-
-    # Calculate stats
-    projects_completed = 0
-    achievements_count = 0
-    tech_count = 0
-    collaborations_count = 0
-    contributions_count = 0
-    achievements = []
-
-    if club_member:
-        user_projects = Project.objects.filter(
-            Q(submitted_by=club_member) | Q(team_members=club_member),
-            approval_status='approved'
-        ).distinct()
-        
-        projects_completed = user_projects.count()
-        
-        achievements_qs = ProjectAchievement.objects.filter(project__in=user_projects).order_by('-date')
-        achievements_count = achievements_qs.count()
-        achievements = achievements_qs[:3] # Show top 3 in ledger
-        
-        # Tech count
-        if profile.core_technologies:
-            tech_count = len([t for t in profile.core_technologies.split(',') if t.strip()])
-            
-        # Collaborations (unique team members across user's projects)
-        collab_ids = set()
-        for p in user_projects:
-            for tm in p.team_members.all():
-                if tm.id != club_member.id:
-                    collab_ids.add(tm.id)
-        collaborations_count = len(collab_ids)
-        
-        # Contributions (arbitrary metric for engagement)
-        contributions_count = (projects_completed * 10) + (achievements_count * 5) + (collaborations_count * 2)
-
     return render(request, 'landing/profile.html', {
         'page_title': 'My Profile — CECP',
         'profile': profile,
-        'club_member': club_member,
         'is_accepted': is_accepted,
-        'projects_completed': projects_completed,
-        'achievements_count': achievements_count,
-        'tech_count': tech_count,
-        'collaborations_count': collaborations_count,
-        'contributions_count': f"{contributions_count}+" if contributions_count > 0 else "0",
-        'achievements': achievements,
     })
 
 @login_required(login_url='/login/')
