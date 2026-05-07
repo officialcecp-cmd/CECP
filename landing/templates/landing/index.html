@@ -883,11 +883,17 @@
                             </div>
                         {% else %}
                         <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                            {% if is_application_open %}
                             <a href="{% url 'landing:apply' %}"
                                 class="btn-gradient px-8 py-3 w-full sm:w-auto shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-105"
                                 style="text-decoration:none; display:inline-block; text-align:center;">
                                 Join the Club
                             </a>
+                            {% else %}
+                            <div class="px-8 py-3 w-full sm:w-auto rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 font-semibold text-center shadow-[0_0_15px_rgba(239,68,68,0.15)]">
+                                Applications are currently closed
+                            </div>
+                            {% endif %}
                             <button
                                 class="px-8 py-3 rounded-xl border border-white/20 text-white font-semibold hover:bg-white/10 transition-colors w-full sm:w-auto"
                                 onclick="switchTab('projects')">

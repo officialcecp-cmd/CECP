@@ -12,7 +12,7 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event, EventStat
+    ClubApplication, Blog, Event, EventStat, SiteSettings
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
@@ -90,6 +90,9 @@ def index(request):
     if request.user.is_authenticated:
         is_cecp_team = request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()
 
+    site_settings = SiteSettings.objects.first()
+    is_application_open = site_settings.is_application_open if site_settings else False
+
     context = {
         'events': events,
         'event_stats': event_stats,
@@ -102,6 +105,7 @@ def index(request):
         'user_application': user_application,
         'blogs': approved_blogs,
         'is_cecp_team': is_cecp_team,
+        'is_application_open': is_application_open,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -573,7 +577,14 @@ def apply_view(request):
         has_applied = True
         application_status = existing_app.get_status_display()
 
+    site_settings = SiteSettings.objects.first()
+    is_application_open = site_settings.is_application_open if site_settings else False
+
     if request.method == 'POST' and not has_applied:
+        if not is_application_open:
+            messages.error(request, "Applications are currently closed.")
+            return redirect('landing:index')
+
         form = ClubApplicationForm(request.POST, request.FILES)
         if form.is_valid():
             application = form.save(commit=False)
@@ -597,6 +608,7 @@ def apply_view(request):
         'form': form,
         'has_applied': has_applied,
         'application_status': application_status,
+        'is_application_open': is_application_open,
         'page_title': 'Apply to Join CECP Club',
     })
 

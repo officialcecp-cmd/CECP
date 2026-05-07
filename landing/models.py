@@ -680,3 +680,19 @@ class EventStat(models.Model):
 
     def __str__(self):
         return "Event Section Stats"
+
+
+class SiteSettings(models.Model):
+    is_application_open = models.BooleanField(default=False, help_text="Toggle whether new users can apply to join the club.")
+
+    class Meta:
+        verbose_name = "Site Setting"
+        verbose_name_plural = "Site Settings"
+
+    def __str__(self):
+        return "Global Site Settings"
+
+    def save(self, *args, **kwargs):
+        if not self.pk and SiteSettings.objects.exists():
+            return SiteSettings.objects.first()
+        return super().save(*args, **kwargs)

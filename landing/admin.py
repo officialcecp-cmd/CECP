@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Event, EventStat,
     Initiative, Project, ProjectAchievement,
-    ClubMember, ProjectCategory, Notification, ClubApplication, Blog
+    ClubMember, ProjectCategory, Notification, ClubApplication, Blog, SiteSettings
 )
 from .services import categorize_project_level
 from django.core.mail import EmailMultiAlternatives
@@ -342,3 +342,16 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(EventStat)
 class EventStatAdmin(admin.ModelAdmin):
     list_display = ('events_hosted', 'participants', 'winners_crowned', 'collaborations')
+
+
+# --- Site Settings Admin ------------------------------------------------------
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ('__str__', 'is_application_open')
+    list_editable = ('is_application_open',)
+    
+    def has_add_permission(self, request):
+        if self.model.objects.exists():
+            return False
+        return super().has_add_permission(request)
