@@ -86,9 +86,14 @@ def index(request):
             user_application = ClubApplication.objects.filter(email__iexact=session_email).first()
 
     approved_blogs = Blog.objects.filter(is_approved=True).select_related('author', 'author__user').order_by('-created_at')[:10]
-    is_cecp_team = False
+    can_write_blog = False
     if request.user.is_authenticated:
-        is_cecp_team = request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()
+        # Allow superusers, CECP_Team group, and any user with an active ClubMember profile
+        can_write_blog = (
+            request.user.is_superuser
+            or request.user.groups.filter(name='CECP_Team').exists()
+            or ClubMember.objects.filter(user=request.user, is_active=True).exists()
+        )
 
     site_settings = SiteSettings.objects.first()
     is_application_open = site_settings.is_application_open if site_settings else False
@@ -104,7 +109,7 @@ def index(request):
         'team_members': team_members,
         'user_application': user_application,
         'blogs': approved_blogs,
-        'is_cecp_team': is_cecp_team,
+        'can_write_blog': can_write_blog,
         'is_application_open': is_application_open,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
@@ -856,8 +861,10 @@ def team_view(request):
 
 @login_required
 def submit_blog(request):
-    if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()):
-        messages.error(request, 'You are not authorized to submit blogs.')
+    # Allow superusers, CECP_Team group, and any user with an active ClubMember profile
+    has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists()
+    if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
+        messages.error(request, 'You are not authorized to submit blogs. Only club members can write blogs.')
         return redirect('landing:index')
 
     if request.method == 'POST':
@@ -888,7 +895,8 @@ def blog_detail(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     
     if not blog.is_approved:
-        if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists()):
+        has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists() if request.user.is_authenticated else False
+        if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
             messages.error(request, 'This blog is pending approval and cannot be viewed yet.')
             return redirect('landing:index')
 
