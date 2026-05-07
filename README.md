@@ -10,6 +10,6 @@ This platform wasn't just put together using templates; it was crafted from scra
 
 Designed, developed, and deployed by:
 * ⚡ **Aditya Raj** — Club Head
-* ⚡ **Rahul Raj** — Core Member
+* ⚡ **Rahul Kumar** — Core Member
 
 *"Built by the students, for the students. Potential to Power!"* 🚀
