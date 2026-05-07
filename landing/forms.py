@@ -465,7 +465,7 @@ class UserProfileForm(forms.ModelForm):
         fields = [
             'profile_picture', 'course', 'branch', 'graduation_year',
             'college_roll_number', 'date_of_birth', 'gender',
-            'hometown', 'mobile_number', 'github_profile', 'linkedin_profile',
+            'hometown', 'mobile_number', 'github_profile', 'linkedin_profile', 'leetcode_profile',
             'quote', 'core_technologies', 'future_field', 'personal_interests',
             'professional_bio', 'career_goals'
         ]
@@ -511,6 +511,10 @@ class UserProfileForm(forms.ModelForm):
             'linkedin_profile': forms.URLInput(attrs={
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
                 'placeholder': 'https://linkedin.com/in/yourprofile'
+            }),
+            'leetcode_profile': forms.URLInput(attrs={
+                'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',
+                'placeholder': 'https://leetcode.com/yourprofile'
             }),
             'quote': forms.TextInput(attrs={
                 'class': 'w-full rounded-md bg-slate-900 p-3 text-white border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500',

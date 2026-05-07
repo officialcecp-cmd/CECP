@@ -594,6 +594,7 @@ class UserProfile(models.Model):
     mobile_number = models.CharField(max_length=15, blank=True, null=True)
     github_profile = models.URLField(max_length=200, blank=True, null=True)
     linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
+    leetcode_profile = models.URLField(max_length=200, blank=True, null=True)
     quote = models.CharField(
         max_length=100, blank=True, null=True,
         help_text='Your personal quote'
