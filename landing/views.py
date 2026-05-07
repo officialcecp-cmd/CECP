@@ -838,15 +838,10 @@ def team_view(request):
 
 @login_required
 def submit_blog(request):
-<<<<<<< HEAD
     # Allow superusers, CECP_Team group, and any user with an active ClubMember profile
     has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists()
     if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
         messages.error(request, 'You are not authorized to submit blogs. Only club members can write blogs.')
-=======
-    if not hasattr(request.user, 'club_profile'):
-        messages.error(request, 'Only club members can submit blogs.')
->>>>>>> ac0db23 (Redesign profile and blog features, add career fields, and fix horizontal scroll)
         return redirect('landing:index')
 
     if request.method == 'POST':
@@ -877,17 +872,19 @@ def blog_detail(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     
     if not blog.is_approved:
-<<<<<<< HEAD
-        has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists() if request.user.is_authenticated else False
-        if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
-=======
-        is_authorized = (
-            request.user.is_superuser or 
-            request.user.groups.filter(name='CECP_Team').exists() or
-            (hasattr(request.user, 'club_profile') and blog.author == request.user.club_profile)
-        )
+        is_authorized = False
+        if request.user.is_authenticated:
+            try:
+                profile = getattr(request.user, 'club_profile', None)
+                is_authorized = (
+                    request.user.is_superuser or 
+                    request.user.groups.filter(name='CECP_Team').exists() or
+                    (profile and blog.author == profile)
+                )
+            except Exception:
+                pass
+
         if not is_authorized:
->>>>>>> ac0db23 (Redesign profile and blog features, add career fields, and fix horizontal scroll)
             messages.error(request, 'This blog is pending approval and cannot be viewed yet.')
             return redirect('landing:index')
 
