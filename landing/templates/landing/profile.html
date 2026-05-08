@@ -168,7 +168,7 @@ background:rgba(5,8,16,0.6);border:1px solid rgba(255,255,255,0.03);transition:a
 <div class="cd p-3.5 mt-6 flex flex-wrap gap-1 relative z-10">
 <div class="flex items-center gap-3 px-4 py-1 flex-1 min-w-[140px] border-r border-white/[.03]">
 <div class="st-icon bg-[#4A7AFF]/10"><svg class="w-[18px] h-[18px] text-[#4A7AFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg></div>
-<div><p class="text-[18px] font-extrabold text-white">{{ request.user.submitted_projects.count|default:"0" }}</p><p class="text-[8px] text-slate-500 uppercase tracking-[.15em] font-semibold">Projects Completed</p></div></div>
+<div><p class="text-[18px] font-extrabold text-white">{{ request.user.submitted_projects.count|default:"0" }}</p><p class="text-[8px] text-slate-500 uppercase tracking-[.15em] font-semibold">Total Projects</p></div></div>
 <div class="flex items-center gap-3 px-4 py-1 flex-1 min-w-[140px] border-r border-white/[.03]">
 <div class="st-icon bg-amber-500/10"><svg class="w-[18px] h-[18px] text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg></div>
 <div><p class="text-[18px] font-extrabold text-white">{{ request.user.club_profile.achievements.count|default:"0" }}</p><p class="text-[8px] text-slate-500 uppercase tracking-[.15em] font-semibold">Achievements Unlocked</p></div></div>

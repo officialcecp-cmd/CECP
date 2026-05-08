@@ -1295,21 +1295,19 @@
                 <!-- ▓▓▓ PROJECTS GRID ▓▓▓ -->
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16 relative" style="z-index:2;">
 
-                    <!-- ── COMPLETED PROJECTS ── -->
-                    <div class="mb-20" id="completed-section">
+                    <!-- ── ALL PROJECTS ── -->
+                    <div class="mb-20" id="projects-section">
                         <div class="flex items-center gap-4 mb-10">
                             <div class="section-marker completed"></div>
                             <div>
-                                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">COMPLETED</h2>
-                                <p class="text-xs text-slate-500 uppercase tracking-[0.15em] mt-0.5">Successfully
-                                    Delivered & Deployed</p>
+                                <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">PROJECTS</h2>
+                                <p class="text-xs text-slate-500 uppercase tracking-[0.15em] mt-0.5">Ongoing, Active & Completed Initiatives</p>
                             </div>
-                            <div class="flex-1 h-px bg-gradient-to-r from-emerald-500/30 to-transparent"></div>
+                            <div class="flex-1 h-px bg-gradient-to-r from-cyan-500/30 to-transparent"></div>
                         </div>
 
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" id="completed-grid">
+                        <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8" id="projects-grid">
                             {% for project in projects %}
-                            {% if project.status == 'completed' %}
                             <div class="holo-card group" data-level="{{ project.level }}"
                                 data-category="cat-{{ project.category.slug|default:'uncategorized' }}">
 
@@ -1321,6 +1319,7 @@
                                     {% if project.image %}
                                     <img src="{{ project.image.url }}" alt="{{ project.title }}"
                                         class="w-full h-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-[1.15]">
+                                        <div class="absolute inset-0 bg-gradient-to-t from-[#0d1117] via-transparent to-transparent z-10"></div>
                                     {% else %}
                                     <div class="w-full h-full flex items-center justify-center"
                                         style="background: linear-gradient(135deg, #0c1222 0%, #0a192f 50%, #0d1117 100%);">
@@ -1351,12 +1350,28 @@
                                     </div>
                                     {% endif %}
 
-                                    <!-- Category Tag -->
-                                    {% if project.category %}
-                                    <div class="absolute top-3 right-3 category-tag-holo">
-                                        {{ project.category.name|upper }}
+                                    <!-- Category & Status Tags -->
+                                    <div class="absolute top-3 right-3 flex flex-col gap-2 items-end">
+                                        {% if project.category %}
+                                        <div class="category-tag-holo">
+                                            {{ project.category.name|upper }}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if project.status == 'completed' %}
+                                        <div class="category-tag-holo !bg-emerald-500/20 !text-emerald-300 !border-emerald-500/30">
+                                            COMPLETED
+                                        </div>
+                                        {% elif project.status == 'active' %}
+                                        <div class="category-tag-holo !bg-blue-500/20 !text-blue-300 !border-blue-500/30">
+                                            ACTIVE
+                                        </div>
+                                        {% elif project.status == 'on_hold' %}
+                                        <div class="category-tag-holo !bg-amber-500/20 !text-amber-300 !border-amber-500/30">
+                                            ON HOLD
+                                        </div>
+                                        {% endif %}
                                     </div>
-                                    {% endif %}
 
 
 
@@ -1425,7 +1440,6 @@
                                     <div class="absolute bottom-0 left-5 right-5 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700"></div>
                                 </div>
                             </div>
-                            {% endif %}
                             {% endfor %}
                         </div>
                     </div>
