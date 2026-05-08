@@ -680,6 +680,7 @@ def _notify_club_heads_application(application):
 @login_required(login_url='/login/')
 def profile_view(request):
     from landing.models import UserProfile, ClubApplication
+    from landing.github_fetcher import sync_github_data
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
     # Auto-populate if freshly created
@@ -713,11 +714,42 @@ def profile_view(request):
             Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email), status='approved'
         ).exists()
 
+    # Fetch GitHub data (cached, refreshes every 6 hours)
+    github_repos = []
+    github_languages = {}
+    if profile.github_profile:
+        try:
+            github_repos, github_languages = sync_github_data(profile)
+        except Exception as e:
+            logger.warning(f"GitHub sync failed for {request.user.username}: {e}")
+
     return render(request, 'landing/profile.html', {
         'page_title': 'My Profile — CECP',
         'profile': profile,
         'is_accepted': is_accepted,
+        'github_repos': github_repos[:10],  # Top 10 repos
+        'github_languages': github_languages,
+        'github_languages_list': list(github_languages.keys())[:12],  # Top 12 languages
     })
+
+@login_required(login_url='/login/')
+@require_POST
+def github_sync_view(request):
+    """Force-refresh GitHub data for the logged-in user."""
+    from landing.models import UserProfile
+    from landing.github_fetcher import sync_github_data
+    profile = UserProfile.objects.get(user=request.user)
+    if not profile.github_profile:
+        return JsonResponse({'error': 'No GitHub profile linked'}, status=400)
+    try:
+        repos, languages = sync_github_data(profile, force=True)
+        return JsonResponse({
+            'success': True,
+            'repos_count': len(repos),
+            'languages': list(languages.keys())[:12],
+        })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
 
 @login_required(login_url='/login/')
 def edit_profile_view(request):

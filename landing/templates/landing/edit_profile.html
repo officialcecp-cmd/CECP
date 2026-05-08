@@ -2,333 +2,137 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Update Nexus Identity — {{ request.user.username|upper }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --cecp-cyan: #06b6d4;
-            --cecp-blue: #3b82f6;
-            --cecp-dark: #020617;
-        }
-
-        * { font-family: 'Outfit', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-
-        body {
-            background-color: var(--cecp-dark);
-            background-image: url('{% static "images/profile_bg.png" %}');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: #f8fafc;
-            min-height: 100vh;
-        }
-
-        .glass-panel {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--cecp-cyan);
-            opacity: 0.8;
-        }
-
-        .form-input-custom {
-            width: 100%;
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 0.75rem 1rem;
-            color: white;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .form-input-custom:focus {
-            outline: none;
-            border-color: var(--cecp-cyan);
-            background: rgba(15, 23, 42, 0.8);
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2);
-        }
-
-        .helptext {
-            font-size: 0.7rem;
-            color: #64748b;
-            margin-top: 0.4rem;
-            font-weight: 500;
-        }
-
-        .errorlist {
-            color: #ef4444;
-            font-size: 0.75rem;
-            margin-top: 0.4rem;
-            list-style: none;
-            padding: 0;
-        }
-
-        .section-header {
-            display: flex;
-            items: center;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 1rem;
-        }
-
-        .nav-blur {
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-
-        /* Override Django widget styles */
-        select, input, textarea {
-            background: rgba(15, 23, 42, 0.5) !important;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-            border-radius: 12px !important;
-            color: white !important;
-            padding: 0.75rem 1rem !important;
-        }
-        select:focus, input:focus, textarea:focus {
-            border-color: var(--cecp-cyan) !important;
-            box-shadow: 0 0 15px rgba(6, 182, 212, 0.2) !important;
-            outline: none !important;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edit Profile — CECP.NEXUS</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{font-family:'Inter',sans-serif;box-sizing:border-box}
+.mono{font-family:'JetBrains Mono',monospace}
+body{background:#060B18;color:#e2e8f0;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 70% 10%,rgba(56,97,251,0.08),transparent 50%),radial-gradient(ellipse at 20% 80%,rgba(139,92,246,0.06),transparent 50%);pointer-events:none;z-index:0}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(56,97,251,0.4);border-radius:10px}
+.glass{background:rgba(13,17,32,0.85);border:1px solid rgba(56,97,251,0.12);border-radius:16px;backdrop-filter:blur(12px)}
+.card{background:#0D1120;border:1px solid rgba(255,255,255,0.04);border-radius:14px}
+.section-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,0.04)}
+.section-dot{width:8px;height:24px;border-radius:4px}
+.form-label{display:block;margin-bottom:6px;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:#3861FB}
+select,input[type="text"],input[type="url"],input[type="date"],input[type="number"],input[type="email"],textarea{
+width:100%;background:#080D1A !important;border:1px solid rgba(255,255,255,0.06) !important;border-radius:10px !important;
+padding:10px 14px !important;color:#e2e8f0 !important;font-size:13px;transition:border-color .2s,box-shadow .2s;font-family:'Inter',sans-serif}
+select:focus,input:focus,textarea:focus{border-color:#3861FB !important;box-shadow:0 0 12px rgba(56,97,251,0.15) !important;outline:none !important}
+input[type="file"]{background:#080D1A !important;border:1px solid rgba(255,255,255,0.06) !important;border-radius:10px !important;padding:8px 12px !important;color:#94a3b8 !important;font-size:12px}
+.helptext{font-size:10px;color:#475569;margin-top:4px;font-weight:500}
+.errorlist{color:#ef4444;font-size:11px;margin-top:4px;list-style:none;padding:0}
+.btn-gradient{background:linear-gradient(135deg,#3861FB,#8B5CF6);border-radius:14px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;transition:opacity .2s,transform .1s}
+.btn-gradient:hover{opacity:.9;transform:scale(1.01)}
+.btn-gradient:active{transform:scale(.98)}
+</style>
 </head>
-<body class="pb-20">
+<body class="pb-20 relative z-10">
 
-    <nav class="nav-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="/" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center">
-                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                </div>
-                <span class="font-black text-xl tracking-tighter text-white">CECP</span>
-            </a>
-            <a href="{% url 'landing:profile' %}" class="text-sm font-bold text-slate-400 hover:text-white transition-colors flex items-center gap-2">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-                Cancel
-            </a>
-        </div>
-    </nav>
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-[#060B18]/90 backdrop-blur-md border-b border-white/5">
+<div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
+<a href="/" class="flex items-center gap-2">
+<svg class="w-6 h-6 text-[#3861FB]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+<span class="font-bold text-white">CECP<span class="text-[#3861FB]">.NEXUS</span></span>
+</a>
+<a href="{% url 'landing:profile' %}" class="text-xs font-bold text-slate-400 hover:text-white transition flex items-center gap-1.5">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+Cancel
+</a>
+</div>
+</nav>
 
-    <main class="max-w-5xl mx-auto px-6 pt-12">
-        <div class="mb-12">
-            <h1 class="text-4xl font-black text-white tracking-tight mb-2">Update <span class="text-cyan-400">Identity</span></h1>
-            <p class="text-slate-400 font-medium">Refine your professional and technical profile on the Nexus platform.</p>
-        </div>
+<main class="max-w-5xl mx-auto px-6 pt-10">
+<div class="mb-10">
+<h1 class="text-3xl font-extrabold text-white tracking-tight mb-1">Update <span class="text-[#3861FB]">Identity</span></h1>
+<p class="text-slate-500 text-sm">Refine your professional profile on the CECP Nexus platform.</p>
+</div>
 
-        <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            
-            <div class="space-y-10">
-                
-                <!-- 1. IDENTITY & BASICS -->
-                <div class="glass-panel p-8 rounded-[2rem]">
-                    <div class="section-header">
-                        <div class="w-2 h-6 bg-cyan-500 rounded-full"></div>
-                        <h2 class="text-lg font-black text-white uppercase tracking-wider">Identity & Academic</h2>
-                    </div>
-                    
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="md:col-span-2 flex items-center gap-8 mb-4">
-                            <div class="relative group">
-                                {% if profile.profile_picture %}
-                                    <img id="current-thumb" src="{{ profile.profile_picture.url }}" class="w-24 h-24 rounded-2xl object-cover border-2 border-slate-700">
-                                {% else %}
-                                    <div class="w-24 h-24 rounded-2xl bg-slate-800 flex items-center justify-center text-3xl font-black text-cyan-400 border-2 border-slate-700">
-                                        {{ request.user.username|make_list|first|upper }}
-                                    </div>
-                                {% endif %}
-                                <div class="absolute inset-0 bg-black/40 rounded-2xl opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                </div>
-                            </div>
-                            <div class="flex-1">
-                                <label class="text-[10px] font-black text-cyan-400 uppercase tracking-widest mb-2 block">Upload Neural Profile Image</label>
-                                {{ form.profile_picture }}
-                                <input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
-                                <p class="helptext">Recommended: Square aspect ratio, 500x500px.</p>
-                                {{ form.profile_picture.errors }}
-                            </div>
-                        </div>
+<form method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+<div class="space-y-8">
 
-                        <div class="form-group">
-                            {{ form.course.label_tag }}
-                            {{ form.course }}
-                            {{ form.course.errors }}
-                        </div>
-                        <div class="form-group" id="branch-container">
-                            {{ form.branch.label_tag }}
-                            {{ form.branch }}
-                            {{ form.branch.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.graduation_year.label_tag }}
-                            {{ form.graduation_year }}
-                            {{ form.graduation_year.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.college_roll_number.label_tag }}
-                            {{ form.college_roll_number }}
-                            {{ form.college_roll_number.errors }}
-                        </div>
-                    </div>
-                </div>
+<!-- 1. IDENTITY -->
+<div class="card p-7">
+<div class="section-bar"><div class="section-dot bg-[#3861FB]"></div><h2 class="text-xs font-extrabold text-white uppercase tracking-widest">Identity & Academic</h2></div>
+<div class="grid md:grid-cols-2 gap-6">
+<div class="md:col-span-2 flex items-center gap-6 mb-2">
+<div class="relative group flex-shrink-0">
+{% if profile.profile_picture %}
+<img id="current-thumb" src="{{ profile.profile_picture.url }}" class="w-20 h-20 rounded-2xl object-cover border-2 border-slate-800">
+{% else %}
+<div class="w-20 h-20 rounded-2xl bg-slate-800 flex items-center justify-center text-2xl font-black text-[#3861FB] border-2 border-slate-800">{{ request.user.username|make_list|first|upper }}</div>
+{% endif %}
+</div>
+<div class="flex-1">
+<label class="form-label">Upload Profile Image</label>
+{{ form.profile_picture }}
+<input type="hidden" id="id_profile_picture_cropped" name="profile_picture_cropped">
+<p class="helptext">Recommended: Square, 500×500px.</p>
+{{ form.profile_picture.errors }}
+</div>
+</div>
+<div><label class="form-label">Course</label>{{ form.course }}{{ form.course.errors }}</div>
+<div id="branch-container"><label class="form-label">Branch</label>{{ form.branch }}{{ form.branch.errors }}</div>
+<div><label class="form-label">Graduation Year</label>{{ form.graduation_year }}{{ form.graduation_year.errors }}</div>
+<div><label class="form-label">College Roll Number</label>{{ form.college_roll_number }}{{ form.college_roll_number.errors }}</div>
+</div>
+</div>
 
-                <!-- 2. PROFESSIONAL DOSSIER -->
-                <div class="glass-panel p-8 rounded-[2rem]">
-                    <div class="section-header">
-                        <div class="w-2 h-6 bg-blue-500 rounded-full"></div>
-                        <h2 class="text-lg font-black text-white uppercase tracking-wider">Professional Dossier</h2>
-                    </div>
+<!-- 2. PROFESSIONAL -->
+<div class="card p-7">
+<div class="section-bar"><div class="section-dot bg-[#8B5CF6]"></div><h2 class="text-xs font-extrabold text-white uppercase tracking-widest">Professional Dossier</h2></div>
+<div class="space-y-6">
+<div class="grid md:grid-cols-2 gap-6">
+<div><label class="form-label">Core Technologies</label>{{ form.core_technologies }}<p class="helptext">Comma-separated (e.g., Python, React, IoT)</p>{{ form.core_technologies.errors }}</div>
+<div><label class="form-label">Future Field</label>{{ form.future_field }}<p class="helptext">Domain you want to master</p>{{ form.future_field.errors }}</div>
+</div>
+<div><label class="form-label">Professional Bio</label>{{ form.professional_bio }}<p class="helptext">A brief summary of your journey.</p>{{ form.professional_bio.errors }}</div>
+<div><label class="form-label">Career Goals</label>{{ form.career_goals }}<p class="helptext">Where do you see yourself in 5 years?</p>{{ form.career_goals.errors }}</div>
+<div><label class="form-label">Personal Interests</label>{{ form.personal_interests }}<p class="helptext">Hobbies or passions outside of tech.</p>{{ form.personal_interests.errors }}</div>
+{% if is_accepted %}<div><label class="form-label">Quote</label>{{ form.quote }}<p class="helptext">A personal quote that inspires you.</p>{{ form.quote.errors }}</div>{% endif %}
+</div>
+</div>
 
-                    <div class="space-y-8">
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div class="form-group">
-                                {{ form.core_technologies.label_tag }}
-                                {{ form.core_technologies }}
-                                <p class="helptext">List skills separated by commas (e.g., Python, React, IoT)</p>
-                                {{ form.core_technologies.errors }}
-                            </div>
-                            <div class="form-group">
-                                {{ form.future_field.label_tag }}
-                                {{ form.future_field }}
-                                <p class="helptext">The domain you want to master (e.g., Robotics, AI)</p>
-                                {{ form.future_field.errors }}
-                            </div>
-                        </div>
+<!-- 3. PERSONAL & SOCIAL -->
+<div class="card p-7">
+<div class="section-bar"><div class="section-dot bg-[#06B6D4]"></div><h2 class="text-xs font-extrabold text-white uppercase tracking-widest">Personal & Social Links</h2></div>
+<div class="grid md:grid-cols-2 gap-6">
+<div><label class="form-label">Date of Birth</label>{{ form.date_of_birth }}{{ form.date_of_birth.errors }}</div>
+<div><label class="form-label">Gender</label>{{ form.gender }}{{ form.gender.errors }}</div>
+<div><label class="form-label">Hometown</label>{{ form.hometown }}{{ form.hometown.errors }}</div>
+<div><label class="form-label">Mobile Number</label>{{ form.mobile_number }}{{ form.mobile_number.errors }}</div>
+<div><label class="form-label">GitHub Profile</label>{{ form.github_profile }}<p class="helptext">Your tech stack & repos will be auto-fetched from GitHub!</p>{{ form.github_profile.errors }}</div>
+<div><label class="form-label">LinkedIn Profile</label>{{ form.linkedin_profile }}{{ form.linkedin_profile.errors }}</div>
+<div><label class="form-label">LeetCode Profile</label>{{ form.leetcode_profile }}{{ form.leetcode_profile.errors }}</div>
+</div>
+</div>
 
-                        <div class="form-group">
-                            {{ form.professional_bio.label_tag }}
-                            {{ form.professional_bio }}
-                            <p class="helptext">A brief summary of your journey and skills.</p>
-                            {{ form.professional_bio.errors }}
-                        </div>
+<!-- SUBMIT -->
+<div class="flex justify-end pt-2 pb-10">
+<button type="submit" class="btn-gradient text-white py-3.5 px-10 text-xs shadow-lg shadow-blue-500/20">
+Sync Neural Profile
+</button>
+</div>
 
-                        <div class="form-group">
-                            {{ form.career_goals.label_tag }}
-                            {{ form.career_goals }}
-                            <p class="helptext">Where do you see yourself in 5 years?</p>
-                            {{ form.career_goals.errors }}
-                        </div>
-                        
-                        <div class="form-group">
-                            {{ form.personal_interests.label_tag }}
-                            {{ form.personal_interests }}
-                            <p class="helptext">Hobbies or passions outside of core tech.</p>
-                            {{ form.personal_interests.errors }}
-                        </div>
+</div>
+</form>
+</main>
 
-                        {% if is_accepted %}
-                        <div class="form-group">
-                            {{ form.quote.label_tag }}
-                            {{ form.quote }}
-                            <p class="helptext">A personal quote that inspires you.</p>
-                            {{ form.quote.errors }}
-                        </div>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- 3. PERSONAL & SOCIAL -->
-                <div class="glass-panel p-8 rounded-[2rem]">
-                    <div class="section-header">
-                        <div class="w-2 h-6 bg-purple-500 rounded-full"></div>
-                        <h2 class="text-lg font-black text-white uppercase tracking-wider">Personal & Social</h2>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div class="form-group">
-                            {{ form.date_of_birth.label_tag }}
-                            {{ form.date_of_birth }}
-                            {{ form.date_of_birth.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.gender.label_tag }}
-                            {{ form.gender }}
-                            {{ form.gender.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.hometown.label_tag }}
-                            {{ form.hometown }}
-                            {{ form.hometown.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.mobile_number.label_tag }}
-                            {{ form.mobile_number }}
-                            {{ form.mobile_number.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.github_profile.label_tag }}
-                            {{ form.github_profile }}
-                            {{ form.github_profile.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.linkedin_profile.label_tag }}
-                            {{ form.linkedin_profile }}
-                            {{ form.linkedin_profile.errors }}
-                        </div>
-                        <div class="form-group">
-                            {{ form.leetcode_profile.label_tag }}
-                            {{ form.leetcode_profile }}
-                            {{ form.leetcode_profile.errors }}
-                        </div>
-                    </div>
-                </div>
-
-                <!-- SUBMIT -->
-                <div class="flex justify-end pt-4 pb-12">
-                    <button type="submit" class="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black py-4 px-12 rounded-2xl shadow-2xl shadow-cyan-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] uppercase tracking-widest text-sm">
-                        Sync Neural Profile
-                    </button>
-                </div>
-
-            </div>
-        </form>
-    </main>
-
-    <script src="{% static 'js/image_cropper.js' %}"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // Course / Branch toggle
-        var courseSelect    = document.getElementById('id_course');
-        var branchContainer = document.getElementById('branch-container');
-        var branchSelect    = document.getElementById('id_branch');
-
-        if (courseSelect && branchContainer && branchSelect) {
-            function toggleBranch() {
-                if (courseSelect.value === 'B.Tech') {
-                    branchContainer.style.display = 'block';
-                } else {
-                    branchContainer.style.display = 'none';
-                    branchSelect.value = '';
-                }
-            }
-            toggleBranch();
-            courseSelect.addEventListener('change', toggleBranch);
-        }
-
-        // Image Cropper Binding
-        var fileInput = document.getElementById('id_profile_picture');
-        if (fileInput && window.CECP_Cropper) {
-            fileInput.setAttribute('data-cropper-hidden', 'id_profile_picture_cropped');
-            window.CECP_Cropper.bind(fileInput);
-        }
-    });
-    </script>
+<script src="{% static 'js/image_cropper.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function(){
+var cs=document.getElementById('id_course'),bc=document.getElementById('branch-container'),bs=document.getElementById('id_branch');
+if(cs&&bc&&bs){function t(){bc.style.display=cs.value==='B.Tech'?'block':'none';if(cs.value!=='B.Tech')bs.value=''}t();cs.addEventListener('change',t)}
+var fi=document.getElementById('id_profile_picture');
+if(fi&&window.CECP_Cropper){fi.setAttribute('data-cropper-hidden','id_profile_picture_cropped');window.CECP_Cropper.bind(fi)}
+});
+</script>
 </body>
 </html>

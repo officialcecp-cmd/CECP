@@ -622,6 +622,17 @@ class UserProfile(models.Model):
         help_text="Where do you see yourself in 5 years? Your long-term ambitions."
     )
 
+    # --- GitHub Integration Cache ---
+    github_repos_cache = models.JSONField(
+        blank=True, null=True, default=None,
+        help_text="Cached list of GitHub repos fetched from the API"
+    )
+    github_languages_cache = models.JSONField(
+        blank=True, null=True, default=None,
+        help_text="Cached aggregated language stats from GitHub"
+    )
+    last_github_sync = models.DateTimeField(blank=True, null=True)
+
     def __str__(self):
         return f"{self.user.username}'s Profile"
 
