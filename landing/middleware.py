@@ -28,8 +28,8 @@ class RoleSessionMiddleware:
             try:
                 profile = request.user.club_profile
                 request.member_role = profile.role
-                request.is_club_member = profile.role == 'member' and profile.is_active
-                request.is_admin_user = profile.role in ('hod', 'faculty', 'club_head')
+                request.is_club_member = profile.is_active and profile.role == 'member'
+                request.is_admin_user = profile.is_active and profile.role in ('hod', 'faculty', 'club_head')
             except Exception:
                 pass
         else:

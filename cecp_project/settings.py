@@ -21,7 +21,7 @@ SECRET_KEY = os.environ.get(
 )
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
 ALLOWED_HOSTS = ['cecp-yi97.vercel.app','scared-sitting-germicide.ngrok-free.dev', 'localhost', '127.0.0.1','*']  # Lock this down in production
-CSRF_TRUSTED_ORIGINS = ['https://scared-sitting-germicide.ngrok-free.dev']
+CSRF_TRUSTED_ORIGINS = ['https://scared-sitting-germicide.ngrok-free.dev', 'https://cecp-yi97.vercel.app', 'https://cecp.vercel.app']
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'  # Use 'https' only when testing via ngrok
 

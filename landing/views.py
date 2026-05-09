@@ -143,17 +143,17 @@ def auth_portal(request):
                 display_name = user.get_full_name() or user.username
                 try:
                     profile = user.club_profile
-                    if profile.role in ('hod', 'faculty', 'club_head'):
+                    if profile.role in ('hod', 'faculty', 'club_head') and profile.is_active:
                         role = 'admin'
                         display_name = profile.get_display_name
-                    elif profile.role == 'member' and profile.is_active:
+                    elif profile.is_active:
                         role = 'core_member'
                         display_name = profile.get_display_name
                     else:
-                        role = 'core_member'
-                        display_name = profile.get_display_name
+                        # Inactive profile = public/visitor user
+                        role = 'public'
                 except Exception:
-                    role = 'general'
+                    role = 'public'
 
             # Store in session
             request.session['user_role'] = role
@@ -218,10 +218,14 @@ def _route_by_role(request):
     """Route authenticated users based on their session role."""
     if request.user.is_superuser:
         return redirect('/admin/')
-    role = request.session.get('user_role', 'general')
+    role = request.session.get('user_role', 'public')
     if role == 'admin':
         return redirect('landing:dashboard')
-    return redirect('landing:member_dashboard')
+    elif role == 'core_member':
+        return redirect('landing:member_dashboard')
+    else:
+        # Public/visitor users go to homepage
+        return redirect('landing:index')
 
 
 def member_logout(request):

@@ -8,8 +8,20 @@ def create_club_member_for_user(sender, instance, created, **kwargs):
     """
     Automatically creates a ClubMember profile with default role 'member'
     whenever a new User is created (e.g., via Social Login).
+    
+    SECURITY: is_active=False by default. Only users approved through
+    the ClubApplication pipeline get is_active=True, which grants access
+    to protected project resources (GitHub repos, docs, PPT files).
+    Public/visitor users stay is_active=False.
     """
     if created:
         import uuid
         unique_id = f"CECP-{str(uuid.uuid4())[:8].upper()}"
-        ClubMember.objects.get_or_create(user=instance, defaults={'role': 'member', 'member_id': unique_id})
+        ClubMember.objects.get_or_create(
+            user=instance,
+            defaults={
+                'role': 'member',
+                'member_id': unique_id,
+                'is_active': False,  # SECURITY: inactive until approved
+            }
+        )
