@@ -66,6 +66,7 @@ urlpatterns = [
     path('approve-project/<int:project_id>/', views.approve_project, name='approve_project'),
     path('reject-project/<int:project_id>/', views.reject_project, name='reject_project'),
     path('api/delete-project/<int:project_id>/', views.delete_project, name='delete_project'),
+    path('edit-project/<int:project_id>/', views.edit_project, name='edit_project'),
 
     # Approvals
     path('approvals/', views.approval_dashboard, name='approvals'),

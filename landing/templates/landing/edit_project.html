@@ -1,0 +1,654 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} - CECP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* Grid */
+        .bg-grid { position: fixed; inset: 0; background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(6,182,212,0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(6,182,212,0.04) 1px, transparent 1px); z-index: -2; }
+
+        /* Form Inputs */
+        .form-input, .form-textarea, .form-select, select, textarea, input[type="text"], input[type="url"], input[type="number"], input[type="email"], input[type="date"] {
+            width: 100%; background: rgba(15,23,42,0.8); border: 1px solid #1e293b; color: #f1f5f9;
+            border-radius: 12px; padding: 0.85rem 1.1rem; font-size: 0.875rem; transition: all 0.3s; outline: none;
+            backdrop-filter: blur(10px);
+        }
+        .form-input::placeholder, textarea::placeholder, input::placeholder { color: #475569; }
+        .form-input:focus, textarea:focus, select:focus, input:focus {
+            border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6,182,212,0.15), 0 0 20px rgba(6,182,212,0.1);
+            background: rgba(15,23,42,0.95);
+        }
+        select option { background: #0f172a; color: #f1f5f9; }
+        textarea { resize: vertical; min-height: 120px; }
+
+        /* Card */
+        .form-card { background: rgba(15,23,42,0.6); border: 1px solid rgba(30,41,59,0.8); border-radius: 24px;
+            backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+
+        /* Section Badge */
+        .section-badge { display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px;
+            border-radius: 10px; font-size: 11px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase;
+            font-family: 'JetBrains Mono', monospace; }
+
+        /* Dynamic entries */
+        .dynamic-entry { animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .add-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px;
+            border: 1px dashed #334155; color: #94a3b8; font-size: 13px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s; background: transparent; }
+        .add-btn:hover { border-color: #06b6d4; color: #06b6d4; background: rgba(6,182,212,0.05); }
+
+        .remove-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid #334155; color: #64748b;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s;
+            background: transparent; flex-shrink: 0; }
+        .remove-btn:hover { border-color: #ef4444; color: #ef4444; background: rgba(239,68,68,0.1); }
+
+        /* Submit button */
+        .btn-submit { padding: 14px 32px; background: linear-gradient(135deg, #06b6d4, #3b82f6); color: white;
+            font-weight: 700; border-radius: 14px; font-size: 15px; border: none; cursor: pointer;
+            box-shadow: 0 8px 24px rgba(6,182,212,0.3); transition: all 0.3s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(6,182,212,0.4); }
+
+        .btn-back { padding: 14px 32px; background: transparent; border: 1px solid #334155; color: #94a3b8;
+            font-weight: 600; border-radius: 14px; font-size: 15px; text-decoration: none; transition: all 0.3s;
+            display: inline-block; text-align: center; }
+        .btn-back:hover { border-color: #ef4444; color: #ef4444; }
+
+        /* Floating orbs */
+        .orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.4; pointer-events: none; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <div class="bg-grid"></div>
+    <div class="orb" style="top:-100px;left:-100px;width:400px;height:400px;background:rgba(6,182,212,0.2);"></div>
+    <div class="orb" style="bottom:10%;right:-80px;width:300px;height:300px;background:rgba(139,92,246,0.15);"></div>
+
+    <!-- Top Bar -->
+    <header class="sticky top-0 z-50 border-b border-slate-800/50 bg-[#020617]/80 backdrop-blur-xl">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="text-xl font-black tracking-tight text-white">CECP</a>
+                <span class="text-slate-700">|</span>
+                <span class="text-sm font-medium text-slate-400">Project Workspace</span>
+                <span class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]"></span>
+            </div>
+            <a href="{% url 'landing:dashboard' %}" class="text-sm font-medium text-slate-500 hover:text-white transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Cancel
+            </a>
+        </div>
+    </header>
+
+    <main class="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
+
+        <!-- Header -->
+        <div class="mb-12 text-center">
+            <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-cyan-500/10 border border-cyan-500/20">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span class="text-xs font-mono text-cyan-400 tracking-widest uppercase">Project Pipeline v2.0</span>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-black text-white mb-4 tracking-tight">
+                Edit <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Project</span>
+            </h1>
+            <p class="text-slate-400 max-w-2xl mx-auto text-sm md:text-base">
+                Build. Ship. Win. Your project will be evaluated, categorized, and showcased across the CECP platform.
+            </p>
+        </div>
+
+        {% if messages %}
+        <div class="space-y-3 mb-8">
+        {% for message in messages %}
+            <div class="p-4 rounded-2xl text-sm font-medium flex items-center gap-3 border backdrop-blur-md
+                {% if message.tags == 'error' %}bg-red-900/20 border-red-500/30 text-red-400
+                {% else %}bg-emerald-900/20 border-emerald-500/30 text-emerald-400{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Main Form -->
+        <div class="form-card p-6 sm:p-10">
+            <form method="post" enctype="multipart/form-data" id="projectForm" class="space-y-10">
+                {% csrf_token %}
+                {{ form.team_members_json }}
+                {{ form.achievements_json }}
+
+                <!-- Section 1: Core ID -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                        <span class="section-badge bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">01</span>
+                        <h2 class="text-lg font-bold text-white">Core Identification</h2>
+                    </div>
+                    <div class="grid md:grid-cols-3 gap-5">
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Project Title *</label>
+                            {{ form.title }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Year</label>
+                            {{ form.year }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Specs -->
+                <div>
+                    <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                        <div class="flex items-center gap-3">
+                            <span class="section-badge bg-violet-500/10 text-violet-400 border border-violet-500/20">02</span>
+                            <h2 class="text-lg font-bold text-white">Specs & Evaluation</h2>
+                        </div>
+                        <span class="text-[10px] uppercase font-bold tracking-wider text-indigo-400 bg-indigo-500/10 px-3 py-1.5 rounded-lg border border-indigo-500/20 hidden sm:inline-block font-mono">
+                            AI Evaluation Active
+                        </span>
+                    </div>
+                    <div class="space-y-5">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Brief Overview *</label>
+                            {{ form.description }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Public-facing summary for the display grid.</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Technical Specification *</label>
+                            {{ form.spec }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Architecture, algorithms, and tech choices. AI uses this for complexity analysis.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Classification -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                        <span class="section-badge bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">03</span>
+                        <h2 class="text-lg font-bold text-white">Classification & Assets</h2>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-5 mb-5">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Primary Category</label>
+                            {{ form.category }}
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Development Status</label>
+                            {{ form.status }}
+                        </div>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Tech Stack</label>
+                            {{ form.tech_stack_input }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Comma-separated (Python, OpenCV, React)</span>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">Visual Asset</label>
+                            <input type="file" name="image" accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: Team Members -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                        <span class="section-badge bg-amber-500/10 text-amber-400 border border-amber-500/20">04</span>
+                        <h2 class="text-lg font-bold text-white">Team Members</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 font-mono">You are automatically added as the Project Lead. Add collaborators by their login email.</p>
+
+                    <!-- Lead (fixed) -->
+                    <div class="flex items-center gap-3 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/15 mb-4">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                            {{ member.get_display_name|make_list|first|upper }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-semibold text-white truncate">{{ member.get_display_name }}</p>
+                            <p class="text-xs text-cyan-400 font-mono">{{ request.user.email }} — Project Lead</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-lg bg-cyan-500/15 text-cyan-400 text-[10px] font-bold uppercase tracking-wider">Lead</span>
+                    </div>
+
+                    <!-- Dynamic entries -->
+                    <div id="teamMembersContainer"></div>
+
+                    <button type="button" onclick="addTeamMember()" class="add-btn mt-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Add Team Member
+                    </button>
+                </div>
+
+                <!-- Section 5: Achievements -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                        <span class="section-badge bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">05</span>
+                        <h2 class="text-lg font-bold text-white">Achievements & Awards</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mb-4 font-mono">Hackathon wins, competition finals, awards — highlight your project's journey.</p>
+
+                    <div id="achievementsContainer"></div>
+
+                    <button type="button" onclick="openAchievementModal()" class="add-btn mt-3">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                        Add Achievement
+                    </button>
+                </div>
+
+                <!-- Section 6: External Links -->
+                <div>
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-slate-800">
+                        <span class="section-badge bg-blue-500/10 text-blue-400 border border-blue-500/20">06</span>
+                        <h2 class="text-lg font-bold text-white">External Links & Files</h2>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-5">
+                        <!-- GitHub Repository (Mandatory, GitHub only) -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                GitHub Repository <span class="text-red-400">*</span>
+                            </label>
+                            {{ form.github_url }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only GitHub links accepted (https://github.com/...)</span>
+                            <span id="github-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.github_url.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.github_url.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Live Demo (Optional, Google Drive only) -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Live Demo <span class="text-slate-600 text-xs">(Google Drive link)</span>
+                            </label>
+                            {{ form.demo_url }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only Google Drive links accepted (https://drive.google.com/...)</span>
+                            <span id="demo-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.demo_url.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.demo_url.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Docs / Paper / PPT (Mandatory, File Upload) -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Docs / Paper / PPT <span class="text-slate-600 text-xs">(Upload new to replace)</span>
+                            </label>
+                            {{ form.documentation_file }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, or PPTX (max 25MB)</span>
+                            <span id="docs-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
+                            {% if form.documentation_file.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.documentation_file.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Video / YouTube (Optional) -->
+                        <div>
+                            <label class="block text-sm font-medium text-slate-300 mb-2">
+                                Video / YouTube <span class="text-slate-600 text-xs">(optional)</span>
+                            </label>
+                            {{ form.video_url }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="mt-10 pt-8 border-t border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div class="w-full sm:w-auto">
+                        {% if not member.can_approve_projects %}
+                        <div class="flex items-start gap-3 p-4 rounded-xl bg-amber-500/5 border border-amber-500/15">
+                            <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+                            <div>
+                                <p class="text-amber-400 text-sm font-bold">Manual Review Required</p>
+                                <p class="text-slate-400 text-xs mt-0.5">Your project will be reviewed by the Command Lead before being published.</p>
+                            </div>
+                        </div>
+                        {% else %}
+                        <div class="flex items-start gap-3 p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/15">
+                            <svg class="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                            <div>
+                                <p class="text-cyan-400 text-sm font-bold">Admin Access</p>
+                                <p class="text-slate-400 text-xs mt-0.5">Your project will be automatically approved and published.</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-4 w-full sm:w-auto">
+                        <a href="{% url 'landing:dashboard' %}" class="btn-back w-full sm:w-auto text-center">Cancel</a>
+                        <button type="submit" class="btn-submit w-full sm:w-auto">
+                            {% if member.can_approve_projects %}Publish Project{% else %}Submit for Review{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Achievement Modal -->
+    <div id="achievementModal" class="fixed inset-0 z-[100] hidden items-center justify-center">
+        <div class="absolute inset-0 bg-[#020617]/80 backdrop-blur-sm transition-opacity" onclick="closeAchievementModal()"></div>
+        <div class="relative w-full max-w-2xl bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl p-6 m-4 overflow-y-auto max-h-[90vh]">
+            <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                    <h3 class="text-xl font-bold text-white">Add Achievement</h3>
+                </div>
+                <button type="button" onclick="closeAchievementModal()" class="text-slate-400 hover:text-white transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Achievement Title *</label>
+                        <input type="text" id="modalAchTitle" class="form-input" placeholder="e.g., Top 10 Finalist">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Event / Competition Name</label>
+                        <input type="text" id="modalAchEvent" class="form-input" placeholder="e.g., AI Summit 2026">
+                    </div>
+                </div>
+                
+                <div class="grid md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Type</label>
+                        <select id="modalAchType" class="form-select">
+                            <option value="competition">Competition</option>
+                            <option value="award">Award</option>
+                            <option value="publication">Publication</option>
+                            <option value="milestone">Milestone</option>
+                            <option value="deployment">Deployment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Position / Rank</label>
+                        <input type="text" id="modalAchPosition" class="form-input" placeholder="e.g., 1st Place">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Date *</label>
+                        <input type="date" id="modalAchDate" class="form-input">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Certificate / Proof URL</label>
+                    <input type="url" id="modalAchURL" class="form-input" placeholder="https://...">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-slate-300 mb-2">Or Upload Certificate File</label>
+                    <input type="file" id="modalAchFile" accept=".pdf,image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
+                    <p class="text-xs text-slate-500 mt-1 font-mono">Upload a PDF or Image</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-end gap-3">
+                <button type="button" onclick="closeAchievementModal()" class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors font-medium text-sm">Cancel</button>
+                <button type="button" onclick="saveAchievement()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-yellow-500 to-amber-600 text-white font-bold text-sm hover:from-yellow-400 hover:to-amber-500 transition-colors shadow-lg shadow-yellow-500/20">Add to Project</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ── Team Members Dynamic System ──
+    let teamMembers = {{ form.initial.team_members_json|safe|default:'[]' }};
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        teamMembers.forEach(tm => {
+            if (!tm.id) tm.id = Date.now() + Math.random();
+            renderTeamMemberUI(tm);
+        });
+        syncTeamJSON();
+    });
+
+    function renderTeamMemberUI(tm) {
+        const container = document.getElementById('teamMembersContainer');
+        const div = document.createElement('div');
+        div.className = 'dynamic-entry flex flex-col sm:flex-row items-center gap-3 mb-3 p-3 rounded-xl bg-slate-900/50 border border-slate-800';
+        div.id = `team-${tm.id}`;
+        div.innerHTML = `
+            <div class="w-10 h-10 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-400 flex-shrink-0 hidden sm:flex">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            </div>
+            <div class="flex-1 w-full grid grid-cols-2 gap-3">
+                <input type="text" placeholder="Full Name" value="${tm.name}" class="w-full bg-transparent border-b border-slate-700 focus:border-cyan-500 outline-none text-sm py-1.5 text-white"
+                    onchange="updateTeamData(${tm.id}, 'name', this.value)" oninput="updateTeamData(${tm.id}, 'name', this.value)">
+                <input type="email" placeholder="teammate@gmail.com" value="${tm.email}" class="w-full bg-transparent border-b border-slate-700 focus:border-cyan-500 outline-none text-sm py-1.5 text-white"
+                    onchange="updateTeamData(${tm.id}, 'email', this.value)" oninput="updateTeamData(${tm.id}, 'email', this.value)">
+            </div>
+            <button type="button" onclick="removeTeamMember(${tm.id})" class="remove-btn self-end sm:self-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>`;
+        container.appendChild(div);
+    }
+
+    function addTeamMember() {
+        const id = Date.now();
+        const newTm = {id, name: '', email: ''};
+        teamMembers.push(newTm);
+        renderTeamMemberUI(newTm);
+    }
+
+    function updateTeamData(id, key, val) { const m = teamMembers.find(t => t.id === id); if (m) m[key] = val; syncTeamJSON(); }
+    function removeTeamMember(id) { teamMembers = teamMembers.filter(t => t.id !== id); document.getElementById(`team-${id}`)?.remove(); syncTeamJSON(); }
+    function syncTeamJSON() { document.getElementById('team_member_emails_json').value = JSON.stringify(teamMembers.filter(t=>t.email).map(({id, ...r})=>r)); }
+
+    // ── Achievements Dynamic System (Modal) ──
+    let achievements = {{ form.initial.achievements_json|safe|default:'[]' }};
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        achievements.forEach(ach => {
+            if (!ach.id) ach.id = Date.now() + Math.random();
+            renderAchievement(ach);
+        });
+        syncAchJSON();
+    });
+
+    
+    function openAchievementModal() {
+        document.getElementById('achievementModal').style.display = 'flex';
+    }
+    function closeAchievementModal() {
+        document.getElementById('achievementModal').style.display = 'none';
+        // Clear modal inputs
+        ['Title', 'Event', 'Type', 'Position', 'Date', 'URL', 'File'].forEach(field => {
+            const el = document.getElementById('modalAch' + field);
+            if(el) {
+                if(el.type === 'file') el.value = '';
+                else if(el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            }
+        });
+    }
+
+    function saveAchievement() {
+        const title = document.getElementById('modalAchTitle').value;
+        const date = document.getElementById('modalAchDate').value;
+        if (!title || !date) {
+            alert('Title and Date are required!');
+            return;
+        }
+
+        const id = Date.now();
+        const ach = {
+            id,
+            title,
+            event_name: document.getElementById('modalAchEvent').value,
+            achievement_type: document.getElementById('modalAchType').value,
+            position: document.getElementById('modalAchPosition').value,
+            date,
+            certificate_url: document.getElementById('modalAchURL').value
+        };
+        
+        achievements.push(ach);
+
+        // Handle File Upload by appending a hidden input to the main form
+        const fileInput = document.getElementById('modalAchFile');
+        if (fileInput.files.length > 0) {
+            const form = document.getElementById('projectForm');
+            const newFileInput = fileInput.cloneNode(true);
+            newFileInput.name = `achievement_cert_${id}`;
+            newFileInput.id = `achievement_cert_${id}`;
+            newFileInput.style.display = 'none';
+            form.appendChild(newFileInput);
+            ach.has_file = true;
+        }
+
+        renderAchievement(ach);
+        syncAchJSON();
+        closeAchievementModal();
+    }
+
+    function renderAchievement(ach) {
+        const container = document.getElementById('achievementsContainer');
+        const div = document.createElement('div');
+        div.className = 'dynamic-entry p-4 rounded-xl bg-slate-900/50 border border-slate-800 mb-4 flex items-center justify-between';
+        div.id = `ach-${ach.id}`;
+        
+        div.innerHTML = `
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 uppercase">${ach.achievement_type}</span>
+                    ${ach.position ? `<span class="text-xs text-white font-medium">🏆 ${ach.position}</span>` : ''}
+                </div>
+                <h4 class="text-sm font-bold text-white">${ach.title}</h4>
+                <p class="text-xs text-slate-400 mt-0.5">${ach.event_name ? ach.event_name + ' • ' : ''}${ach.date}</p>
+                ${ach.has_file ? '<p class="text-[10px] text-cyan-400 mt-1 font-mono">📎 Certificate Attached</p>' : ''}
+            </div>
+            <button type="button" onclick="removeAchievement(${ach.id})" class="remove-btn ml-4">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            </button>
+        `;
+        container.appendChild(div);
+    }
+
+    function removeAchievement(id) { 
+        achievements = achievements.filter(a => a.id !== id); 
+        document.getElementById(`ach-${id}`)?.remove();
+        const fileInput = document.getElementById(`achievement_cert_${id}`);
+        if(fileInput) fileInput.remove();
+        syncAchJSON(); 
+    }
+    
+    // Notice we map and INCLUDE 'id' so backend can find the file input
+    function syncAchJSON() { 
+        document.getElementById('achievements_json').value = JSON.stringify(achievements); 
+    }
+
+    // ── Sync before submit + Client-side validation ──
+    document.getElementById('projectForm').addEventListener('submit', function(e) { 
+        syncTeamJSON(); 
+        syncAchJSON();
+
+        let hasError = false;
+        const errors = [];
+
+        // Validate GitHub URL (mandatory, must be github.com)
+        const githubInput = document.querySelector('[name="github_url"]');
+        const githubError = document.getElementById('github-error');
+        if (githubInput) {
+            const githubVal = githubInput.value.trim();
+            if (!githubVal) {
+                githubError.textContent = '⚠ GitHub repository link is required.';
+                githubError.classList.remove('hidden');
+                githubInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else if (!githubVal.startsWith('https://github.com/') && !githubVal.startsWith('http://github.com/') && !githubVal.startsWith('https://www.github.com/')) {
+                githubError.textContent = '⚠ Only GitHub links are allowed (https://github.com/...).';
+                githubError.classList.remove('hidden');
+                githubInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else {
+                githubError.classList.add('hidden');
+                githubInput.style.borderColor = '';
+            }
+        }
+
+        // Validate Demo URL (optional, but if filled must be Google Drive)
+        const demoInput = document.querySelector('[name="demo_url"]');
+        const demoError = document.getElementById('demo-error');
+        if (demoInput) {
+            const demoVal = demoInput.value.trim();
+            if (demoVal && !demoVal.startsWith('https://drive.google.com/') && !demoVal.startsWith('http://drive.google.com/')) {
+                demoError.textContent = '⚠ Only Google Drive links are allowed (https://drive.google.com/...).';
+                demoError.classList.remove('hidden');
+                demoInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else {
+                demoError.classList.add('hidden');
+                demoInput.style.borderColor = '';
+            }
+        }
+
+        // Validate Documentation File
+        const docsInput = document.getElementById('id_documentation_file');
+        const docsError = document.getElementById('docs-error');
+        if (docsInput && docsInput.files && docsInput.files.length > 0) {
+                const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
+                const fileName = docsInput.files[0].name.toLowerCase();
+                const ext = fileName.substring(fileName.lastIndexOf('.'));
+                if (!allowedExts.includes(ext)) {
+                    docsError.textContent = '⚠ Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.';
+                    docsError.classList.remove('hidden');
+                    hasError = true;
+                } else if (docsInput.files[0].size > 25 * 1024 * 1024) {
+                    docsError.textContent = '⚠ File size must be under 25MB.';
+                    docsError.classList.remove('hidden');
+                    hasError = true;
+                } else {
+                    docsError.classList.add('hidden');
+                }
+            }
+        }
+
+        if (hasError) {
+            e.preventDefault();
+            // Scroll to first error
+            const firstError = document.querySelector('[id$="-error"]:not(.hidden)');
+            if (firstError) {
+                firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    });
+
+    // Real-time validation on blur
+    const githubField = document.querySelector('[name="github_url"]');
+    if (githubField) {
+        githubField.addEventListener('blur', function() {
+            const val = this.value.trim();
+            const err = document.getElementById('github-error');
+            if (val && !val.startsWith('https://github.com/') && !val.startsWith('http://github.com/') && !val.startsWith('https://www.github.com/')) {
+                err.textContent = '⚠ Only GitHub links are allowed.';
+                err.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+            } else {
+                err.classList.add('hidden');
+                this.style.borderColor = '';
+            }
+        });
+    }
+    const demoField = document.querySelector('[name="demo_url"]');
+    if (demoField) {
+        demoField.addEventListener('blur', function() {
+            const val = this.value.trim();
+            const err = document.getElementById('demo-error');
+            if (val && !val.startsWith('https://drive.google.com/') && !val.startsWith('http://drive.google.com/')) {
+                err.textContent = '⚠ Only Google Drive links are allowed.';
+                err.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+            } else {
+                err.classList.add('hidden');
+                this.style.borderColor = '';
+            }
+        });
+    }
+    </script>
+</body>
+</html>

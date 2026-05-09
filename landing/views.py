@@ -448,6 +448,172 @@ def submit_project(request):
     })
 
 
+
+@login_required(login_url='/login/')
+def edit_project(request, project_id):
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, 'Your account is not linked to a club member profile.')
+        return redirect('landing:index')
+
+    project = get_object_or_404(Project, id=project_id)
+
+    # Check permission
+    if not (project.submitted_by == member or project.project_lead == member or member.can_approve_projects):
+        messages.error(request, 'You do not have permission to edit this project.')
+        return redirect('landing:dashboard')
+
+    if request.method == 'POST':
+        form = ProjectSubmissionForm(request.POST, request.FILES, instance=project)
+        if form.is_valid():
+            project = form.save(commit=False)
+            project.tech_stack = form.cleaned_data.get('tech_stack_input', [])
+            try:
+                if project.spec:
+                    project.level = categorize_project_level(project.spec)
+                project.save()
+            except Exception as e:
+                messages.error(request, f'Error during project update: {str(e)}')
+                return render(request, 'landing/edit_project.html', {'form': form, 'member': member, 'project': project, 'page_title': 'Edit Project'})
+
+            # --- Update External Team Members ---
+            team_data = form.cleaned_data.get('team_members_json', [])
+            external_teammates = []
+            from django.contrib.auth.models import User as DjangoUser
+            from landing.models import ClubApplication
+
+            # clear old team members except the lead
+            project.team_members.clear()
+            if project.project_lead:
+                project.team_members.add(project.project_lead)
+            if project.submitted_by:
+                project.team_members.add(project.submitted_by)
+
+            for tm in team_data:
+                email = tm.get('email', '')
+                name = tm.get('name', '')
+                if not email:
+                    continue
+                user = DjangoUser.objects.filter(email__iexact=email).first()
+                if not user:
+                    app = ClubApplication.objects.filter(personal_email__iexact=email, status='approved').first()
+                    if app and app.user:
+                        user = app.user
+                
+                if user:
+                    try:
+                        team_member = user.club_profile
+                        project.team_members.add(team_member)
+                    except ClubMember.DoesNotExist:
+                        external_teammates.append({'name': name or email, 'email': email})
+                else:
+                    external_teammates.append({'name': name or email, 'email': email})
+            
+            project.external_team_members = external_teammates
+            project.save()
+
+            # --- Update Achievements ---
+            achievements_data = form.cleaned_data.get('achievements_json', [])
+            from landing.models import ProjectAchievement
+            from datetime import datetime
+            
+            # keep track of current achievements to delete removed ones
+            current_achs = set(project.achievements.values_list('id', flat=True))
+            processed_achs = set()
+
+            for ach in achievements_data:
+                try:
+                    ach_date = datetime.strptime(ach['date'], '%Y-%m-%d').date()
+                    # if ach has a numeric ID (and exists in DB), it's an update, else create
+                    ach_id = ach.get('id')
+                    try:
+                        db_ach_id = int(ach_id)
+                        if db_ach_id in current_achs:
+                            achievement_obj = ProjectAchievement.objects.get(id=db_ach_id)
+                            achievement_obj.title = ach['title']
+                            achievement_obj.achievement_type = ach.get('achievement_type', 'competition')
+                            achievement_obj.event_name = ach.get('event_name', '')
+                            achievement_obj.position = ach.get('position', '')
+                            achievement_obj.description = ach.get('description', '')
+                            achievement_obj.date = ach_date
+                            achievement_obj.certificate_url = ach.get('certificate_url', '')
+                            achievement_obj.save()
+                            processed_achs.add(db_ach_id)
+                        else:
+                            achievement_obj = ProjectAchievement.objects.create(
+                                project=project,
+                                title=ach['title'],
+                                achievement_type=ach.get('achievement_type', 'competition'),
+                                event_name=ach.get('event_name', ''),
+                                position=ach.get('position', ''),
+                                description=ach.get('description', ''),
+                                date=ach_date,
+                                certificate_url=ach.get('certificate_url', ''),
+                            )
+                    except (ValueError, TypeError):
+                        # brand new
+                        achievement_obj = ProjectAchievement.objects.create(
+                            project=project,
+                            title=ach['title'],
+                            achievement_type=ach.get('achievement_type', 'competition'),
+                            event_name=ach.get('event_name', ''),
+                            position=ach.get('position', ''),
+                            description=ach.get('description', ''),
+                            date=ach_date,
+                            certificate_url=ach.get('certificate_url', ''),
+                        )
+                    
+                    # check for file upload
+                    if ach_id:
+                        cert_file = request.FILES.get(f"achievement_cert_{ach_id}")
+                        if cert_file:
+                            achievement_obj.certificate_file = cert_file
+                            achievement_obj.save()
+
+                except (ValueError, KeyError) as e:
+                    continue
+
+            # delete any achievements removed by the user
+            to_delete = current_achs - processed_achs
+            if to_delete:
+                ProjectAchievement.objects.filter(id__in=to_delete).delete()
+
+            messages.success(request, f'Project "{project.title}" has been updated!')
+            return redirect('landing:dashboard')
+    else:
+        # Prepopulate dynamic fields
+        import json
+        team_members = project.external_team_members if isinstance(project.external_team_members, list) else []
+        for tm in project.team_members.all():
+            if tm != project.project_lead and tm != project.submitted_by:
+                team_members.append({'name': tm.get_display_name, 'email': tm.user.email})
+        
+        achievements = []
+        for ach in project.achievements.all():
+            achievements.append({
+                'id': ach.id,
+                'title': ach.title,
+                'event_name': ach.event_name,
+                'achievement_type': ach.achievement_type,
+                'position': ach.position,
+                'date': ach.date.strftime('%Y-%m-%d') if ach.date else '',
+                'certificate_url': ach.certificate_url,
+                'has_file': bool(ach.certificate_file)
+            })
+
+        initial_data = {
+            'tech_stack_input': ", ".join(project.tech_stack) if project.tech_stack else '',
+            'team_members_json': json.dumps(team_members),
+            'achievements_json': json.dumps(achievements),
+        }
+        form = ProjectSubmissionForm(instance=project, initial=initial_data)
+
+    return render(request, 'landing/edit_project.html', {
+        'form': form, 'member': member, 'project': project,
+        'page_title': 'Edit Project — CECP',
+    })
+
 @login_required(login_url='/login/')
 def delete_project(request, project_id):
     if request.method == 'POST':

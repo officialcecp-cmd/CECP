@@ -218,6 +218,7 @@
                             <td class="p-4 text-sm font-semibold text-white">{{ proj.title }}</td>
                             <td class="p-4 text-right flex items-center justify-end gap-2">
                                 <a href="{% url 'landing:project_detail' proj.id %}" target="_blank" class="text-slate-400 hover:text-white text-sm font-medium transition-colors px-2">Preview</a>
+                                <a href="{% url 'landing:edit_project' proj.id %}" class="btn-edit px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Edit</a>
                                 <form method="POST" action="{% url 'landing:approve_project' proj.id %}" class="inline" onsubmit="return confirm('Approve this project?');">
                                     {% csrf_token %}
                                     <button type="submit" class="btn-approve px-3 py-1.5 rounded-lg text-xs font-bold tracking-wide">Approve</button>
