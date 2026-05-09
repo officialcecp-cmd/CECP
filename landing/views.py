@@ -88,11 +88,15 @@ def index(request):
     approved_blogs = Blog.objects.filter(is_approved=True).select_related('author', 'author__user').order_by('-created_at')[:10]
     can_write_blog = False
     if request.user.is_authenticated:
-        # Allow superusers, CECP_Team group, and any user with an active ClubMember profile
+        # Only superusers or users with an APPROVED ClubApplication can write blogs
         can_write_blog = (
             request.user.is_superuser
-            or request.user.groups.filter(name='CECP_Team').exists()
-            or ClubMember.objects.filter(user=request.user, is_active=True).exists()
+            or request.user.is_staff
+            or ClubApplication.objects.filter(
+                status='approved'
+            ).filter(
+                Q(user=request.user) | Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email)
+            ).exists()
         )
 
     context = {
@@ -134,26 +138,31 @@ def auth_portal(request):
             user = form.get_user()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-            # Determine role from ClubMember profile
+            # Determine role — ClubApplication is the single source of truth
             if user.is_superuser:
                 role = 'superuser'
                 display_name = "Master Admin"
             else:
-                role = 'general'
+                role = 'public'
                 display_name = user.get_full_name() or user.username
-                try:
-                    profile = user.club_profile
-                    if profile.role in ('hod', 'faculty', 'club_head') and profile.is_active:
-                        role = 'admin'
+
+                # Check if user has an APPROVED ClubApplication
+                is_approved_member = ClubApplication.objects.filter(
+                    status='approved'
+                ).filter(
+                    Q(user=user) | Q(email__iexact=user.email) | Q(personal_email__iexact=user.email)
+                ).exists()
+
+                if is_approved_member:
+                    try:
+                        profile = user.club_profile
+                        if profile.role in ('hod', 'faculty', 'club_head'):
+                            role = 'admin'
+                        else:
+                            role = 'core_member'
                         display_name = profile.get_display_name
-                    elif profile.is_active:
+                    except Exception:
                         role = 'core_member'
-                        display_name = profile.get_display_name
-                    else:
-                        # Inactive profile = public/visitor user
-                        role = 'public'
-                except Exception:
-                    role = 'public'
 
             # Store in session
             request.session['user_role'] = role
@@ -269,44 +278,54 @@ def project_detail(request, project_id):
     external_team = project.external_team_members if isinstance(project.external_team_members, list) else []
     total_team_count = team.count() + len(external_team)
 
-    # --- Access Control for project resources ---
-    # Rule: Only ACTIVE club members (approved via ClubApplication), 
-    # superusers, project team members, or users with approved access 
-    # requests can see GitHub repos, docs, and PPT files.
+    # =====================================================================
+    # ACCESS CONTROL — Who can see GitHub repos, docs, PPT files?
+    # =====================================================================
+    # 1. Superusers / Staff → always full access
+    # 2. Users with an APPROVED ClubApplication → full access (real members)
+    # 3. Project team members (submitter/lead) → full access to own project
+    # 4. Users with an approved ProjectAccessRequest → full access
+    # 5. Everyone else → LOCKED (no GitHub, no docs, no PPT)
+    # =====================================================================
     has_full_access = False
     access_request_status = None
 
     if request.user.is_authenticated:
-        # Superusers and staff always have full access
+        # Check 1: Superusers and staff
         if request.user.is_superuser or request.user.is_staff:
             has_full_access = True
-        else:
-            # Check if user is an ACTIVE club member (approved via ClubApplication)
-            try:
-                member = request.user.club_profile
-                if member.is_active:
-                    has_full_access = True
-            except ClubMember.DoesNotExist:
-                pass
 
-            # If still no access, check if user is a team member on THIS project
-            if not has_full_access:
-                if project.submitted_by and project.submitted_by.user_id == request.user.id:
-                    has_full_access = True
-                elif project.project_lead and project.project_lead.user_id == request.user.id:
-                    has_full_access = True
-                elif project.team_members.filter(user=request.user).exists():
-                    has_full_access = True
+        # Check 2: Does this user have an approved ClubApplication?
+        if not has_full_access:
+            from .models import ClubApplication
+            is_approved_member = ClubApplication.objects.filter(
+                status='approved'
+            ).filter(
+                Q(user=request.user) |
+                Q(email__iexact=request.user.email) |
+                Q(personal_email__iexact=request.user.email)
+            ).exists()
+            if is_approved_member:
+                has_full_access = True
 
-            # If still no access, check for an approved access request
-            if not has_full_access:
-                access_req = ProjectAccessRequest.objects.filter(
-                    requester=request.user, project=project
-                ).only('status').first()
-                if access_req:
-                    access_request_status = access_req.status
-                    if access_req.status == 'approved':
-                        has_full_access = True
+        # Check 3: Is this user a team member on THIS project?
+        if not has_full_access:
+            if project.submitted_by and project.submitted_by.user_id == request.user.id:
+                has_full_access = True
+            elif project.project_lead and project.project_lead.user_id == request.user.id:
+                has_full_access = True
+            elif project.team_members.filter(user_id=request.user.id).exists():
+                has_full_access = True
+
+        # Check 4: Approved access request?
+        if not has_full_access:
+            access_req = ProjectAccessRequest.objects.filter(
+                requester=request.user, project=project
+            ).only('status').first()
+            if access_req:
+                access_request_status = access_req.status
+                if access_req.status == 'approved':
+                    has_full_access = True
     
     return render(request, 'landing/project_detail.html', {
         'project': project,
@@ -1087,10 +1106,14 @@ def team_view(request):
 
 @login_required
 def submit_blog(request):
-    # Allow superusers, CECP_Team group, and any user with an active ClubMember profile
-    has_club_profile = ClubMember.objects.filter(user=request.user, is_active=True).exists()
-    if not (request.user.is_superuser or request.user.groups.filter(name='CECP_Team').exists() or has_club_profile):
-        messages.error(request, 'You are not authorized to submit blogs. Only club members can write blogs.')
+    # Only superusers or users with an approved ClubApplication can submit blogs
+    is_approved_member = ClubApplication.objects.filter(
+        status='approved'
+    ).filter(
+        Q(user=request.user) | Q(email__iexact=request.user.email) | Q(personal_email__iexact=request.user.email)
+    ).exists()
+    if not (request.user.is_superuser or request.user.is_staff or is_approved_member):
+        messages.error(request, 'You are not authorized to submit blogs. Only approved club members can write blogs.')
         return redirect('landing:index')
 
     if request.method == 'POST':
