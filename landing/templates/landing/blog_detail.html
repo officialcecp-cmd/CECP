@@ -172,11 +172,17 @@
             <div class="flex flex-col sm:flex-row sm:items-center gap-4 pt-6 border-t border-slate-700/50">
                 <div class="flex items-center gap-4">
                     <div class="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 p-[2px]">
-                        <div class="w-full h-full rounded-full bg-[#0f172a] flex items-center justify-center text-cyan-400 font-bold text-lg">
-                            {% if blog.author %}
-                                {{ blog.author.user.get_full_name|default:blog.author.user.username|make_list|first|upper }}
+                        <div class="w-full h-full rounded-full bg-[#0f172a] flex items-center justify-center text-cyan-400 font-bold text-lg overflow-hidden">
+                            {% if blog.author and blog.author.user.profile.profile_picture %}
+                                <img src="{{ blog.author.user.profile.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover">
+                            {% elif blog.author and blog.author.profile_image %}
+                                <img src="{{ blog.author.profile_image.url }}" alt="Profile" class="w-full h-full object-cover">
                             {% else %}
-                                C
+                                {% if blog.author %}
+                                    {{ blog.author.user.get_full_name|default:blog.author.user.username|make_list|first|upper }}
+                                {% else %}
+                                    C
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>

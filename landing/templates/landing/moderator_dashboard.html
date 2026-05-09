@@ -139,8 +139,14 @@
                             <td class="p-4 text-sm text-slate-300">
                                 {% if blog.author %}
                                     <div class="flex items-center gap-2">
-                                        <div class="w-6 h-6 rounded-full bg-cyan-900 flex items-center justify-center text-xs font-bold text-cyan-200">
-                                            {{ blog.author.user.first_name|first|default:"U"|upper }}
+                                        <div class="w-6 h-6 rounded-full bg-cyan-900 flex items-center justify-center text-xs font-bold text-cyan-200 overflow-hidden">
+                                            {% if blog.author.user.profile.profile_picture %}
+                                                <img src="{{ blog.author.user.profile.profile_picture.url }}" alt="Photo" class="w-full h-full object-cover">
+                                            {% elif blog.author.profile_image %}
+                                                <img src="{{ blog.author.profile_image.url }}" alt="Photo" class="w-full h-full object-cover">
+                                            {% else %}
+                                                {{ blog.author.user.first_name|first|default:"U"|upper }}
+                                            {% endif %}
                                         </div>
                                         {{ blog.author.user.get_full_name|default:blog.author.user.username }}
                                     </div>

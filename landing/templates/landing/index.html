@@ -1620,8 +1620,14 @@
                                         class="flex items-center justify-between mt-auto pt-6 border-t border-slate-800/60">
                                         <div class="flex items-center gap-3">
                                             <div
-                                                class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg">
-                                                {% if blog.author %}{{ blog.author.user.first_name|first|default:"U"|upper }}{{ blog.author.user.last_name|first|default:""|upper }}{% else %}CE{% endif %}
+                                                class="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-sm font-bold text-white border border-slate-600 shadow-lg overflow-hidden">
+                                                {% if blog.author and blog.author.user.profile.profile_picture %}
+                                                    <img src="{{ blog.author.user.profile.profile_picture.url }}" alt="Profile" class="w-full h-full object-cover">
+                                                {% elif blog.author and blog.author.profile_image %}
+                                                    <img src="{{ blog.author.profile_image.url }}" alt="Profile" class="w-full h-full object-cover">
+                                                {% else %}
+                                                    {% if blog.author %}{{ blog.author.user.first_name|first|default:"U"|upper }}{{ blog.author.user.last_name|first|default:""|upper }}{% else %}CE{% endif %}
+                                                {% endif %}
                                             </div>
                                             <div class="flex flex-col">
                                                 <span class="text-sm text-white font-medium">{% if blog.author %}{{ blog.author.user.get_full_name|default:blog.author.user.username }}{% else %}CECP Team{% endif %}</span>
