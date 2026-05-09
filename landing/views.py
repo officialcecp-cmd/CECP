@@ -253,10 +253,16 @@ def member_detail(request, member_id):
 
 def project_detail(request, project_id):
     # Allow admins to preview pending projects; public only sees approved ones
-    if request.user.is_authenticated and (request.user.is_superuser or request.user.groups.filter(name='CECP_Admins').exists()):
-        project = get_object_or_404(Project, id=project_id)
+    if request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff):
+        project = get_object_or_404(
+            Project.objects.select_related('category', 'submitted_by__user', 'project_lead__user'),
+            id=project_id
+        )
     else:
-        project = get_object_or_404(Project, id=project_id, approval_status='approved')
+        project = get_object_or_404(
+            Project.objects.select_related('category', 'submitted_by__user', 'project_lead__user'),
+            id=project_id, approval_status='approved'
+        )
     
     achievements = project.achievements.all()
     team = project.team_members.select_related('user', 'user__profile').all()
@@ -264,15 +270,18 @@ def project_detail(request, project_id):
     total_team_count = team.count() + len(external_team)
 
     # --- Access Control for project resources ---
+    # Rule: Only ACTIVE club members (approved via ClubApplication), 
+    # superusers, project team members, or users with approved access 
+    # requests can see GitHub repos, docs, and PPT files.
     has_full_access = False
-    access_request_status = None  # None = not requested, 'pending', 'approved', 'rejected'
+    access_request_status = None
 
     if request.user.is_authenticated:
-        # Superusers and admins always have full access
-        if request.user.is_superuser or request.user.groups.filter(name='CECP_Admins').exists():
+        # Superusers and staff always have full access
+        if request.user.is_superuser or request.user.is_staff:
             has_full_access = True
         else:
-            # Check if user is an active club member
+            # Check if user is an ACTIVE club member (approved via ClubApplication)
             try:
                 member = request.user.club_profile
                 if member.is_active:
@@ -280,20 +289,20 @@ def project_detail(request, project_id):
             except ClubMember.DoesNotExist:
                 pass
 
-            # Check if user is a team member on this project
+            # If still no access, check if user is a team member on THIS project
             if not has_full_access:
-                if project.submitted_by and project.submitted_by.user == request.user:
+                if project.submitted_by and project.submitted_by.user_id == request.user.id:
                     has_full_access = True
-                elif project.project_lead and project.project_lead.user == request.user:
+                elif project.project_lead and project.project_lead.user_id == request.user.id:
                     has_full_access = True
                 elif project.team_members.filter(user=request.user).exists():
                     has_full_access = True
 
-            # Check for an approved access request
+            # If still no access, check for an approved access request
             if not has_full_access:
                 access_req = ProjectAccessRequest.objects.filter(
                     requester=request.user, project=project
-                ).first()
+                ).only('status').first()
                 if access_req:
                     access_request_status = access_req.status
                     if access_req.status == 'approved':
