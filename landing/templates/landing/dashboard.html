@@ -252,11 +252,16 @@
                     Welcome back, <span class="text-cyan-400 font-semibold">{{ member.get_display_name }}</span> — manage your projects and track progress.
                 </p>
             </div>
-            <a href="{% url 'landing:submit_project' %}" class="btn-primary shrink-0">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                New Project
-            </a>
-        </div>
+            <div class="flex items-center gap-3 shrink-0">
+                <a href="{% url 'landing:manage_access_requests' %}" class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-amber-500/25 text-amber-400 text-sm font-semibold hover:bg-amber-500/10 hover:border-amber-500/50 transition-all">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                    Access Requests
+                </a>
+                <a href="{% url 'landing:submit_project' %}" class="btn-primary shrink-0">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    New Project
+                </a>
+            </div>
     </div>
 
     <!-- Quick Stats Row -->

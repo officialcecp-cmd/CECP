@@ -717,3 +717,54 @@ class EventStat(models.Model):
 
     def __str__(self):
         return "Event Section Stats"
+
+
+# ==============================================================================
+# PROJECT ACCESS REQUEST — Public user access control
+# ==============================================================================
+
+class ProjectAccessRequest(models.Model):
+    """
+    Tracks access requests from public/external users to view protected
+    project resources (GitHub repo, documentation, PPT files).
+    Only the project lead or submitter can approve/reject.
+    Club members with active profiles bypass this system entirely.
+    """
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    requester = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='access_requests',
+        help_text="The user requesting access to the project resources"
+    )
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name='access_requests',
+        help_text="The project whose resources are being requested"
+    )
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default='pending', db_index=True
+    )
+    message = models.TextField(
+        blank=True,
+        help_text="Optional message from the requester explaining why they need access"
+    )
+    reviewed_by = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='reviewed_access_requests',
+        help_text="Project owner who reviewed this request"
+    )
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['requester', 'project']
+        verbose_name = 'Project Access Request'
+        verbose_name_plural = 'Project Access Requests'
+
+    def __str__(self):
+        return f"{self.requester.get_full_name() or self.requester.username} → {self.project.title} ({self.get_status_display()})"
+

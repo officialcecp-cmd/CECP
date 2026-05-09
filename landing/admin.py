@@ -5,7 +5,8 @@ from django.contrib import admin
 from .models import (
     Event, EventStat,
     Initiative, Project, ProjectAchievement,
-    ClubMember, ProjectCategory, Notification, ClubApplication, Blog
+    ClubMember, ProjectCategory, Notification, ClubApplication, Blog,
+    ProjectAccessRequest
 )
 from .services import categorize_project_level
 from django.core.mail import EmailMultiAlternatives
@@ -342,3 +343,28 @@ class EventAdmin(admin.ModelAdmin):
 @admin.register(EventStat)
 class EventStatAdmin(admin.ModelAdmin):
     list_display = ('events_hosted', 'participants', 'winners_crowned', 'collaborations')
+
+
+# --- Project Access Request Admin ---------------------------------------------
+
+@admin.register(ProjectAccessRequest)
+class ProjectAccessRequestAdmin(admin.ModelAdmin):
+    list_display = ('requester', 'project', 'status', 'created_at', 'reviewed_by', 'reviewed_at')
+    list_filter = ('status',)
+    list_editable = ('status',)
+    search_fields = ('requester__username', 'requester__email', 'project__title')
+    readonly_fields = ('created_at',)
+    raw_id_fields = ('requester', 'project', 'reviewed_by')
+    actions = ['approve_requests', 'reject_requests']
+
+    @admin.action(description='✅ Approve selected access requests')
+    def approve_requests(self, request, queryset):
+        from django.utils import timezone
+        queryset.update(status='approved', reviewed_by=request.user, reviewed_at=timezone.now())
+        self.message_user(request, f'{queryset.count()} access request(s) approved.')
+
+    @admin.action(description='❌ Reject selected access requests')
+    def reject_requests(self, request, queryset):
+        from django.utils import timezone
+        queryset.update(status='rejected', reviewed_by=request.user, reviewed_at=timezone.now())
+        self.message_user(request, f'{queryset.count()} access request(s) rejected.')

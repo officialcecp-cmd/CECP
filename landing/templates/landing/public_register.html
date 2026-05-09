@@ -1,0 +1,140 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Create a free account to explore CECP club projects, read blogs, and request access to project resources.">
+    <title>{{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; overflow-x: hidden; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bg-grid { position: fixed; inset: 0; background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(6,182,212,0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(6,182,212,0.04) 1px, transparent 1px); z-index: -2; }
+        .orb { position: fixed; border-radius: 50%; filter: blur(100px); z-index: -1; opacity: 0.4; pointer-events: none; }
+        .form-card { background: rgba(15,23,42,0.7); border: 1px solid rgba(30,41,59,0.8); border-radius: 24px;
+            backdrop-filter: blur(20px); box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .login-input { width: 100%; background: rgba(15,23,42,0.8); border: 1px solid #1e293b; color: #f1f5f9;
+            border-radius: 12px; padding: 0.85rem 1.1rem; font-size: 0.875rem; transition: all 0.3s; outline: none; }
+        .login-input::placeholder { color: #475569; }
+        .login-input:focus { border-color: #06b6d4; box-shadow: 0 0 0 3px rgba(6,182,212,0.15); }
+        input:-webkit-autofill { -webkit-box-shadow: 0 0 0 9999px #0c1628 inset !important;
+            -webkit-text-fill-color: #e2e8f0 !important; transition: background-color 5000s ease-in-out 0s !important; }
+    </style>
+</head>
+<body class="min-h-screen relative flex items-center justify-center p-4">
+    <div class="bg-grid"></div>
+    <div class="orb" style="top:-100px;left:-100px;width:400px;height:400px;background:rgba(6,182,212,0.2);"></div>
+    <div class="orb" style="bottom:10%;right:-80px;width:300px;height:300px;background:rgba(139,92,246,0.15);"></div>
+
+    <div class="w-full max-w-md">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <a href="/" class="inline-flex items-center gap-2 mb-4">
+                <span class="text-2xl font-black text-white">CECP</span>
+                <span class="text-slate-500">|</span>
+                <span class="text-sm text-slate-400">Visitor Portal</span>
+            </a>
+            <h1 class="text-3xl font-black text-white mb-2">Create <span class="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">Account</span></h1>
+            <p class="text-sm text-slate-400">Join as a visitor to explore projects, read blogs, and more.</p>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="space-y-2 mb-6">
+            {% for message in messages %}
+            <div class="p-3 rounded-xl text-sm font-medium flex items-center gap-2 border
+                {% if message.tags == 'error' %}bg-red-900/20 border-red-500/30 text-red-400
+                {% else %}bg-emerald-900/20 border-emerald-500/30 text-emerald-400{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Registration Form -->
+        <div class="form-card p-8">
+            <form method="post" id="registerForm" novalidate>
+                {% csrf_token %}
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">First Name</label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}<span class="text-xs text-red-400 mt-1 block">{{ form.first_name.errors.0 }}</span>{% endif %}
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Last Name</label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}<span class="text-xs text-red-400 mt-1 block">{{ form.last_name.errors.0 }}</span>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Email Address</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<span class="text-xs text-red-400 mt-1 block">{{ form.email.errors.0 }}</span>{% endif %}
+                </div>
+
+                <div class="mb-4">
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Password</label>
+                    {{ form.password }}
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">Confirm Password</label>
+                    {{ form.password_confirm }}
+                </div>
+
+                {% if form.non_field_errors %}
+                <div class="p-3 rounded-xl bg-red-900/20 border border-red-500/30 text-red-400 text-sm mb-4">
+                    {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- What you get -->
+                <div class="p-4 rounded-xl bg-cyan-500/5 border border-cyan-500/15 mb-6">
+                    <p class="text-xs text-cyan-400 font-bold uppercase tracking-wider mb-2">As a Visitor, you can:</p>
+                    <ul class="space-y-1.5">
+                        <li class="flex items-center gap-2 text-xs text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Browse all approved projects
+                        </li>
+                        <li class="flex items-center gap-2 text-xs text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            Read club blogs and articles
+                        </li>
+                        <li class="flex items-center gap-2 text-xs text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                            View team members and events
+                        </li>
+                        <li class="flex items-center gap-2 text-xs text-slate-300">
+                            <svg class="w-3.5 h-3.5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                            Request access to project repos & docs
+                        </li>
+                    </ul>
+                </div>
+
+                <button type="submit" class="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold text-sm hover:from-cyan-400 hover:to-blue-500 transition-all shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                    <span>Create Free Account</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/></svg>
+                </button>
+            </form>
+
+            <div class="mt-6 text-center space-y-3">
+                <p class="text-sm text-slate-500">Already have an account? <a href="{% url 'landing:login' %}" class="text-cyan-400 hover:text-cyan-300 font-semibold transition-colors">Login here</a></p>
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-slate-800"></div>
+                    <span class="text-[10px] text-slate-600 uppercase tracking-wider">or</span>
+                    <div class="flex-1 h-px bg-slate-800"></div>
+                </div>
+                <p class="text-sm text-slate-500">CECP Club Member? <a href="{% url 'landing:login' %}" class="text-violet-400 hover:text-violet-300 font-semibold transition-colors">Member Login</a></p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

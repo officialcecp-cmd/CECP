@@ -12,10 +12,10 @@ from django.db.models import Count, Q
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event, EventStat
+    ClubApplication, Blog, Event, EventStat, ProjectAccessRequest
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
-from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm
+from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm, PublicUserRegistrationForm
 from .services import categorize_project_level
 
 
@@ -258,12 +258,50 @@ def project_detail(request, project_id):
     team = project.team_members.select_related('user', 'user__profile').all()
     external_team = project.external_team_members if isinstance(project.external_team_members, list) else []
     total_team_count = team.count() + len(external_team)
+
+    # --- Access Control for project resources ---
+    has_full_access = False
+    access_request_status = None  # None = not requested, 'pending', 'approved', 'rejected'
+
+    if request.user.is_authenticated:
+        # Superusers and admins always have full access
+        if request.user.is_superuser or request.user.groups.filter(name='CECP_Admins').exists():
+            has_full_access = True
+        else:
+            # Check if user is an active club member
+            try:
+                member = request.user.club_profile
+                if member.is_active:
+                    has_full_access = True
+            except ClubMember.DoesNotExist:
+                pass
+
+            # Check if user is a team member on this project
+            if not has_full_access:
+                if project.submitted_by and project.submitted_by.user == request.user:
+                    has_full_access = True
+                elif project.project_lead and project.project_lead.user == request.user:
+                    has_full_access = True
+                elif project.team_members.filter(user=request.user).exists():
+                    has_full_access = True
+
+            # Check for an approved access request
+            if not has_full_access:
+                access_req = ProjectAccessRequest.objects.filter(
+                    requester=request.user, project=project
+                ).first()
+                if access_req:
+                    access_request_status = access_req.status
+                    if access_req.status == 'approved':
+                        has_full_access = True
     
     return render(request, 'landing/project_detail.html', {
         'project': project,
         'achievements': achievements,
         'team': team,
         'total_team_count': total_team_count,
+        'has_full_access': has_full_access,
+        'access_request_status': access_request_status,
         'page_title': f"{project.title} — CECP",
     })
 
@@ -1192,3 +1230,191 @@ def download_resume(request, application_id):
         raise Http404("No resume uploaded for this application.")
 
     return HttpResponseRedirect(app.resume.url)
+
+
+# ==============================================================================
+# PUBLIC USER — Registration & Login
+# ==============================================================================
+
+def public_register_view(request):
+    """Registration for public/visitor users. No club membership required."""
+    if request.user.is_authenticated:
+        return redirect('landing:index')
+
+    if request.method == 'POST':
+        form = PublicUserRegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = form.cleaned_data['email']  # Use email as username
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+
+            # Log the user in immediately
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+
+            # Mark session as public user
+            request.session['user_role'] = 'public'
+            request.session['login_type'] = 'public'
+            request.session['display_name'] = user.get_full_name() or user.username
+
+            messages.success(request, f'Welcome to CECP, {user.get_full_name()}! You can now explore projects and blogs.')
+            return redirect('landing:index')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = PublicUserRegistrationForm()
+
+    return render(request, 'landing/public_register.html', {
+        'form': form,
+        'page_title': 'Create Account — CECP Visitor Portal',
+    })
+
+
+# ==============================================================================
+# PROJECT ACCESS REQUEST — Request, Approve, Reject
+# ==============================================================================
+
+@login_required(login_url='/login/')
+@require_POST
+def request_project_access(request, project_id):
+    """Public user requests access to a project's protected resources."""
+    project = get_object_or_404(Project, id=project_id, approval_status='approved')
+
+    # Check if user already has access (club member or team member)
+    try:
+        member = request.user.club_profile
+        if member.is_active:
+            messages.info(request, 'You already have full access as a club member.')
+            return redirect('landing:project_detail', project_id=project_id)
+    except ClubMember.DoesNotExist:
+        pass
+
+    # Check for existing request
+    existing = ProjectAccessRequest.objects.filter(
+        requester=request.user, project=project
+    ).first()
+
+    if existing:
+        if existing.status == 'approved':
+            messages.info(request, 'You already have access to this project.')
+        elif existing.status == 'pending':
+            messages.info(request, 'Your access request is already pending review.')
+        elif existing.status == 'rejected':
+            # Allow re-requesting after rejection
+            existing.status = 'pending'
+            existing.message = request.POST.get('message', '').strip()
+            existing.save()
+            messages.success(request, 'Your access request has been re-submitted.')
+    else:
+        ProjectAccessRequest.objects.create(
+            requester=request.user,
+            project=project,
+            message=request.POST.get('message', '').strip(),
+        )
+        messages.success(request, f'Access request sent to the owner of "{project.title}". You will be notified when reviewed.')
+
+        # Notify the project owner
+        if project.project_lead:
+            Notification.objects.create(
+                recipient=project.project_lead,
+                notification_type='info',
+                title=f'Access Request: {project.title}',
+                message=f'{request.user.get_full_name() or request.user.username} has requested access to your project "{project.title}" resources.',
+                related_project=project,
+            )
+        elif project.submitted_by:
+            Notification.objects.create(
+                recipient=project.submitted_by,
+                notification_type='info',
+                title=f'Access Request: {project.title}',
+                message=f'{request.user.get_full_name() or request.user.username} has requested access to your project "{project.title}" resources.',
+                related_project=project,
+            )
+
+    return redirect('landing:project_detail', project_id=project_id)
+
+
+@login_required(login_url='/login/')
+def manage_access_requests(request):
+    """Project owner views and manages incoming access requests."""
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, 'You need a club member profile to manage access requests.')
+        return redirect('landing:index')
+
+    # Get projects owned by this user
+    my_projects = Project.objects.filter(
+        Q(submitted_by=member) | Q(project_lead=member)
+    ).distinct()
+
+    pending_requests = ProjectAccessRequest.objects.filter(
+        project__in=my_projects, status='pending'
+    ).select_related('requester', 'project').order_by('-created_at')
+
+    all_requests = ProjectAccessRequest.objects.filter(
+        project__in=my_projects
+    ).select_related('requester', 'project').order_by('-created_at')[:50]
+
+    return render(request, 'landing/access_requests.html', {
+        'member': member,
+        'pending_requests': pending_requests,
+        'all_requests': all_requests,
+        'page_title': 'Manage Access Requests — CECP',
+    })
+
+
+@login_required(login_url='/login/')
+@require_POST
+def approve_access_request(request, request_id):
+    """Project owner approves an access request."""
+    from django.utils import timezone
+    access_req = get_object_or_404(ProjectAccessRequest, id=request_id)
+    project = access_req.project
+
+    # Verify the current user is the project owner
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, 'Permission denied.')
+        return redirect('landing:index')
+
+    if not (project.submitted_by == member or project.project_lead == member or member.can_approve_projects):
+        messages.error(request, 'You do not have permission to manage this project\'s access.')
+        return redirect('landing:dashboard')
+
+    access_req.status = 'approved'
+    access_req.reviewed_by = request.user
+    access_req.reviewed_at = timezone.now()
+    access_req.save()
+
+    messages.success(request, f'Access granted to {access_req.requester.get_full_name() or access_req.requester.username} for "{project.title}".')
+    return redirect('landing:manage_access_requests')
+
+
+@login_required(login_url='/login/')
+@require_POST
+def reject_access_request(request, request_id):
+    """Project owner rejects an access request."""
+    from django.utils import timezone
+    access_req = get_object_or_404(ProjectAccessRequest, id=request_id)
+    project = access_req.project
+
+    # Verify the current user is the project owner
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, 'Permission denied.')
+        return redirect('landing:index')
+
+    if not (project.submitted_by == member or project.project_lead == member or member.can_approve_projects):
+        messages.error(request, 'You do not have permission to manage this project\'s access.')
+        return redirect('landing:dashboard')
+
+    access_req.status = 'rejected'
+    access_req.reviewed_by = request.user
+    access_req.reviewed_at = timezone.now()
+    access_req.save()
+
+    messages.success(request, f'Access denied for {access_req.requester.get_full_name() or access_req.requester.username}.')
+    return redirect('landing:manage_access_requests')

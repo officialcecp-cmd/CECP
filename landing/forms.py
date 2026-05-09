@@ -545,3 +545,48 @@ class UserProfileForm(forms.ModelForm):
             }),
         }
 
+
+# ==============================================================================
+# PUBLIC USER REGISTRATION FORM — No email restriction
+# ==============================================================================
+
+class PublicUserRegistrationForm(forms.ModelForm):
+    """Registration form for public/visitor users. Any email accepted."""
+    password = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'login-input',
+        'placeholder': 'Create Password',
+        'autocomplete': 'new-password',
+    }))
+    password_confirm = forms.CharField(widget=forms.PasswordInput(attrs={
+        'class': 'login-input',
+        'placeholder': 'Confirm Password',
+        'autocomplete': 'new-password',
+    }))
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class': 'login-input', 'placeholder': 'First Name'}),
+            'last_name': forms.TextInput(attrs={'class': 'login-input', 'placeholder': 'Last Name'}),
+            'email': forms.EmailInput(attrs={'class': 'login-input', 'placeholder': 'Your Email Address'}),
+        }
+
+    def clean_email(self):
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if not email:
+            raise forms.ValidationError("Email is required.")
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError("An account with this email already exists. Please login instead.")
+        return email
+
+    def clean(self):
+        cleaned_data = super().clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password and password_confirm and password != password_confirm:
+            raise forms.ValidationError("Passwords do not match.")
+        if password and len(password) < 6:
+            raise forms.ValidationError("Password must be at least 6 characters.")
+        return cleaned_data
+

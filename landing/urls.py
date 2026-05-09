@@ -17,6 +17,7 @@ urlpatterns = [
     # Authentication
     path('login/', views.auth_portal, name='login'),
     path('register/', views.register_view, name='register'),
+    path('register/public/', views.public_register_view, name='public_register'),
     path('logout/', views.member_logout, name='logout'),
 
     # Password Reset (Django built-in views with custom templates)
@@ -81,4 +82,10 @@ urlpatterns = [
     path('apply/success/', views.apply_success_view, name='apply_success'),
     path('apply/delete/', views.delete_application, name='delete_application'),
     path('download-resume/<int:application_id>/', views.download_resume, name='download_resume'),
+
+    # Project Access Requests
+    path('request-access/<int:project_id>/', views.request_project_access, name='request_project_access'),
+    path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
+    path('access-requests/<int:request_id>/approve/', views.approve_access_request, name='approve_access_request'),
+    path('access-requests/<int:request_id>/reject/', views.reject_access_request, name='reject_access_request'),
 ]

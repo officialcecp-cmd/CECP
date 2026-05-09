@@ -1,0 +1,159 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; color: #f8fafc; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        .bg-grid { position: fixed; inset: 0; background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(6,182,212,0.04) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(6,182,212,0.04) 1px, transparent 1px); z-index: -2; }
+        .glass-card { background: rgba(15,23,42,0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; }
+    </style>
+</head>
+<body class="min-h-screen relative">
+    <div class="bg-grid"></div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 border-b border-slate-800/50 bg-[#020617]/80 backdrop-blur-xl">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="/" class="text-xl font-black tracking-tight text-white">CECP</a>
+                <span class="text-slate-700">|</span>
+                <span class="text-sm font-medium text-slate-400">Access Requests</span>
+                <span class="w-2 h-2 rounded-full bg-cyan-500 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.8)]"></span>
+            </div>
+            <a href="{% url 'landing:dashboard' %}" class="text-sm font-medium text-slate-500 hover:text-white transition-colors flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- Page Header -->
+        <div class="mb-10">
+            <div class="inline-flex items-center gap-2 mb-4 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20">
+                <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                <span class="text-xs font-mono text-amber-400 tracking-widest uppercase">Project Security</span>
+            </div>
+            <h1 class="text-3xl md:text-4xl font-black text-white mb-2">Access <span class="bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-orange-500">Requests</span></h1>
+            <p class="text-slate-400 text-sm">Manage who can access your project's GitHub repository, documentation, and demo links.</p>
+        </div>
+
+        {% if messages %}
+        <div class="space-y-2 mb-6">
+            {% for message in messages %}
+            <div class="p-3 rounded-xl text-sm font-medium flex items-center gap-2 border backdrop-blur-md
+                {% if message.tags == 'error' %}bg-red-900/20 border-red-500/30 text-red-400
+                {% else %}bg-emerald-900/20 border-emerald-500/30 text-emerald-400{% endif %}">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Pending Requests -->
+        {% if pending_requests %}
+        <div class="glass-card p-6 mb-8" style="border-top: 2px solid rgba(234,179,8,0.4);">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h2 class="text-xl font-bold text-white">Pending Requests</h2>
+                <span class="ml-auto px-3 py-1 rounded-lg bg-amber-500/10 text-amber-400 text-xs font-bold font-mono">{{ pending_requests|length }} PENDING</span>
+            </div>
+
+            <div class="space-y-4">
+                {% for req in pending_requests %}
+                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 p-4 rounded-xl bg-slate-900/50 border border-slate-800 hover:border-amber-500/30 transition-all">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                        {{ req.requester.get_full_name|make_list|first|upper|default:"?" }}
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-white">{{ req.requester.get_full_name|default:req.requester.username }}</p>
+                        <p class="text-xs text-slate-400 font-mono">{{ req.requester.email }} · {{ req.created_at|timesince }} ago</p>
+                        <p class="text-xs text-cyan-400 mt-1">→ {{ req.project.title }}</p>
+                        {% if req.message %}
+                        <p class="text-xs text-slate-300 mt-2 p-2 rounded-lg bg-slate-800/50 border border-slate-700 italic">"{{ req.message }}"</p>
+                        {% endif %}
+                    </div>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <form method="POST" action="{% url 'landing:approve_access_request' req.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 transition-all">
+                                ✓ Approve
+                            </button>
+                        </form>
+                        <form method="POST" action="{% url 'landing:reject_access_request' req.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="px-4 py-2 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-bold hover:bg-red-500/20 transition-all">
+                                ✕ Deny
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% else %}
+        <div class="glass-card p-8 mb-8 text-center">
+            <svg class="w-12 h-12 text-slate-700 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            <p class="text-slate-500 text-sm">No pending access requests. Your projects are secure!</p>
+        </div>
+        {% endif %}
+
+        <!-- All Requests History -->
+        {% if all_requests %}
+        <div class="glass-card p-6">
+            <div class="flex items-center gap-3 mb-6">
+                <div class="w-8 h-8 rounded-lg bg-slate-500/15 flex items-center justify-center">
+                    <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <h2 class="text-lg font-bold text-white">Request History</h2>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead>
+                        <tr class="text-left text-slate-500 text-xs uppercase tracking-wider font-mono">
+                            <th class="p-3">User</th>
+                            <th class="p-3">Project</th>
+                            <th class="p-3">Date</th>
+                            <th class="p-3">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800">
+                        {% for req in all_requests %}
+                        <tr class="hover:bg-slate-800/30 transition-colors">
+                            <td class="p-3">
+                                <span class="text-white font-medium">{{ req.requester.get_full_name|default:req.requester.username }}</span>
+                                <span class="text-slate-500 text-xs block">{{ req.requester.email }}</span>
+                            </td>
+                            <td class="p-3 text-slate-300">{{ req.project.title }}</td>
+                            <td class="p-3 text-slate-400 font-mono text-xs">{{ req.created_at|date:"M d, Y" }}</td>
+                            <td class="p-3">
+                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
+                                    {% if req.status == 'approved' %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20
+                                    {% elif req.status == 'rejected' %}bg-red-500/10 text-red-400 border border-red-500/20
+                                    {% else %}bg-amber-500/10 text-amber-400 border border-amber-500/20{% endif %}">
+                                    {{ req.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </main>
+</body>
+</html>
