@@ -319,13 +319,17 @@ def project_detail(request, project_id):
 
         # Check 4: Approved access request?
         if not has_full_access:
-            access_req = ProjectAccessRequest.objects.filter(
-                requester=request.user, project=project
-            ).only('status').first()
-            if access_req:
-                access_request_status = access_req.status
-                if access_req.status == 'approved':
-                    has_full_access = True
+            try:
+                access_req = ProjectAccessRequest.objects.filter(
+                    requester=request.user, project=project
+                ).only('status').first()
+                if access_req:
+                    access_request_status = access_req.status
+                    if access_req.status == 'approved':
+                        has_full_access = True
+            except Exception:
+                # Table may not exist yet if migration hasn't been applied
+                pass
     
     return render(request, 'landing/project_detail.html', {
         'project': project,
