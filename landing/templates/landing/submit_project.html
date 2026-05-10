@@ -652,6 +652,13 @@
             return;
         }
 
+        // Cloudinary Free Tier limit for raw files is 10MB
+        if (file.size > 10 * 1024 * 1024) {
+            alert('File is too large! The maximum file size allowed is 10MB. Please compress your file or use a Google Drive link.');
+            e.target.value = '';
+            return;
+        }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('upload_preset', uploadPreset);
