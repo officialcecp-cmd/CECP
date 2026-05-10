@@ -1242,7 +1242,7 @@ def moderator_dashboard(request):
     }
 
     recent_events = Event.objects.order_by('-created_at')[:5]
-    recent_registrations = ClubApplication.objects.order_by('-created_at')[:5]
+    recent_registrations = ClubApplication.objects.order_by('-created_at')[:20]
     top_events = Event.objects.order_by('-created_at')[:4]
 
     pending_blogs = Blog.objects.filter(is_approved=False).order_by('-created_at')
