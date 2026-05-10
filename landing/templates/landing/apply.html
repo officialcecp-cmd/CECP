@@ -90,8 +90,9 @@
         </div>
         {% endfor %}{% endif %}
 
-        {% if not has_applied and is_application_open %}
+        {% if not has_applied %}
         <!-- FORM -->
+        {% if is_application_open %}
         <form method="post" enctype="multipart/form-data" action="{% url 'landing:apply' %}" novalidate class="space-y-8 animate-in" style="animation-delay:0.1s;">
             {% csrf_token %}
 
@@ -245,15 +246,16 @@
                 <p class="text-center text-xs text-slate-600 mt-4">Your application will be reviewed by the Club Head. You'll be notified once approved.</p>
             </div>
         </form>
-        {% elif not has_applied and not is_application_open %}
-        <!-- CLOSED BADGE -->
+        {% else %}
+        <!-- APP CLOSED NOTICE -->
         <div class="form-card p-10 text-center animate-in" style="animation-delay:0.1s;">
-            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6" style="background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(168,85,247,0.1)); border:1px solid rgba(239,68,68,0.2);">
-                <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full mb-6" style="background:linear-gradient(135deg,rgba(239,68,68,0.1),rgba(153,27,27,0.1)); border:1px solid rgba(239,68,68,0.2);">
+                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
             </div>
-            <h2 class="text-2xl sm:text-3xl font-black text-white mb-3">Applications Closed</h2>
-            <p class="text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">We are not currently accepting new club member applications. Please check back later or contact a Club Head for more information.</p>
+            <h2 class="text-2xl sm:text-3xl font-black text-white mb-4">Applications are Currently Closed</h2>
+            <p class="text-slate-400 max-w-lg mx-auto leading-relaxed">Thank you for your interest in joining the CECP Club. Our current recruitment cycle has officially ended, and we are no longer accepting new profiles at this time. Please keep an eye on our broadcast notifications for future openings!</p>
         </div>
+        {% endif %}
         {% else %}
         <!-- STATUS CARD -->
         <div class="form-card p-10 text-center animate-in" style="animation-delay:0.1s;">

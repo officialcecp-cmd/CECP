@@ -369,20 +369,24 @@ class ProjectAccessRequestAdmin(admin.ModelAdmin):
         queryset.update(status='rejected', reviewed_by=request.user, reviewed_at=timezone.now())
         self.message_user(request, f'{queryset.count()} access request(s) rejected.')
 
+
 # --- Site Settings Admin ------------------------------------------------------
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'is_application_open')
-    list_editable = ('is_application_open',)
-
-    def has_add_permission(self, request):
-        # Prevent creating multiple SiteSettings instances
-        if self.model.objects.count() >= 1:
-            return False
-        return super().has_add_permission(request)
-
+    list_display = ('__str__', 'is_application_open')
+    
     def has_module_permission(self, request):
-        # Superuser access only
         return request.user.is_superuser
-
+        
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+        
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+        
+    def has_add_permission(self, request):
+        return request.user.is_superuser and not SiteSettings.objects.exists()
+        
+    def has_delete_permission(self, request, obj=None):
+        return False

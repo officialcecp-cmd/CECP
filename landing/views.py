@@ -17,7 +17,7 @@ from datetime import timedelta
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event, EventStat, ProjectAccessRequest, SiteSettings
+    ClubApplication, Blog, Event, EventStat, ProjectAccessRequest
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm, PublicUserRegistrationForm
@@ -861,6 +861,7 @@ def apply_view(request):
     else:
         form = ClubApplicationForm()
 
+    from .models import SiteSettings
     settings_obj = SiteSettings.objects.first()
     is_application_open = settings_obj.is_application_open if settings_obj else False
 

@@ -774,11 +774,20 @@ class ProjectAccessRequest(models.Model):
 # ==============================================================================
 
 class SiteSettings(models.Model):
-    is_application_open = models.BooleanField(default=False)
+    is_application_open = models.BooleanField(default=False, verbose_name="Application Portal Open")
     
     class Meta:
         verbose_name_plural = 'Site Settings'
 
     def __str__(self):
         return 'Global Site Settings'
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
 
