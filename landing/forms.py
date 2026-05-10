@@ -159,7 +159,7 @@ class ProjectSubmissionForm(forms.ModelForm):
         fields = [
             'title', 'description', 'spec',
             'image', 'category', 'status', 'year',
-            'github_url', 'demo_url', 'documentation_file', 'video_url',
+            'github_url', 'demo_url', 'documentation_url', 'video_url',
         ]
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Project Title'}),
@@ -170,6 +170,7 @@ class ProjectSubmissionForm(forms.ModelForm):
             'year': forms.NumberInput(attrs={'class': 'form-input', 'placeholder': '2026', 'min': '2020', 'max': '2035'}),
             'github_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://github.com/your-username/your-repo'}),
             'demo_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://drive.google.com/...'}),
+            'documentation_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://drive.google.com/...'}),
             'video_url': forms.URLInput(attrs={'class': 'form-input', 'placeholder': 'https://youtube.com/watch?v=...'}),
         }
 
@@ -178,14 +179,10 @@ class ProjectSubmissionForm(forms.ModelForm):
         # Make GitHub URL required
         self.fields['github_url'].required = True
         self.fields['github_url'].help_text = 'Only GitHub links are accepted (mandatory)'
-        # Make documentation file required
-        self.fields['documentation_file'].required = True
-        self.fields['documentation_file'].help_text = 'Upload your documentation/paper/PPT file (mandatory)'
-        self.fields['documentation_file'].widget = forms.FileInput(attrs={
-            'class': 'w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50',
-            'accept': '.pdf,.doc,.docx,.ppt,.pptx',
-            'id': 'id_documentation_file',
-        })
+        # Make documentation URL required
+        self.fields['documentation_url'].required = True
+        self.fields['documentation_url'].help_text = 'Provide a Google Drive link to your documentation/paper/PPT (mandatory)'
+
         # Keep video_url optional
         self.fields['video_url'].required = False
         # Keep demo_url optional
@@ -210,21 +207,14 @@ class ProjectSubmissionForm(forms.ModelForm):
             raise forms.ValidationError('Only Google Drive links are allowed for Live Demo (must start with https://drive.google.com/).')
         return url
 
-    def clean_documentation_file(self):
-        """Validate the uploaded documentation file."""
-        f = self.cleaned_data.get('documentation_file')
-        if not f:
-            raise forms.ValidationError('Documentation/Paper/PPT file is required.')
-        # Validate file extension
-        allowed_extensions = ['.pdf', '.doc', '.docx', '.ppt', '.pptx']
-        import os
-        ext = os.path.splitext(f.name)[1].lower()
-        if ext not in allowed_extensions:
-            raise forms.ValidationError(f'Invalid file type ({ext}). Allowed: PDF, DOC, DOCX, PPT, PPTX.')
-        # Limit file size to 25MB
-        if f.size > 25 * 1024 * 1024:
-            raise forms.ValidationError('File size must be under 25MB.')
-        return f
+    def clean_documentation_url(self):
+        """Validate the documentation link."""
+        url = self.cleaned_data.get('documentation_url', '').strip()
+        if not url:
+            raise forms.ValidationError('Documentation/Paper/PPT link is required.')
+        if not (url.startswith('https://drive.google.com/') or url.startswith('http://drive.google.com/')):
+            raise forms.ValidationError('Only Google Drive links are allowed for Documentation.')
+        return url
 
     def clean_tech_stack_input(self):
         raw = self.cleaned_data.get('tech_stack_input', '')

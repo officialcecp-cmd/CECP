@@ -275,16 +275,16 @@
                             {% endif %}
                         </div>
 
-                        <!-- Docs / Paper / PPT (Mandatory, File Upload) -->
+                        <!-- Docs / Paper / PPT (Mandatory, Google Drive link) -->
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">
-                                Docs / Paper / PPT <span class="text-slate-600 text-xs">(Upload new to replace)</span>
+                                Docs / Paper / PPT <span class="text-red-400">*</span>
                             </label>
-                            {{ form.documentation_file }}
-                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, or PPTX (max 25MB)</span>
+                            {{ form.documentation_url }}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only Google Drive links accepted (https://drive.google.com/...)</span>
                             <span id="docs-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
-                            {% if form.documentation_file.errors %}
-                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.documentation_file.errors.0 }}</span>
+                            {% if form.documentation_url.errors %}
+                            <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.documentation_url.errors.0 }}</span>
                             {% endif %}
                         </div>
 
@@ -587,24 +587,24 @@
             }
         }
 
-        // Validate Documentation File
-        const docsInput = document.getElementById('id_documentation_file');
+        // Validate Documentation URL (mandatory, Google Drive)
+        const docsInput = document.querySelector('[name="documentation_url"]');
         const docsError = document.getElementById('docs-error');
-        if (docsInput && docsInput.files && docsInput.files.length > 0) {
-                const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
-                const fileName = docsInput.files[0].name.toLowerCase();
-                const ext = fileName.substring(fileName.lastIndexOf('.'));
-                if (!allowedExts.includes(ext)) {
-                    docsError.textContent = '⚠ Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.';
-                    docsError.classList.remove('hidden');
-                    hasError = true;
-                } else if (docsInput.files[0].size > 25 * 1024 * 1024) {
-                    docsError.textContent = '⚠ File size must be under 25MB.';
-                    docsError.classList.remove('hidden');
-                    hasError = true;
-                } else {
-                    docsError.classList.add('hidden');
-                }
+        if (docsInput) {
+            const docsVal = docsInput.value.trim();
+            if (!docsVal) {
+                docsError.textContent = '⚠ Documentation / Paper / PPT link is required.';
+                docsError.classList.remove('hidden');
+                docsInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else if (!docsVal.startsWith('https://drive.google.com/') && !docsVal.startsWith('http://drive.google.com/')) {
+                docsError.textContent = '⚠ Only Google Drive links are allowed for Documentation.';
+                docsError.classList.remove('hidden');
+                docsInput.style.borderColor = '#ef4444';
+                hasError = true;
+            } else {
+                docsError.classList.add('hidden');
+                docsInput.style.borderColor = '';
             }
         }
 
@@ -641,6 +641,21 @@
             const err = document.getElementById('demo-error');
             if (val && !val.startsWith('https://drive.google.com/') && !val.startsWith('http://drive.google.com/')) {
                 err.textContent = '⚠ Only Google Drive links are allowed.';
+                err.classList.remove('hidden');
+                this.style.borderColor = '#ef4444';
+            } else {
+                err.classList.add('hidden');
+                this.style.borderColor = '';
+            }
+        });
+    }
+    const docsField = document.querySelector('[name="documentation_url"]');
+    if (docsField) {
+        docsField.addEventListener('blur', function() {
+            const val = this.value.trim();
+            const err = document.getElementById('docs-error');
+            if (val && !val.startsWith('https://drive.google.com/') && !val.startsWith('http://drive.google.com/')) {
+                err.textContent = '⚠ Only Google Drive links are allowed for Documentation.';
                 err.classList.remove('hidden');
                 this.style.borderColor = '#ef4444';
             } else {
