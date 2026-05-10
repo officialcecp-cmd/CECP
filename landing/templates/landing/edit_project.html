@@ -284,11 +284,11 @@
                             <!-- Hidden input for the actual URL to submit to Django -->
                             <input type="hidden" name="documentation_url" id="hidden_documentation_url" value="{{ form.documentation_url.value|default:'' }}">
                             
-                            <input type="file" id="docs_upload_input" accept=".pdf,.doc,.docx,.ppt,.pptx" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
+                            <input type="file" id="docs_upload_input" accept=".pdf,.doc,.docx,.ppt,.pptx,.odp,.odt" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
                             {% if form.documentation_url.value %}
                             <span class="block text-xs text-emerald-400 mt-2 font-mono">✓ A file is currently uploaded. Select a new file to replace it.</span>
                             {% else %}
-                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, or PPTX. Large files supported!</span>
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, PPTX, ODP, or ODT. Large files supported!</span>
                             {% endif %}
                             
                             <!-- Progress Bar -->
@@ -671,11 +671,11 @@
         const file = e.target.files[0];
         if (!file) return;
         
-        const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
+        const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx', '.odp', '.odt'];
         const fileName = file.name.toLowerCase();
         const ext = fileName.substring(fileName.lastIndexOf('.'));
         if (!allowedExts.includes(ext)) {
-            alert('Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.');
+            alert('Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX, ODP, ODT.');
             e.target.value = '';
             return;
         }
