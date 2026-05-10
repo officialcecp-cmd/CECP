@@ -51,6 +51,9 @@
     <!-- Horizontal scroll fix (minimal — does NOT override custom.css tab system) -->
     <style>
         html, body, main { overflow-x: hidden !important; }
+        /* Hide secondary scrollbars on tab sections — only one scrollbar should appear */
+        .tab-content::-webkit-scrollbar { width: 0px; }
+        .tab-content { scrollbar-width: none; -ms-overflow-style: none; }
     </style>
 
     <!-- Preconnect for performance -->
@@ -1350,7 +1353,7 @@
              TAB 5: TEAM — Team Members
              ============================================================= -->
         <section id="tab-team" class="tab-content h-full overflow-y-auto overflow-x-hidden relative">
-            <div class="relative min-h-[calc(100vh-5rem)] w-full z-10">
+            <div class="relative min-h-[calc(100vh-5rem)] w-full z-10 overflow-x-hidden">
                 <div class="ambient-orb orb-indigo" style="width: 400px; height: 400px; top: 15%; right: -120px;"></div>
 
                 <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
@@ -1412,6 +1415,8 @@
                     {% endif %}
 
                     <!-- ── SECTION 2: CLUB HEAD ── -->
+                    {% if team_members %}
+                    {% for member in team_members %}{% if member.category == 'head' %}{% with has_head=True %}{% endwith %}{% endif %}{% endfor %}
                     <div class="mb-20 animate-on-scroll">
                         <div class="text-center mb-12">
                             <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Head</h3>
@@ -1450,6 +1455,7 @@
                             {% endfor %}
                         </div>
                     </div>
+                    {% endif %}
 
                     <!-- ── SECTION 3: CORE MEMBERS (category='core' only) ── -->
                     <div class="mb-20 animate-on-scroll">
