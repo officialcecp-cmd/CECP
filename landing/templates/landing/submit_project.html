@@ -397,12 +397,6 @@
                     <label class="block text-sm font-medium text-slate-300 mb-2">Certificate / Proof URL</label>
                     <input type="url" id="modalAchURL" class="form-input" placeholder="https://...">
                 </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-slate-300 mb-2">Or Upload Certificate File</label>
-                    <input type="file" id="modalAchFile" accept=".pdf,image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
-                    <p class="text-xs text-slate-500 mt-1 font-mono">Upload a PDF or Image</p>
-                </div>
             </div>
 
             <div class="mt-8 flex justify-end gap-3">
@@ -450,11 +444,10 @@
     function closeAchievementModal() {
         document.getElementById('achievementModal').style.display = 'none';
         // Clear modal inputs
-        ['Title', 'Event', 'Type', 'Position', 'Date', 'URL', 'File'].forEach(field => {
+        ['Title', 'Event', 'Type', 'Position', 'Date', 'URL'].forEach(field => {
             const el = document.getElementById('modalAch' + field);
             if(el) {
-                if(el.type === 'file') el.value = '';
-                else if(el.tagName === 'SELECT') el.selectedIndex = 0;
+                if(el.tagName === 'SELECT') el.selectedIndex = 0;
                 else el.value = '';
             }
         });
@@ -481,18 +474,6 @@
         
         achievements.push(ach);
 
-        // Handle File Upload by appending a hidden input to the main form
-        const fileInput = document.getElementById('modalAchFile');
-        if (fileInput.files.length > 0) {
-            const form = document.getElementById('projectForm');
-            const newFileInput = fileInput.cloneNode(true);
-            newFileInput.name = `achievement_cert_${id}`;
-            newFileInput.id = `achievement_cert_${id}`;
-            newFileInput.style.display = 'none';
-            form.appendChild(newFileInput);
-            ach.has_file = true;
-        }
-
         renderAchievement(ach);
         syncAchJSON();
         closeAchievementModal();
@@ -512,7 +493,6 @@
                 </div>
                 <h4 class="text-sm font-bold text-white">${ach.title}</h4>
                 <p class="text-xs text-slate-400 mt-0.5">${ach.event_name ? ach.event_name + ' • ' : ''}${ach.date}</p>
-                ${ach.has_file ? '<p class="text-[10px] text-cyan-400 mt-1 font-mono">📎 Certificate Attached</p>' : ''}
             </div>
             <button type="button" onclick="removeAchievement(${ach.id})" class="remove-btn ml-4">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -524,8 +504,6 @@
     function removeAchievement(id) { 
         achievements = achievements.filter(a => a.id !== id); 
         document.getElementById(`ach-${id}`)?.remove();
-        const fileInput = document.getElementById(`achievement_cert_${id}`);
-        if(fileInput) fileInput.remove();
         syncAchJSON(); 
     }
     
