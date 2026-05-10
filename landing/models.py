@@ -768,3 +768,17 @@ class ProjectAccessRequest(models.Model):
     def __str__(self):
         return f"{self.requester.get_full_name() or self.requester.username} → {self.project.title} ({self.get_status_display()})"
 
+
+# ==============================================================================
+# GLOBAL SETTINGS
+# ==============================================================================
+
+class SiteSettings(models.Model):
+    is_application_open = models.BooleanField(default=False)
+    
+    class Meta:
+        verbose_name_plural = 'Site Settings'
+
+    def __str__(self):
+        return 'Global Site Settings'
+

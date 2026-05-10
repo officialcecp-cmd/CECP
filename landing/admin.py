@@ -6,7 +6,7 @@ from .models import (
     Event, EventStat,
     Initiative, Project, ProjectAchievement,
     ClubMember, ProjectCategory, Notification, ClubApplication, Blog,
-    ProjectAccessRequest
+    ProjectAccessRequest, SiteSettings
 )
 from .services import categorize_project_level
 from django.core.mail import EmailMultiAlternatives
@@ -368,3 +368,21 @@ class ProjectAccessRequestAdmin(admin.ModelAdmin):
         from django.utils import timezone
         queryset.update(status='rejected', reviewed_by=request.user, reviewed_at=timezone.now())
         self.message_user(request, f'{queryset.count()} access request(s) rejected.')
+
+# --- Site Settings Admin ------------------------------------------------------
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ('id', 'is_application_open')
+    list_editable = ('is_application_open',)
+
+    def has_add_permission(self, request):
+        # Prevent creating multiple SiteSettings instances
+        if self.model.objects.count() >= 1:
+            return False
+        return super().has_add_permission(request)
+
+    def has_module_permission(self, request):
+        # Superuser access only
+        return request.user.is_superuser
+

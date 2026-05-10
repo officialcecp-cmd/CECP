@@ -17,7 +17,7 @@ from datetime import timedelta
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
-    ClubApplication, Blog, Event, EventStat, ProjectAccessRequest
+    ClubApplication, Blog, Event, EventStat, ProjectAccessRequest, SiteSettings
 )
 from .supabase_client import fetch_initiatives, fetch_featured_projects
 from .forms import UnifiedLoginForm, ProjectSubmissionForm, UserRegistrationForm, ClubApplicationForm, ClubApplicationReviewForm, PublicUserRegistrationForm
@@ -861,10 +861,14 @@ def apply_view(request):
     else:
         form = ClubApplicationForm()
 
+    settings_obj = SiteSettings.objects.first()
+    is_application_open = settings_obj.is_application_open if settings_obj else False
+
     return render(request, 'landing/apply.html', {
         'form': form,
         'has_applied': has_applied,
         'application_status': application_status,
+        'is_application_open': is_application_open,
         'page_title': 'Apply to Join CECP Club',
     })
 
