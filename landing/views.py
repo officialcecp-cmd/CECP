@@ -1207,18 +1207,6 @@ def moderator_dashboard(request):
     active_events = Event.objects.filter(status__in=['Live Now', 'Ongoing']).count()
     
     now = timezone.now()
-    thirty_days_ago = now - timedelta(days=30)
-
-    # Growth calculations
-    users_last_month = User.objects.filter(date_joined__lt=thirty_days_ago).count()
-    users_growth = round(((total_users - users_last_month) / users_last_month) * 100, 1) if users_last_month else (100.0 if total_users > 0 else 0.0)
-
-    events_last_month = Event.objects.filter(created_at__lt=thirty_days_ago).count()
-    events_growth = round(((total_events - events_last_month) / events_last_month) * 100, 1) if events_last_month else (100.0 if total_events > 0 else 0.0)
-
-    reg_last_month = ClubApplication.objects.filter(created_at__lt=thirty_days_ago).count()
-    registrations_growth = round(((registrations - reg_last_month) / reg_last_month) * 100, 1) if reg_last_month else (100.0 if registrations > 0 else 0.0)
-    
     labels = []
     users_data = []
     reg_data = []
@@ -1267,11 +1255,8 @@ def moderator_dashboard(request):
 
     return render(request, 'landing/moderator_dashboard.html', {
         'total_users': total_users,
-        'users_growth': users_growth,
         'total_events': total_events,
-        'events_growth': events_growth,
         'registrations': registrations,
-        'registrations_growth': registrations_growth,
         'active_events': active_events,
         'overview_analytics_json': json.dumps(overview_analytics),
         'event_status_data': event_status_data,
