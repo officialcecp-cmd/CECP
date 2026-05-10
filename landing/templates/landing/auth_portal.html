@@ -206,8 +206,14 @@
                     </a>
                 </div>
 
-                <p class="join-text">Not a club member? <a href="{% url 'landing:public_register' %}" class="join-link" style="color: #06b6d4;">Sign up as Visitor</a></p>
-                <p class="join-text" style="margin-top: 6px;">Want to join the club? <a href="{% url 'landing:apply' %}" class="join-link">Apply to CECP</a></p>
+                <div class="mt-8 flex flex-col gap-3 text-center">
+                    <p class="text-sm text-slate-400">
+                        Not a club member? <a href="{% url 'landing:public_register' %}" class="text-[#00D4FF] font-medium hover:text-white hover:underline transition-all">Sign up as Visitor</a>
+                    </p>
+                    <p class="text-sm text-slate-400">
+                        Want to join the club? <a href="{% url 'landing:apply' %}" class="text-[#00D4FF] font-medium hover:text-white hover:underline transition-all">Apply to CECP</a>
+                    </p>
+                </div>
             </div>
         </div>
 

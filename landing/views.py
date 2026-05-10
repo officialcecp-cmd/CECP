@@ -4,11 +4,16 @@
 import logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout
+from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse, HttpResponseRedirect, Http404
 from django.views.decorators.http import require_POST
 from django.contrib import messages
 from django.db.models import Count, Q
+from django.contrib.admin.views.decorators import staff_member_required
+import json
+from django.utils import timezone
+from datetime import timedelta
 
 from .models import (
     Project, Initiative, ClubMember, ProjectCategory, Notification,
@@ -728,7 +733,7 @@ def approval_dashboard(request):
     })
 
 
-@user_passes_test(is_admin, login_url='/login/')
+@staff_member_required(login_url='/login/')
 @require_POST
 def approve_project(request, project_id):
     project = get_object_or_404(Project, id=project_id)
@@ -754,6 +759,16 @@ def approve_project(request, project_id):
                 recipient=project.submitted_by, notification_type='approved',
                 title=f'Project Approved: {project.title}',
                 message=f'Your project "{project.title}" has been approved and is now live!',
+                related_project=project,
+            )
+            notified.add(project.submitted_by.id)
+            
+        # Global Notification Trigger
+        for member in ClubMember.objects.filter(is_active=True).exclude(id__in=notified):
+            Notification.objects.create(
+                recipient=member, notification_type='info',
+                title=f'New Project Published: {project.title}',
+                message=f'A new project "{project.title}" has been published by our members!',
                 related_project=project,
             )
     except Exception:
@@ -1170,26 +1185,92 @@ def blog_detail(request, blog_id):
     }
     return render(request, 'landing/blog_detail.html', context)
 
-@user_passes_test(is_admin, login_url='/login/')
+@staff_member_required(login_url='/login/')
 def moderator_dashboard(request):
+    total_users = User.objects.count()
+    total_events = Event.objects.count()
+    registrations = ClubApplication.objects.count()
+    active_events = Event.objects.filter(status__in=['Live Now', 'Ongoing']).count()
+    
+    now = timezone.now()
+    labels = []
+    users_data = []
+    reg_data = []
+    events_data = []
+    
+    for i in range(6, -1, -1):
+        day_end = now - timedelta(days=i)
+        labels.append(day_end.strftime('%d %b'))
+        users_data.append(User.objects.filter(date_joined__lte=day_end).count())
+        reg_data.append(ClubApplication.objects.filter(created_at__lte=day_end).count())
+        events_data.append(Event.objects.filter(created_at__lte=day_end).count())
+
+    overview_analytics = {
+        'labels': labels,
+        'users': users_data,
+        'registrations': reg_data,
+        'events': events_data
+    }
+    
+    live_count = Event.objects.filter(status__in=['Live Now', 'Ongoing']).count()
+    upcoming_count = Event.objects.filter(status='Upcoming').count()
+    completed_count = Event.objects.filter(status='Completed').count()
+    total_events_donut = live_count + upcoming_count + completed_count or 1
+    
+    event_status_data = {
+        'live': live_count,
+        'live_pct': round((live_count / total_events_donut) * 100, 1),
+        'upcoming': upcoming_count,
+        'upcoming_pct': round((upcoming_count / total_events_donut) * 100, 1),
+        'completed': completed_count,
+        'completed_pct': round((completed_count / total_events_donut) * 100, 1),
+        'total': total_events_donut
+    }
+
+    recent_events = Event.objects.order_by('-created_at')[:5]
+    recent_registrations = ClubApplication.objects.order_by('-created_at')[:5]
+    top_events = Event.objects.order_by('-created_at')[:4]
+
     pending_blogs = Blog.objects.filter(is_approved=False).order_by('-created_at')
     pending_apps = ClubApplication.objects.filter(status='pending').order_by('-created_at')
     pending_projects = Project.objects.filter(
         approval_status='pending'
     ).select_related('submitted_by', 'category').order_by('-created_at')
+
+    notification_count = pending_blogs.count() + pending_apps.count() + pending_projects.count()
+
     return render(request, 'landing/moderator_dashboard.html', {
+        'total_users': total_users,
+        'total_events': total_events,
+        'registrations': registrations,
+        'active_events': active_events,
+        'overview_analytics_json': json.dumps(overview_analytics),
+        'event_status_data': event_status_data,
+        'recent_events': recent_events,
+        'recent_registrations': recent_registrations,
+        'top_events': top_events,
         'pending_blogs': pending_blogs,
         'pending_apps': pending_apps,
         'pending_projects': pending_projects,
-        'page_title': 'Moderator Dashboard - CECP'
+        'notification_count': notification_count,
+        'page_title': 'CECP.NEXUS - Moderator Command Center'
     })
 
-@user_passes_test(is_admin, login_url='/login/')
+@staff_member_required(login_url='/login/')
 @require_POST
 def approve_blog(request, blog_id):
     blog = get_object_or_404(Blog, id=blog_id)
     blog.is_approved = True
     blog.save()
+    
+    # Global Notification
+    for member in ClubMember.objects.filter(is_active=True):
+        Notification.objects.create(
+            recipient=member, notification_type='info',
+            title=f'New Blog Published: {blog.title}',
+            message=f'A new blog has been published.'
+        )
+
     messages.success(request, f'Blog "{blog.title}" has been approved and published.')
     return redirect('landing:moderator_dashboard')
 

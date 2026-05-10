@@ -158,7 +158,7 @@
                                     
                                     {% if request.user.is_superuser or request.user|has_group:"CECP_Admins" %}
                                     <a href="{% url 'landing:moderator_dashboard' %}" class="block px-4 py-2 text-sm text-cyan-300 bg-cyan-900/20 hover:bg-cyan-800/40 hover:text-cyan-200 transition-colors border-l-2 border-cyan-500">
-                                        Moderator Dashboard
+                                        Admin Dashboard
                                     </a>
                                     {% endif %}
                                     
