@@ -104,6 +104,10 @@ def index(request):
             ).exists()
         )
 
+    from .models import SiteSettings
+    settings_obj = SiteSettings.objects.first()
+    is_application_open = settings_obj.is_application_open if settings_obj else False
+
     context = {
         'events': events,
         'event_stats': event_stats,
@@ -116,7 +120,7 @@ def index(request):
         'user_application': user_application,
         'blogs': approved_blogs,
         'can_write_blog': can_write_blog,
-        'is_application_open': True, # Or whatever it was supposed to be
+        'is_application_open': is_application_open,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -195,8 +199,13 @@ def auth_portal(request):
     else:
         form = UnifiedLoginForm()
 
+    from .models import SiteSettings
+    settings_obj = SiteSettings.objects.first()
+    is_application_open = settings_obj.is_application_open if settings_obj else False
+
     return render(request, 'landing/auth_portal.html', {
         'login_form': form,
+        'is_application_open': is_application_open,
         'page_title': 'Login — CECP Access Portal',
     })
 

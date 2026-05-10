@@ -210,9 +210,11 @@
                     <p class="text-sm text-slate-400">
                         Not a club member? <a href="{% url 'landing:public_register' %}" class="text-[#00D4FF] font-medium hover:text-white hover:underline transition-all">Sign up as Visitor</a>
                     </p>
+                    {% if is_application_open %}
                     <p class="text-sm text-slate-400">
                         Want to join the club? <a href="{% url 'landing:apply' %}" class="text-[#00D4FF] font-medium hover:text-white hover:underline transition-all">Apply to CECP</a>
                     </p>
+                    {% endif %}
                 </div>
             </div>
         </div>
