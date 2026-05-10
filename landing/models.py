@@ -59,7 +59,7 @@ class ClubMember(models.Model):
         help_text="Unique member ID (e.g., CECP-2025-001)"
     )
     display_name = models.CharField(max_length=200, blank=True, help_text="Specific title/name shown on Team page")
-    profile_image = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    profile_image = models.ImageField(upload_to='avatars/', blank=True, null=True, max_length=500)
     bio = models.TextField(blank=True, help_text="Short bio or specialization")
     quote = models.CharField(max_length=255, blank=True, help_text="A personal quote or signature phrase.")
     phone = models.CharField(max_length=15, blank=True)
@@ -165,7 +165,7 @@ class Project(models.Model):
     spec = models.TextField(blank=True, help_text="Full technical specification (for AI categorization)")
 
     # --- Media ---
-    image = models.ImageField(upload_to='projects/', blank=True, null=True, help_text="Project thumbnail")
+    image = models.ImageField(upload_to='projects/', blank=True, null=True, help_text="Project thumbnail", max_length=500)
 
     # --- Classification ---
     category = models.ForeignKey(
@@ -219,7 +219,8 @@ class Project(models.Model):
         upload_to='projects/docs/',
         storage=RawMediaCloudinaryStorage(),
         blank=True, null=True,
-        help_text="Upload documentation file (PDF/DOC/PPT)"
+        help_text="Upload documentation file (PDF/DOC/PPT)",
+        max_length=500
     )
     video_url = models.URLField(blank=True, help_text="YouTube or demo video URL")
 
@@ -295,7 +296,8 @@ class ProjectAchievement(models.Model):
         upload_to='achievements/certificates/',
         storage=RawMediaCloudinaryStorage(),
         blank=True, null=True,
-        help_text="Upload certificate file (PDF/Image)"
+        help_text="Upload certificate file (PDF/Image)",
+        max_length=500
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -402,8 +404,8 @@ class ClubApplication(models.Model):
 
     # --- Section 1: Basic Identity ---
     full_name = models.CharField(max_length=200, help_text="Full name of the applicant")
-    profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo")
-    resume = models.FileField(upload_to='application_resumes/', storage=RawMediaCloudinaryStorage(), null=True, blank=False, help_text="Resume (PDF)")
+    profile_photo = models.ImageField(upload_to='application_photos/', null=True, blank=True, help_text="Professional profile photo", max_length=500)
+    resume = models.FileField(upload_to='application_resumes/', storage=RawMediaCloudinaryStorage(), null=True, blank=False, help_text="Resume (PDF)", max_length=500)
     email = models.EmailField(
         unique=True,
         db_index=True,
@@ -583,7 +585,7 @@ class UserProfile(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True, max_length=500)
     course = models.CharField(max_length=20, choices=COURSE_CHOICES, blank=True, null=True)
     branch = models.CharField(max_length=50, choices=BRANCH_CHOICES, blank=True, null=True, help_text="Only applicable for B.Tech")
     graduation_year = models.CharField(max_length=9, blank=True, null=True, help_text="e.g., 2025-2029")
@@ -646,7 +648,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
 class Blog(models.Model):
     title = models.CharField(max_length=200, help_text="Blog title")
     content = models.TextField(help_text="Blog content")
-    image = models.ImageField(upload_to="blogs/", blank=True, null=True, help_text="Cover image")
+    image = models.ImageField(upload_to="blogs/", blank=True, null=True, help_text="Cover image", max_length=500)
     category_tag = models.CharField(max_length=50, blank=True, help_text="e.g., AI & Vision")
     read_time = models.CharField(max_length=50, default="5 min read", blank=True)
     author = models.ForeignKey(
@@ -688,7 +690,7 @@ class Event(models.Model):
     description = models.TextField(help_text='Brief event description')
     date_range = models.CharField(max_length=100, help_text='e.g., 24-26 May 2025')
     location = models.CharField(max_length=200, help_text='e.g., CECP, Bhopal')
-    image = models.ImageField(upload_to='events/', blank=True, null=True, help_text='Event cover image')
+    image = models.ImageField(upload_to='events/', blank=True, null=True, help_text='Event cover image', max_length=500)
     is_featured = models.BooleanField(default=False)
     action_url = models.URLField(blank=True, help_text='Registration or View Details URL')
     action_text = models.CharField(max_length=50, default='Register Now', help_text='Text for the button (e.g., Register Now, View Details, View Highlights)')
