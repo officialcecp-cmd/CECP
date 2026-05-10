@@ -212,8 +212,8 @@ class ProjectSubmissionForm(forms.ModelForm):
         url = self.cleaned_data.get('documentation_url', '').strip()
         if not url:
             raise forms.ValidationError('Documentation/Paper/PPT link is required.')
-        if not (url.startswith('https://drive.google.com/') or url.startswith('http://drive.google.com/')):
-            raise forms.ValidationError('Only Google Drive links are allowed for Documentation.')
+        if not (url.startswith('https://drive.google.com/') or url.startswith('http://drive.google.com/') or 'cloudinary.com' in url):
+            raise forms.ValidationError('Please wait for the file to finish uploading or provide a valid Google Drive link.')
         return url
 
     def clean_tech_stack_input(self):

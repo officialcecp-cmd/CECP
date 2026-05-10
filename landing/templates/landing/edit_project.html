@@ -275,13 +275,33 @@
                             {% endif %}
                         </div>
 
-                        <!-- Docs / Paper / PPT (Mandatory, Google Drive link) -->
+                        <!-- Docs / Paper / PPT (Direct Cloudinary Upload) -->
                         <div>
                             <label class="block text-sm font-medium text-slate-300 mb-2">
                                 Docs / Paper / PPT <span class="text-red-400">*</span>
                             </label>
-                            {{ form.documentation_url }}
-                            <span class="block text-xs text-slate-500 mt-2 font-mono">Only Google Drive links accepted (https://drive.google.com/...)</span>
+                            
+                            <!-- Hidden input for the actual URL to submit to Django -->
+                            <input type="hidden" name="documentation_url" id="hidden_documentation_url" value="{{ form.documentation_url.value|default:'' }}">
+                            
+                            <input type="file" id="docs_upload_input" accept=".pdf,.doc,.docx,.ppt,.pptx" class="w-full text-sm text-slate-400 file:mr-4 file:py-2.5 file:px-5 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-slate-800 file:text-white hover:file:bg-slate-700 file:transition-colors file:cursor-pointer border border-slate-800 rounded-xl p-1.5 bg-slate-900/50">
+                            {% if form.documentation_url.value %}
+                            <span class="block text-xs text-emerald-400 mt-2 font-mono">✓ A file is currently uploaded. Select a new file to replace it.</span>
+                            {% else %}
+                            <span class="block text-xs text-slate-500 mt-2 font-mono">Upload PDF, DOC, DOCX, PPT, or PPTX. Large files supported!</span>
+                            {% endif %}
+                            
+                            <!-- Progress Bar -->
+                            <div id="upload_progress_container" class="hidden mt-3 p-3 bg-slate-900/80 rounded-xl border border-slate-800">
+                                <div class="flex justify-between text-xs font-mono text-cyan-400 mb-2">
+                                    <span id="upload_status_text">Uploading to Cloud...</span>
+                                    <span id="upload_progress_text">0%</span>
+                                </div>
+                                <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                                    <div id="upload_progress_bar" class="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-300" style="width: 0%"></div>
+                                </div>
+                            </div>
+
                             <span id="docs-error" class="hidden block text-xs text-red-400 mt-1 font-mono"></span>
                             {% if form.documentation_url.errors %}
                             <span class="block text-xs text-red-400 mt-1 font-mono">{{ form.documentation_url.errors.0 }}</span>
@@ -587,24 +607,17 @@
             }
         }
 
-        // Validate Documentation URL (mandatory, Google Drive)
-        const docsInput = document.querySelector('[name="documentation_url"]');
+        // Validate Documentation URL (Hidden field populated by JS upload)
+        const docsInput = document.getElementById('hidden_documentation_url');
         const docsError = document.getElementById('docs-error');
         if (docsInput) {
             const docsVal = docsInput.value.trim();
             if (!docsVal) {
-                docsError.textContent = '⚠ Documentation / Paper / PPT link is required.';
+                docsError.textContent = '⚠ Please upload your Documentation / Paper / PPT file first.';
                 docsError.classList.remove('hidden');
-                docsInput.style.borderColor = '#ef4444';
-                hasError = true;
-            } else if (!docsVal.startsWith('https://drive.google.com/') && !docsVal.startsWith('http://drive.google.com/')) {
-                docsError.textContent = '⚠ Only Google Drive links are allowed for Documentation.';
-                docsError.classList.remove('hidden');
-                docsInput.style.borderColor = '#ef4444';
                 hasError = true;
             } else {
                 docsError.classList.add('hidden');
-                docsInput.style.borderColor = '';
             }
         }
 
@@ -649,21 +662,89 @@
             }
         });
     }
-    const docsField = document.querySelector('[name="documentation_url"]');
-    if (docsField) {
-        docsField.addEventListener('blur', function() {
-            const val = this.value.trim();
-            const err = document.getElementById('docs-error');
-            if (val && !val.startsWith('https://drive.google.com/') && !val.startsWith('http://drive.google.com/')) {
-                err.textContent = '⚠ Only Google Drive links are allowed for Documentation.';
-                err.classList.remove('hidden');
-                this.style.borderColor = '#ef4444';
-            } else {
-                err.classList.add('hidden');
-                this.style.borderColor = '';
+
+    // Direct Cloudinary Upload Logic
+    const cloudName = "dxthallqr";
+    const uploadPreset = "cecp_unsigned"; // You must create this preset in Cloudinary!
+
+    document.getElementById('docs_upload_input')?.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        const allowedExts = ['.pdf', '.doc', '.docx', '.ppt', '.pptx'];
+        const fileName = file.name.toLowerCase();
+        const ext = fileName.substring(fileName.lastIndexOf('.'));
+        if (!allowedExts.includes(ext)) {
+            alert('Invalid file type. Allowed: PDF, DOC, DOCX, PPT, PPTX.');
+            e.target.value = '';
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`);
+
+        const progressContainer = document.getElementById('upload_progress_container');
+        const progressBar = document.getElementById('upload_progress_bar');
+        const progressText = document.getElementById('upload_progress_text');
+        const statusText = document.getElementById('upload_status_text');
+        const hiddenInput = document.getElementById('hidden_documentation_url');
+        const submitBtn = document.querySelector('.btn-submit');
+        const errorSpan = document.getElementById('docs-error');
+
+        xhr.upload.onprogress = function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = Math.round((event.loaded / event.total) * 100);
+                progressBar.style.width = percentComplete + '%';
+                progressText.innerText = percentComplete + '%';
             }
-        });
-    }
+        };
+
+        xhr.onloadstart = function() {
+            progressContainer.classList.remove('hidden');
+            errorSpan.classList.add('hidden');
+            statusText.innerText = 'Uploading to Cloud...';
+            progressBar.classList.remove('from-emerald-500', 'to-emerald-400', 'from-red-500', 'to-red-400');
+            progressBar.classList.add('from-cyan-500', 'to-blue-500');
+            submitBtn.disabled = true;
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        };
+
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                const response = JSON.parse(xhr.responseText);
+                hiddenInput.value = response.secure_url;
+                statusText.innerText = "Upload Complete!";
+                progressText.innerText = "100%";
+                progressBar.style.width = '100%';
+                progressBar.classList.replace('from-cyan-500', 'from-emerald-500');
+                progressBar.classList.replace('to-blue-500', 'to-emerald-400');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            } else {
+                alert('Upload failed: Please make sure you created the "cecp_unsigned" Upload Preset in Cloudinary.');
+                statusText.innerText = "Upload Failed";
+                progressBar.classList.replace('from-cyan-500', 'from-red-500');
+                progressBar.classList.replace('to-blue-500', 'to-red-400');
+                submitBtn.disabled = false;
+                submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                e.target.value = '';
+            }
+        };
+
+        xhr.onerror = function() {
+            alert('Upload failed due to network error.');
+            progressContainer.classList.add('hidden');
+            submitBtn.disabled = false;
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            e.target.value = '';
+        };
+
+        xhr.send(formData);
+    });
     </script>
 </body>
 </html>
