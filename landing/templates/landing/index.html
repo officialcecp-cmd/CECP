@@ -74,6 +74,9 @@
         <a href="#" class="nav-link text-xl" data-tab="projects" onclick="switchTab('projects')">Projects</a>
         <a href="#" class="nav-link text-xl" data-tab="team" onclick="switchTab('team')">Management</a>
         <a href="#" class="nav-link text-xl" data-tab="events" onclick="switchTab('events')">Events</a>
+        {% if is_faculty_application_open %}
+        <a href="{% url 'landing:apply_faculty' %}" class="nav-link text-xl text-cyan-400">Faculty Join</a>
+        {% endif %}
         <div class="flex flex-col gap-3 mt-6">
             {% if request.user.is_authenticated %}
                 <div class="flex flex-col items-center mb-2">
@@ -115,6 +118,9 @@
                     <a href="#" class="nav-link tab-link" data-tab="team" onclick="switchTab('team')">Management</a>
                     <a href="#" class="nav-link tab-link" data-tab="events"
                         onclick="switchTab('events')">Events</a>
+                    {% if is_faculty_application_open %}
+                    <a href="{% url 'landing:apply_faculty' %}" class="nav-link text-cyan-400 font-medium whitespace-nowrap">Faculty Join</a>
+                    {% endif %}
                 </nav>
 
                 <!-- Desktop CTA Buttons -->

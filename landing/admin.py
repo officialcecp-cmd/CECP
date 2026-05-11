@@ -5,7 +5,7 @@ from django.contrib import admin
 from .models import (
     Event, EventStat,
     Initiative, Project, ProjectAchievement,
-    ClubMember, ProjectCategory, Notification, ClubApplication, Blog,
+    ClubMember, FacultyProfile, ProjectCategory, Notification, ClubApplication, Blog,
     ProjectAccessRequest, SiteSettings
 )
 from .services import categorize_project_level
@@ -374,7 +374,7 @@ class ProjectAccessRequestAdmin(admin.ModelAdmin):
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'is_application_open')
+    list_display = ('__str__', 'is_application_open', 'is_faculty_application_open')
     
     def has_module_permission(self, request):
         return request.user.is_superuser
@@ -390,3 +390,11 @@ class SiteSettingsAdmin(admin.ModelAdmin):
         
     def has_delete_permission(self, request, obj=None):
         return False
+
+# --- Faculty Profile Admin ----------------------------------------------------
+
+@admin.register(FacultyProfile)
+class FacultyProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'experience_years', 'students_mentored', 'projects_guided')
+    search_fields = ('user__username', 'user__first_name', 'user__last_name', 'research_interests')
+    raw_id_fields = ('user',)

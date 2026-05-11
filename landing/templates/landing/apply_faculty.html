@@ -1,0 +1,137 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Portal | CECP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cecp-black': '#020617',
+                        'cecp-blue': '#06b6d4',
+                        'cecp-dark': '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/jpeg" href="{% static 'images/cecp-logo.jpg' %}">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+        .glass-card { background: rgba(15,23,42,0.7); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body class="bg-cecp-black text-slate-200">
+    <!-- NAV -->
+    <nav class="sticky top-0 z-50 bg-[#020617]/85 backdrop-blur-xl border-b border-cyan-500/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+            <a href="{% url 'landing:index' %}" class="text-xl font-black tracking-wider text-white">CECP</a>
+            <span class="text-sm text-slate-400 font-medium hidden sm:block">Faculty Portal</span>
+            <a href="{% url 'landing:index' %}" class="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">← Back to Home</a>
+        </div>
+    </nav>
+
+<div class="min-h-screen bg-cecp-black text-slate-200 font-sans pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto space-y-8">
+        
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4 tracking-tight">Faculty Portal</h1>
+            <p class="text-slate-400 text-lg">Join CECP as a Faculty Coordinator to guide innovators and shape future research.</p>
+        </div>
+
+        {% if not settings.is_faculty_application_open %}
+        <!-- CLOSED MESSAGE -->
+        <div class="glass-card p-10 text-center max-w-2xl mx-auto border-red-500/30">
+            <div class="w-20 h-20 bg-red-500/10 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-white mb-2">Faculty Portal is Currently Closed</h2>
+            <p class="text-slate-400 mb-6">We are not currently accepting applications for Faculty Coordinators. Please check back later or contact the administration directly.</p>
+            <a href="{% url 'landing:index' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-cecp-blue hover:bg-blue-600 text-white rounded-lg font-semibold transition-colors">
+                Return to Home
+            </a>
+        </div>
+        {% else %}
+        <!-- ONBOARDING FORM -->
+        <form method="POST" action="{% url 'landing:apply_faculty' %}" class="glass-card p-8 md:p-12 border-cyan-500/20">
+            {% csrf_token %}
+            
+            <!-- Section: Personal Info -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-cyan-400 mb-6 flex items-center gap-3 border-b border-slate-700/50 pb-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                    Personal Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">First Name *</label>
+                        <input type="text" name="first_name" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Last Name *</label>
+                        <input type="text" name="last_name" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Official Email *</label>
+                        <input type="email" name="email" required class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Phone Number</label>
+                        <input type="text" name="phone" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Academic Profile -->
+            <div class="mb-10">
+                <h3 class="text-xl font-bold text-cyan-400 mb-6 flex items-center gap-3 border-b border-slate-700/50 pb-3">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    Academic & Research Profile
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Research Interests</label>
+                        <input type="text" name="research_interests" placeholder="e.g., Embedded Systems, AI, VLSI (Comma-separated)" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Publications</label>
+                        <input type="text" name="publications" placeholder="e.g., IEEE Paper on Robotics, ACM Journal 2023 (Comma-separated)" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Awards</label>
+                        <input type="text" name="awards" placeholder="e.g., Best Researcher 2022, Innovation Award (Comma-separated)" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Years of Experience</label>
+                        <input type="number" name="experience_years" min="0" value="0" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">Google Scholar Profile Link</label>
+                        <input type="url" name="google_scholar_link" placeholder="https://scholar.google.com/citations?user=..." class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-300 mb-2">ORCID iD</label>
+                        <input type="text" name="orcid" placeholder="0000-0000-0000-0000" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg p-3 text-white focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none transition-colors">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <div class="pt-6 border-t border-slate-700/50 flex items-center justify-end">
+                <button type="submit" class="px-8 py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-xl font-bold text-lg shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all hover:scale-105 active:scale-95">
+                    Submit Application
+                </button>
+            </div>
+        </form>
+        {% endif %}
+
+    </div>
+</div>
+
+</body>
+</html>

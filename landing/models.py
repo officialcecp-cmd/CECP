@@ -106,6 +106,46 @@ class ClubMember(models.Model):
 
 
 # ==============================================================================
+# FACULTY PROFILE — Specialized academic fields
+# ==============================================================================
+
+class FacultyProfile(models.Model):
+    """
+    Extended details for Faculty Coordinators / HODs.
+    """
+    APPROVAL_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='faculty_details')
+    
+    # --- Academic Fields ---
+    research_interests = models.TextField(blank=True, help_text="Comma-separated areas of research")
+    core_expertise = models.TextField(blank=True, help_text="Comma-separated core technologies/expertise")
+    publications = models.TextField(blank=True, help_text="List of notable publications")
+    experience_timeline = models.TextField(blank=True, help_text="Timeline items separated by '|'")
+    google_scholar_link = models.URLField(blank=True)
+    orcid = models.CharField(max_length=50, blank=True, help_text="ORCID ID")
+    experience_years = models.IntegerField(default=0)
+    awards = models.TextField(blank=True, help_text="Notable awards and honors")
+    
+    # --- Numeric Counters ---
+    students_mentored = models.IntegerField(default=0)
+    projects_guided = models.IntegerField(default=0)
+    research_papers_count = models.IntegerField(default=0)
+    workshops_conducted = models.IntegerField(default=0)
+    grants_received = models.CharField(max_length=50, blank=True, help_text="e.g., '12L+'")
+
+    # --- Pipeline Logic ---
+    approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='PENDING')
+
+    def __str__(self):
+        return f"Faculty Profile: {self.user.get_full_name() or self.user.username}"
+
+
+# ==============================================================================
 # PROJECT CATEGORY — Dynamic taxonomy
 # ==============================================================================
 
@@ -777,6 +817,7 @@ class ProjectAccessRequest(models.Model):
 
 class SiteSettings(models.Model):
     is_application_open = models.BooleanField(default=False, verbose_name="Application Portal Open")
+    is_faculty_application_open = models.BooleanField(default=False, verbose_name="Faculty Recruitment Open")
     
     class Meta:
         verbose_name_plural = 'Site Settings'

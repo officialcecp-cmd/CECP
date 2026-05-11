@@ -1,0 +1,181 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Academic Dossier | CECP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'cecp-black': '#020617',
+                        'cecp-blue': '#06b6d4',
+                        'cecp-dark': '#0f172a'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #020617; }
+        .glass-card { background: rgba(15,23,42,0.7); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); }
+        .glass-input { background: rgba(15,23,42,0.5); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 0.75rem 1rem; color: white; width: 100%; transition: all 0.3s; }
+        .glass-input:focus { outline: none; border-color: #06b6d4; box-shadow: 0 0 0 2px rgba(6,182,212,0.2); }
+        label { display: block; font-size: 0.875rem; font-weight: 500; color: #94a3b8; margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body class="bg-cecp-black text-slate-200">
+    <!-- NAV -->
+    <nav class="sticky top-0 z-50 bg-[#020617]/85 backdrop-blur-xl border-b border-cyan-500/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+            <a href="{% url 'landing:index' %}" class="text-xl font-black tracking-wider text-white">CECP</a>
+            <span class="text-sm text-slate-400 font-medium">Edit Dossier</span>
+            <a href="{% url 'landing:member_detail' member.id %}" class="text-sm text-cyan-400 hover:text-cyan-300 transition-colors">← View Profile</a>
+        </div>
+    </nav>
+
+    <div class="min-h-screen pt-24 pb-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto">
+            <form method="POST" enctype="multipart/form-data" class="space-y-8">
+                {% csrf_token %}
+                
+                <!-- Section 1: Basic Info -->
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span class="p-2 bg-cyan-500/10 text-cyan-400 rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                        </span>
+                        General Information
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="md:col-span-2">
+                            <label>Display Name</label>
+                            {{ m_form.display_name }}
+                        </div>
+                        <div>
+                            <label>Phone Number</label>
+                            {{ m_form.phone }}
+                        </div>
+                        <div>
+                            <label>LinkedIn URL</label>
+                            {{ m_form.linkedin_url }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label>Personal Quote</label>
+                            {{ m_form.quote }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label>Bio / Specialization</label>
+                            {{ m_form.bio }}
+                        </div>
+                        <div class="md:col-span-2">
+                            <label>Profile Image</label>
+                            {{ m_form.profile_image }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Academic Metrics -->
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span class="p-2 bg-pink-500/10 text-pink-400 rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </span>
+                        Academic Metrics
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                        <div>
+                            <label>Students Mentored</label>
+                            {{ profile_form.students_mentored }}
+                        </div>
+                        <div>
+                            <label>Projects Guided</label>
+                            {{ profile_form.projects_guided }}
+                        </div>
+                        <div>
+                            <label>Research Papers</label>
+                            {{ profile_form.research_papers_count }}
+                        </div>
+                        <div>
+                            <label>Workshops Conducted</label>
+                            {{ profile_form.workshops_conducted }}
+                        </div>
+                        <div>
+                            <label>Grants Received (e.g. 15L+)</label>
+                            {{ profile_form.grants_received }}
+                        </div>
+                        <div>
+                            <label>Years of Experience</label>
+                            {{ profile_form.experience_years }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 3: Rich Details -->
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span class="p-2 bg-purple-500/10 text-purple-400 rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5s3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        </span>
+                        Academic Portfolio
+                    </h2>
+                    <div class="space-y-6">
+                        <div>
+                            <label>Research Interests (Comma separated)</label>
+                            {{ profile_form.research_interests }}
+                        </div>
+                        <div>
+                            <label>Core Expertise / Technologies (Comma separated)</label>
+                            {{ profile_form.core_expertise }}
+                        </div>
+                        <div>
+                            <label>Notable Publications (Comma or line separated)</label>
+                            {{ profile_form.publications }}
+                        </div>
+                        <div>
+                            <label>Awards & Honors (Comma separated)</label>
+                            {{ profile_form.awards }}
+                        </div>
+                        <div>
+                            <label>Experience Timeline (Separated by |)</label>
+                            {{ profile_form.experience_timeline }}
+                            <p class="mt-2 text-xs text-slate-500 italic">Format: 2020 - Present: Role at Institution | 2018 - 2020: Previous Role</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 4: External Links -->
+                <div class="glass-card p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                        <span class="p-2 bg-yellow-500/10 text-yellow-400 rounded-lg">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                        </span>
+                        Scholarly IDs
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label>Google Scholar Link</label>
+                            {{ profile_form.google_scholar_link }}
+                        </div>
+                        <div>
+                            <label>ORCID ID</label>
+                            {{ profile_form.orcid }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-end gap-4">
+                    <a href="{% url 'landing:member_detail' member.id %}" class="px-6 py-3 text-slate-400 hover:text-white transition-colors">Cancel</a>
+                    <button type="submit" class="px-8 py-3 bg-cecp-blue hover:bg-cyan-500 text-white rounded-xl font-bold transition-all shadow-lg shadow-cyan-500/20">
+                        Update Dossier
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

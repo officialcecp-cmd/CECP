@@ -5,7 +5,51 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate
 from django.contrib.auth.models import User
-from .models import Project, ProjectCategory, ClubApplication
+from .models import Project, ProjectCategory, ClubApplication, FacultyProfile, ClubMember
+
+
+# ==============================================================================
+# FACULTY PROFILE FORM
+# ==============================================================================
+
+class FacultyProfileForm(forms.ModelForm):
+    class Meta:
+        model = FacultyProfile
+        fields = [
+            'research_interests', 'core_expertise', 'publications', 
+            'experience_timeline', 'google_scholar_link', 'orcid', 
+            'experience_years', 'awards', 'students_mentored', 
+            'projects_guided', 'research_papers_count', 
+            'workshops_conducted', 'grants_received'
+        ]
+        widgets = {
+            'research_interests': forms.Textarea(attrs={'rows': 2, 'class': 'glass-input', 'placeholder': 'e.g. Embedded Systems, IoT, ML...'}),
+            'core_expertise': forms.Textarea(attrs={'rows': 2, 'class': 'glass-input', 'placeholder': 'e.g. Python, C++, RTOS...'}),
+            'publications': forms.Textarea(attrs={'rows': 3, 'class': 'glass-input', 'placeholder': 'e.g. Title | Journal | Year...'}),
+            'experience_timeline': forms.Textarea(attrs={'rows': 3, 'class': 'glass-input', 'placeholder': 'e.g. Year - Role - Institution | ...'}),
+            'awards': forms.Textarea(attrs={'rows': 2, 'class': 'glass-input', 'placeholder': 'e.g. Best Faculty 2023, ...'}),
+            'google_scholar_link': forms.URLInput(attrs={'class': 'glass-input'}),
+            'orcid': forms.TextInput(attrs={'class': 'glass-input'}),
+            'experience_years': forms.NumberInput(attrs={'class': 'glass-input'}),
+            'students_mentored': forms.NumberInput(attrs={'class': 'glass-input'}),
+            'projects_guided': forms.NumberInput(attrs={'class': 'glass-input'}),
+            'research_papers_count': forms.NumberInput(attrs={'class': 'glass-input'}),
+            'workshops_conducted': forms.NumberInput(attrs={'class': 'glass-input'}),
+            'grants_received': forms.TextInput(attrs={'class': 'glass-input', 'placeholder': 'e.g. 15L+'}),
+        }
+
+class ClubMemberFacultyForm(forms.ModelForm):
+    class Meta:
+        model = ClubMember
+        fields = ['display_name', 'profile_image', 'bio', 'quote', 'phone', 'linkedin_url']
+        widgets = {
+            'display_name': forms.TextInput(attrs={'class': 'glass-input'}),
+            'bio': forms.Textarea(attrs={'rows': 2, 'class': 'glass-input'}),
+            'quote': forms.TextInput(attrs={'class': 'glass-input'}),
+            'phone': forms.TextInput(attrs={'class': 'glass-input'}),
+            'linkedin_url': forms.URLInput(attrs={'class': 'glass-input'}),
+            'profile_image': forms.FileInput(attrs={'class': 'glass-input file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20'}),
+        }
 
 
 # ==============================================================================

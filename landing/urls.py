@@ -79,6 +79,7 @@ urlpatterns = [
 
     # Club Application
     path('apply/', views.apply_view, name='apply'),
+    path('apply/faculty/', views.apply_faculty_view, name='apply_faculty'),
     path('apply/success/', views.apply_success_view, name='apply_success'),
     path('apply/delete/', views.delete_application, name='delete_application'),
     path('download-resume/<int:application_id>/', views.download_resume, name='download_resume'),
@@ -88,4 +89,9 @@ urlpatterns = [
     path('access-requests/', views.manage_access_requests, name='manage_access_requests'),
     path('access-requests/<int:request_id>/approve/', views.approve_access_request, name='approve_access_request'),
     path('access-requests/<int:request_id>/reject/', views.reject_access_request, name='reject_access_request'),
+
+    # Faculty Portal Management
+    path('profile/faculty/edit/', views.edit_faculty_profile_view, name='edit_faculty_profile'),
+    path('faculty/applications/', views.faculty_applications_list, name='faculty_applications_list'),
+    path('faculty/applications/<int:profile_id>/approve/', views.approve_faculty_application, name='approve_faculty_application'),
 ]

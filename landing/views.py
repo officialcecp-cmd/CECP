@@ -64,7 +64,17 @@ def index(request):
     approved_apps = ClubApplication.objects.filter(status='approved')
     approved_users = approved_apps.exclude(user__isnull=True).values('user')
     approved_emails = approved_apps.values('email')
-    valid_member_filter = Q(user__in=approved_users) | Q(user__email__in=approved_emails) | Q(category__in=['advisor', 'head'])
+    
+    # Faculty must be APPROVED in FacultyProfile
+    from .models import FacultyProfile
+    approved_faculty_users = FacultyProfile.objects.filter(approval_status='APPROVED').values('user')
+    
+    valid_member_filter = (
+        Q(user__in=approved_users) | 
+        Q(user__email__in=approved_emails) | 
+        Q(user__in=approved_faculty_users) | 
+        Q(category='head')
+    )
 
     stats = {
         'total_projects': Project.objects.filter(approval_status='approved').count(),
@@ -121,6 +131,7 @@ def index(request):
         'blogs': approved_blogs,
         'can_write_blog': can_write_blog,
         'is_application_open': is_application_open,
+        'is_faculty_application_open': settings_obj.is_faculty_application_open if settings_obj else False,
         'page_title': 'CECP — Centre for Electronics & Coding Projects',
     }
     return render(request, 'landing/index.html', context)
@@ -206,6 +217,7 @@ def auth_portal(request):
     return render(request, 'landing/auth_portal.html', {
         'login_form': form,
         'is_application_open': is_application_open,
+        'is_faculty_application_open': settings_obj.is_faculty_application_open if settings_obj else False,
         'page_title': 'Login — CECP Access Portal',
     })
 
@@ -266,6 +278,23 @@ def member_detail(request, member_id):
         application = ClubApplication.objects.filter(user=member.user).first()
         if not application and member.user.email:
             application = ClubApplication.objects.filter(Q(email__iexact=member.user.email) | Q(personal_email__iexact=member.user.email)).first()
+
+    if member.is_faculty:
+        faculty_profile = getattr(member.user, 'faculty_details', None)
+        # Visibility Rule: Only APPROVED faculty profiles are public. 
+        # Owners and Staff can see PENDING/REJECTED.
+        is_privileged = request.user.is_authenticated and (request.user.is_superuser or request.user.is_staff or request.user == member.user)
+        
+        if faculty_profile and faculty_profile.approval_status != 'APPROVED' and not is_privileged:
+            messages.error(request, "This academic profile is currently under review.")
+            return redirect('landing:index')
+
+        return render(request, 'landing/faculty_detail.html', {
+            'member': member,
+            'faculty_profile': faculty_profile,
+            'projects': projects,
+            'page_title': f"{member.get_display_name} — Academic Profile",
+        })
 
     return render(request, 'landing/member_detail.html', {
         'member': member,
@@ -879,6 +908,7 @@ def apply_view(request):
         'has_applied': has_applied,
         'application_status': application_status,
         'is_application_open': is_application_open,
+        'is_faculty_application_open': settings_obj.is_faculty_application_open if settings_obj else False,
         'page_title': 'Apply to Join CECP Club',
     })
 
@@ -1507,6 +1537,7 @@ def approve_access_request(request, request_id):
     access_req = get_object_or_404(ProjectAccessRequest, id=request_id)
     project = access_req.project
 
+
     # Verify the current user is the project owner
     try:
         member = request.user.club_profile
@@ -1553,3 +1584,140 @@ def reject_access_request(request, request_id):
 
     messages.success(request, f'Access denied for {access_req.requester.get_full_name() or access_req.requester.username}.')
     return redirect('landing:manage_access_requests')
+
+# ==============================================================================
+# FACULTY RECRUITMENT PORTAL
+# ==============================================================================
+def apply_faculty_view(request):
+    from .models import SiteSettings, FacultyProfile, ClubMember
+    from django.contrib.auth.models import User
+    
+    settings = SiteSettings.objects.first()
+    
+    if request.method == 'POST' and settings and settings.is_faculty_application_open:
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        email = request.POST.get('email', '')
+        phone = request.POST.get('phone', '')
+        research_interests = request.POST.get('research_interests', '')
+        experience_years = request.POST.get('experience_years', '0')
+        publications = request.POST.get('publications', '')
+        awards = request.POST.get('awards', '')
+        google_scholar_link = request.POST.get('google_scholar_link', '')
+        orcid = request.POST.get('orcid', '')
+        
+        # generate username
+        base_username = email.split('@')[0] if '@' in email else email
+        username = base_username
+        counter = 1
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+            
+        # Create user
+        user = User.objects.create(
+            username=username,
+            first_name=first_name,
+            last_name=last_name,
+            email=email,
+            is_active=False # Pending review
+        )
+        
+        # Update the auto-created ClubMember (from signals.py)
+        member = ClubMember.objects.get(user=user)
+        member.role = 'faculty'
+        member.category = 'advisor'
+        member.display_name = f"{first_name} {last_name}".strip()
+        member.display_role = "Faculty Coordinator"
+        member.phone = phone
+        member.is_active = False
+        member.save()
+        
+        # Create FacultyProfile with PENDING status
+        try:
+            exp_years = int(experience_years)
+        except ValueError:
+            exp_years = 0
+            
+        FacultyProfile.objects.create(
+            user=user,
+            research_interests=research_interests,
+            experience_years=exp_years,
+            google_scholar_link=google_scholar_link,
+            publications=publications,
+            awards=awards,
+            orcid=orcid,
+            approval_status='PENDING'
+        )
+        
+        messages.success(request, "Faculty application submitted! Our team will review your academic credentials soon.")
+        return redirect('landing:index')
+        
+    return render(request, 'landing/apply_faculty.html', {'settings': settings})
+
+# --- Faculty Dossier Editor ---
+@login_required
+def edit_faculty_profile_view(request):
+    from .models import ClubMember, FacultyProfile
+    from .forms import FacultyProfileForm, ClubMemberFacultyForm
+    
+    try:
+        member = request.user.club_profile
+    except ClubMember.DoesNotExist:
+        messages.error(request, "Profile not found.")
+        return redirect('landing:index')
+
+    if not member.is_faculty:
+        messages.error(request, "Access denied.")
+        return redirect('landing:index')
+
+    profile, created = FacultyProfile.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        m_form = ClubMemberFacultyForm(request.POST, request.FILES, instance=member)
+        p_form = FacultyProfileForm(request.POST, instance=profile)
+        if m_form.is_valid() and p_form.is_valid():
+            m_form.save()
+            p_form.save()
+            messages.success(request, "Academic dossier updated successfully!")
+            return redirect('landing:member_detail', member_id=member.id)
+    else:
+        m_form = ClubMemberFacultyForm(instance=member)
+        p_form = FacultyProfileForm(instance=profile)
+
+    return render(request, 'landing/edit_faculty_profile.html', {
+        'm_form': m_form,
+        'p_form': p_form,
+        'member': member
+    })
+
+# --- Superuser Approval Pipeline ---
+from django.contrib.auth.decorators import user_passes_test
+
+@user_passes_test(lambda u: u.is_superuser)
+def faculty_applications_list(request):
+    from .models import FacultyProfile
+    pending_apps = FacultyProfile.objects.filter(approval_status='PENDING').select_related('user', 'user__club_profile')
+    return render(request, 'landing/faculty_applications_list.html', {'pending_apps': pending_apps})
+
+@user_passes_test(lambda u: u.is_superuser)
+def approve_faculty_application(request, profile_id):
+    from .models import FacultyProfile
+    profile = get_object_or_404(FacultyProfile, id=profile_id)
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            profile.approval_status = 'APPROVED'
+            profile.save()
+            # Activate everything
+            profile.user.is_active = True
+            profile.user.save()
+            member = profile.user.club_profile
+            member.is_active = True
+            member.save()
+            messages.success(request, f"Approved {profile.user.get_full_name()}. Profile is now live!")
+        elif action == 'reject':
+            profile.approval_status = 'REJECTED'
+            profile.save()
+            messages.warning(request, f"Rejected application from {profile.user.get_full_name()}.")
+    return redirect('landing:faculty_applications_list')
