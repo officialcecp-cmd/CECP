@@ -161,7 +161,7 @@
                 </div>
                 <div>
                     <div class="text-2xl font-bold text-white font-mono">
-                        {% if faculty_profile.awards %}{{ faculty_profile.awards|split:","|length }}{% else %}0{% endif %}
+                        {{ faculty_profile.awards_count|default:"0" }}
                     </div>
                     <div class="text-xs text-slate-400 uppercase tracking-wider mt-0.5">Awards & Honors</div>
                 </div>
@@ -246,8 +246,23 @@
                 </div>
             </div>
 
-            <!-- MIDDLE COLUMN (Projects, Achievements) -->
+            <!-- Achievements (Center Column) -->
             <div class="lg:col-span-6 space-y-6">
+                {% if faculty_profile.achievements %}
+                <div class="glass-card">
+                    <h3 class="text-sm font-bold text-slate-300 uppercase tracking-widest mb-6 flex items-center gap-2">
+                        <svg class="w-4 h-4 text-pink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                        Professional Achievements
+                    </h3>
+                    <div class="space-y-4">
+                        {% for achievement in faculty_profile.achievements|split:"," %}
+                        <div class="p-4 bg-slate-800/20 border border-slate-700/30 rounded-xl hover:border-pink-500/20 transition-all group">
+                            <p class="text-sm text-slate-300 group-hover:text-white transition-colors">{{ achievement|trim }}</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
                 <!-- Projects -->
                 <div class="glass-card p-6">
                     <div class="flex items-center justify-between mb-6">

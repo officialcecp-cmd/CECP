@@ -92,8 +92,8 @@ class ClubMember(models.Model):
 
     @property
     def can_approve_projects(self):
-        """Club Head and HOD can approve projects."""
-        return self.role in ('club_head', 'hod')
+        """Club Head, HOD, and Faculty Coordinators can approve projects."""
+        return self.role in ('club_head', 'hod', 'faculty')
 
     @property
     def get_display_name(self):
@@ -130,19 +130,62 @@ class FacultyProfile(models.Model):
     orcid = models.CharField(max_length=50, blank=True, help_text="ORCID ID")
     experience_years = models.IntegerField(default=0)
     awards = models.TextField(blank=True, help_text="Notable awards and honors")
+    achievements = models.TextField(blank=True, help_text="List of notable professional achievements")
     
     # --- Numeric Counters ---
     students_mentored = models.IntegerField(default=0)
     projects_guided = models.IntegerField(default=0)
     research_papers_count = models.IntegerField(default=0)
     workshops_conducted = models.IntegerField(default=0)
+    awards_count = models.IntegerField(default=0, help_text="Number of awards received")
     grants_received = models.CharField(max_length=50, blank=True, help_text="e.g., '12L+'")
 
     # --- Pipeline Logic ---
+    department = models.CharField(max_length=100, blank=True, help_text="Department (e.g. CSE, ECE, ME)")
     approval_status = models.CharField(max_length=20, choices=APPROVAL_CHOICES, default='PENDING')
 
+    def save(self, *args, **kwargs):
+        # Detect if we are transitioning to APPROVED
+        is_new = self.pk is None
+        old_status = None
+        if not is_new:
+            try:
+                old_status = FacultyProfile.objects.get(pk=self.pk).approval_status
+            except FacultyProfile.DoesNotExist:
+                pass
+
+        super().save(*args, **kwargs)
+
+        # Trigger sync on approval transition
+        if self.approval_status == 'APPROVED' and old_status != 'APPROVED':
+            user = self.user
+            user.is_active = True
+            user.is_staff = True  # Required for faculty dashboard/access
+            user.save()
+            
+            # Sync ClubMember profile — ONLY update role flags, never profile_image
+            try:
+                member = user.club_profile
+                update_fields = []
+                if not member.is_active:
+                    member.is_active = True
+                    update_fields.append('is_active')
+                if member.role != 'faculty':
+                    member.role = 'faculty'
+                    update_fields.append('role')
+                if member.category != 'advisor':
+                    member.category = 'advisor'
+                    update_fields.append('category')
+                if not member.display_role:
+                    member.display_role = "Faculty Coordinator"
+                    update_fields.append('display_role')
+                if update_fields:
+                    member.save(update_fields=update_fields)
+            except Exception:
+                pass
+
     def __str__(self):
-        return f"Faculty Profile: {self.user.get_full_name() or self.user.username}"
+        return f"Faculty Profile: {self.user.get_full_name() or self.user.username} ({self.approval_status})"
 
 
 # ==============================================================================

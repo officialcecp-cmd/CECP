@@ -1395,20 +1395,20 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
-                                {% if member.user.profile.quote %}
-                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
+                                {% if member.quote or member.user.profile.quote %}
+                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.quote|default:member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% endif %}
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
-                                    {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    {% if member.github_url or member.user.profile.github_profile %}
+                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
-                                    {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    {% if member.linkedin_url or member.user.profile.linkedin_profile %}
+                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
@@ -1445,13 +1445,13 @@
                                 {% if member.quote %}<p class="text-emerald-400/90 italic text-[13px] mb-3">"{{ member.quote }}"</p>{% endif %}
                                 {% if member.bio %}<p class="text-slate-400 italic text-[13px] mb-5 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-5 mt-auto">
-                                    {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    {% if member.github_url or member.user.profile.github_profile %}
+                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
-                                    {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    {% if member.linkedin_url or member.user.profile.linkedin_profile %}
+                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
@@ -1482,20 +1482,20 @@
                                     {% endif %}
                                 </div>
                                 <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
-                                {% if member.user.profile.quote %}
-                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
+                                {% if member.quote or member.user.profile.quote %}
+                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.quote|default:member.user.profile.quote }}&rdquo;</p>
                                 {% else %}
                                 <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
                                 {% endif %}
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
-                                    {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    {% if member.github_url or member.user.profile.github_profile %}
+                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
-                                    {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    {% if member.linkedin_url or member.user.profile.linkedin_profile %}
+                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
@@ -1532,13 +1532,13 @@
                                 {% endif %}
                                 {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
                                 <div class="flex items-center justify-center gap-4 mt-auto">
-                                    {% if member.user.profile.github_profile or member.github_url %}
-                                    <a href="{{ member.user.profile.github_profile|default:member.github_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
+                                    {% if member.github_url or member.user.profile.github_profile %}
+                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
-                                    {% if member.user.profile.linkedin_profile or member.linkedin_url %}
-                                    <a href="{{ member.user.profile.linkedin_profile|default:member.linkedin_url }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
+                                    {% if member.linkedin_url or member.user.profile.linkedin_profile %}
+                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}

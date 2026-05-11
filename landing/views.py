@@ -73,7 +73,7 @@ def index(request):
         Q(user__in=approved_users) | 
         Q(user__email__in=approved_emails) | 
         Q(user__in=approved_faculty_users) | 
-        Q(category='head')
+        Q(category__in=['advisor', 'head'])
     )
 
     stats = {
@@ -978,8 +978,25 @@ def _notify_club_heads_application(application):
 
 @login_required(login_url='/login/')
 def profile_view(request):
-    from landing.models import UserProfile, ClubApplication
+    from landing.models import UserProfile, ClubApplication, ClubMember
     from landing.github_fetcher import sync_github_data
+    
+    # ── Faculty Guard: redirect to specialized Academic Dashboard ──
+    try:
+        member = request.user.club_profile
+        if member.role in ('faculty', 'hod') or member.category == 'advisor':
+            return redirect('landing:member_detail', member_id=member.id)
+    except Exception:
+        # Also catch by FacultyProfile approval as fallback
+        try:
+            from landing.models import FacultyProfile
+            fp = FacultyProfile.objects.get(user=request.user, approval_status='APPROVED')
+            # Create/get their member record and redirect
+            member = request.user.club_profile
+            return redirect('landing:member_detail', member_id=member.id)
+        except Exception:
+            pass
+
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
     # Auto-populate if freshly created
@@ -1052,11 +1069,24 @@ def github_sync_view(request):
 
 @login_required(login_url='/login/')
 def edit_profile_view(request):
-    from landing.models import UserProfile, ClubApplication
+    from landing.models import UserProfile, ClubApplication, ClubMember
     from landing.forms import UserProfileForm
     from django.shortcuts import redirect
     from django.contrib import messages
     
+    # ── Faculty Guard: redirect to Academic Dossier Editor ──
+    try:
+        member = request.user.club_profile
+        if member.role in ('faculty', 'hod') or member.category == 'advisor':
+            return redirect('landing:edit_faculty_profile')
+    except Exception:
+        try:
+            from landing.models import FacultyProfile
+            FacultyProfile.objects.get(user=request.user, approval_status='APPROVED')
+            return redirect('landing:edit_faculty_profile')
+        except Exception:
+            pass
+
     profile, created = UserProfile.objects.get_or_create(user=request.user)
     
     # Auto-populate if freshly created
@@ -1140,6 +1170,10 @@ def team_view(request):
     approved_apps = ClubApplication.objects.filter(status='approved')
     approved_users = approved_apps.exclude(user__isnull=True).values('user')
     approved_emails = approved_apps.values('email')
+    
+    # Faculty must be APPROVED in FacultyProfile
+    from .models import FacultyProfile
+    approved_faculty_users = FacultyProfile.objects.filter(approval_status='APPROVED').values('user')
 
     # ==================================================================
     # Single queryset — filtered into 4 context buckets.
@@ -1151,6 +1185,7 @@ def team_view(request):
         .filter(
             Q(user__in=approved_users) | 
             Q(user__email__in=approved_emails) |
+            Q(user__in=approved_faculty_users) |
             Q(category__in=['advisor', 'head'])
         )
         .select_related('user', 'user__profile')
@@ -1599,6 +1634,7 @@ def apply_faculty_view(request):
         last_name = request.POST.get('last_name', '')
         email = request.POST.get('email', '')
         phone = request.POST.get('phone', '')
+        department = request.POST.get('department', '')
         research_interests = request.POST.get('research_interests', '')
         experience_years = request.POST.get('experience_years', '0')
         publications = request.POST.get('publications', '')
@@ -1641,6 +1677,7 @@ def apply_faculty_view(request):
             
         FacultyProfile.objects.create(
             user=user,
+            department=department,
             research_interests=research_interests,
             experience_years=exp_years,
             google_scholar_link=google_scholar_link,
@@ -1672,22 +1709,34 @@ def edit_faculty_profile_view(request):
         return redirect('landing:index')
 
     profile, created = FacultyProfile.objects.get_or_create(user=request.user)
-
+    
     if request.method == 'POST':
         m_form = ClubMemberFacultyForm(request.POST, request.FILES, instance=member)
-        p_form = FacultyProfileForm(request.POST, instance=profile)
-        if m_form.is_valid() and p_form.is_valid():
-            m_form.save()
-            p_form.save()
-            messages.success(request, "Academic dossier updated successfully!")
+        profile_form = FacultyProfileForm(request.POST, instance=profile)
+        if m_form.is_valid() and profile_form.is_valid():
+            saved_member = m_form.save(commit=False)
+            # Handle designation override (not a model field, mapped to display_role)
+            display_role_override = request.POST.get('display_role_override', '').strip()
+            if display_role_override:
+                saved_member.display_role = display_role_override
+            saved_member.save()
+            
+            # Save faculty profile, explicitly avoid overwriting approval_status
+            saved_profile = profile_form.save(commit=False)
+            saved_profile.approval_status = profile.approval_status  # Preserve original status
+            saved_profile.save()
+            
+            messages.success(request, "✓ Academic dossier updated successfully!")
             return redirect('landing:member_detail', member_id=member.id)
+        else:
+            messages.error(request, "Please fix the errors below and try again.")
     else:
         m_form = ClubMemberFacultyForm(instance=member)
-        p_form = FacultyProfileForm(instance=profile)
+        profile_form = FacultyProfileForm(instance=profile)
 
     return render(request, 'landing/edit_faculty_profile.html', {
         'm_form': m_form,
-        'p_form': p_form,
+        'profile_form': profile_form,
         'member': member
     })
 
@@ -1709,13 +1758,21 @@ def approve_faculty_application(request, profile_id):
         if action == 'approve':
             profile.approval_status = 'APPROVED'
             profile.save()
-            # Activate everything
-            profile.user.is_active = True
-            profile.user.save()
-            member = profile.user.club_profile
+            
+            # Activate and Promote User
+            user = profile.user
+            user.is_active = True
+            user.is_staff = True  # Enable access to moderator features
+            user.save()
+            
+            # Synchronize ClubMember profile
+            member = user.club_profile
             member.is_active = True
+            member.role = 'faculty'
+            member.category = 'advisor'
             member.save()
-            messages.success(request, f"Approved {profile.user.get_full_name()}. Profile is now live!")
+            
+            messages.success(request, f"Approved {user.get_full_name()}. Profile is now live and permissions are synced!")
         elif action == 'reject':
             profile.approval_status = 'REJECTED'
             profile.save()
