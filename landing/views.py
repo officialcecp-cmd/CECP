@@ -271,7 +271,7 @@ def member_logout(request):
 def member_detail(request, member_id):
     member = get_object_or_404(ClubMember, id=member_id)
     # Fetch member projects
-    projects = Project.objects.filter(Q(submitted_by=member) | Q(team_members=member), approval_status='approved').distinct().select_related('category').prefetch_related('achievements').order_by('-created_at')
+    projects = Project.objects.filter(Q(submitted_by=member) | Q(team_members=member), approval_status='approved').distinct().select_related('category').prefetch_related('achievements').order_by('display_order', '-created_at')
     
     application = None
     if member.user:
@@ -401,7 +401,7 @@ def member_dashboard(request):
     if member:
         my_projects = Project.objects.filter(
             Q(submitted_by=member) | Q(team_members=member)
-        ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('-created_at')
+        ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('display_order', '-created_at')
         notifications = Notification.objects.filter(recipient=member, is_read=False)[:10]
         pending_count = Project.objects.filter(approval_status='pending').count() if member.can_approve_projects else 0
     else:
@@ -435,7 +435,7 @@ def dashboard(request):
 
     my_projects = Project.objects.filter(
         Q(submitted_by=member) | Q(team_members=member)
-    ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('-created_at')
+    ).distinct().select_related('category', 'project_lead', 'project_lead__user').prefetch_related('achievements').order_by('display_order', '-created_at')
     notifications = Notification.objects.filter(recipient=member, is_read=False)[:10]
     pending_count = Project.objects.filter(approval_status='pending').count() if member.can_approve_projects else 0
 

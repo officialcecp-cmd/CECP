@@ -86,9 +86,9 @@ class ProjectAchievementInline(admin.TabularInline):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('title', 'level', 'category', 'approval_status', 'status', 'submitted_by', 'project_lead', 'is_featured', 'year')
+    list_display = ('title', 'level', 'category', 'approval_status', 'status', 'submitted_by', 'project_lead', 'display_order', 'is_featured', 'year')
     list_select_related = ('submitted_by', 'submitted_by__user', 'category', 'approved_by', 'approved_by__user', 'project_lead', 'project_lead__user')
-    list_editable = ('approval_status', 'is_featured')
+    list_editable = ('approval_status', 'display_order', 'is_featured')
     list_filter = ('approval_status', 'status', 'level', 'category', 'is_featured', 'year')
     search_fields = ('title', 'codename', 'description', 'spec')
     readonly_fields = ('level', 'created_at', 'updated_at')

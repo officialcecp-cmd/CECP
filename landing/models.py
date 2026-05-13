@@ -317,7 +317,7 @@ class Project(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['display_order', '-created_at']
 
     def __str__(self):
         return f"{self.title} ({self.get_approval_status_display()})"
