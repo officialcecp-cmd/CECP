@@ -1131,16 +1131,26 @@ def edit_profile_view(request):
         if form.is_valid():
             saved_profile = form.save()
 
-            # --- Sync profile_picture → ClubMember.profile_image ---
-            # So that the public Team/Management cards always show the correct image.
-            if saved_profile.profile_picture:
-                try:
-                    club_member = request.user.club_profile  # OneToOne related_name
-                    if club_member.profile_image.name != saved_profile.profile_picture.name:
-                        club_member.profile_image = saved_profile.profile_picture
-                        club_member.save(update_fields=['profile_image'])
-                except Exception:
-                    pass  # User may not have a ClubMember record yet
+            # --- Sync profile_picture & quote → ClubMember ---
+            # So that the public Team/Management cards always show the correct image and quote.
+            try:
+                club_member = request.user.club_profile  # OneToOne related_name
+                update_fields = []
+                
+                # Sync Image
+                if saved_profile.profile_picture and club_member.profile_image.name != saved_profile.profile_picture.name:
+                    club_member.profile_image = saved_profile.profile_picture
+                    update_fields.append('profile_image')
+                
+                # Sync Quote
+                if saved_profile.quote != club_member.quote:
+                    club_member.quote = saved_profile.quote
+                    update_fields.append('quote')
+                
+                if update_fields:
+                    club_member.save(update_fields=update_fields)
+            except Exception:
+                pass  # User may not have a ClubMember record yet
 
             messages.success(request, "Your profile has been updated successfully.")
             return redirect('landing:profile')

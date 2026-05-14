@@ -681,7 +681,7 @@ class UserProfile(models.Model):
     linkedin_profile = models.URLField(max_length=200, blank=True, null=True)
     leetcode_profile = models.URLField(max_length=200, blank=True, null=True)
     quote = models.CharField(
-        max_length=100, blank=True, null=True,
+        max_length=255, blank=True, null=True,
         help_text='Your personal quote'
     )
 

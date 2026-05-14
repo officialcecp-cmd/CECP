@@ -112,7 +112,9 @@
                     <!-- Role -->
                     <p class="text-sm font-semibold text-purple-400 mt-1">{{ member.team_role_label }}</p>
                     <!-- Quote -->
-                    {% if member.quote %}<p class="text-xs text-emerald-400/90 italic mt-1.5">"{{ member.quote }}"</p>{% endif %}
+                    {% with q=member.quote|default:member.user.profile.quote %}
+                    {% if q %}<p class="text-xs text-emerald-400/90 italic mt-1.5">"{{ q }}"</p>{% endif %}
+                    {% endwith %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -167,7 +169,9 @@
                     <!-- Role -->
                     <p class="text-base font-semibold text-cyan-400 mt-1 relative z-10">{{ member.team_role_label }}</p>
                     <!-- Quote -->
-                    {% if member.quote %}<p class="text-sm text-emerald-400/90 italic mt-2 relative z-10">"{{ member.quote }}"</p>{% endif %}
+                    {% with q=member.quote|default:member.user.profile.quote %}
+                    {% if q %}<p class="text-sm text-emerald-400/90 italic mt-2 relative z-10">"{{ q }}"</p>{% endif %}
+                    {% endwith %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-sm text-slate-400 mt-3 relative z-10 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -214,12 +218,13 @@
                     </div>
                     <!-- Name -->
                     <h3 class="text-lg font-bold text-white">{{ member.get_display_name }}</h3>
-                    <!-- Role or Quote -->
-                    {% if member.quote or member.user.profile.quote %}
-                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.quote|default:member.user.profile.quote }}&rdquo;</p>
-                                {% else %}
-                                <p class="text-cyan-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
-                                {% endif %}
+                    <!-- Role & Quote -->
+                    <p class="text-cyan-400 font-medium text-[13px] mb-1 tracking-wide truncate w-full">{{ member.team_role_label }}</p>
+                    {% with q=member.quote|default:member.user.profile.quote %}
+                    {% if q %}
+                        <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ q }}&rdquo;</p>
+                    {% endif %}
+                    {% endwith %}
                     <!-- Bio -->
                     {% if member.bio %}<p class="text-xs text-slate-500 mt-2 line-clamp-2">{{ member.bio }}</p>{% endif %}
                     <!-- Socials -->
@@ -269,7 +274,9 @@
                     <!-- Role -->
                     <p class="text-[10px] font-semibold text-slate-400 mt-1 uppercase tracking-wider truncate">{{ member.team_role_label }}</p>
                     <!-- Quote -->
-                    {% if member.quote %}<p class="text-[10px] text-emerald-400/90 italic mt-1 truncate">"{{ member.quote }}"</p>{% endif %}
+                    {% with q=member.quote|default:member.user.profile.quote %}
+                    {% if q %}<p class="text-[10px] text-emerald-400/90 italic mt-1 truncate">"{{ q }}"</p>{% endif %}
+                    {% endwith %}
                     <!-- Socials -->
                     <div class="mt-2 flex justify-center gap-2">
                         {% if member.github_url or member.user.profile.github_profile %}
