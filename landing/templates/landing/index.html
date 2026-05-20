@@ -1507,39 +1507,57 @@
                     </div>
 
                     <!-- ── SECTION 4: CLUB MEMBERS (category='member' only) ── -->
-                    <div class="animate-on-scroll">
+                    <div>
                         <div class="text-center mb-12">
-                            <h3 class="text-2xl font-bold text-white tracking-widest uppercase">Club Members</h3>
+                            <h3 style="font-size:1.5rem; font-weight:700; color:#ffffff; letter-spacing:0.1em; text-transform:uppercase;">Club Members</h3>
                         </div>
-                        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <style>
+                            .cm-grid{display:grid;grid-template-columns:repeat(1,1fr);gap:1.5rem;}
+                            @media(min-width:640px){.cm-grid{grid-template-columns:repeat(2,1fr);}}
+                            @media(min-width:1024px){.cm-grid{grid-template-columns:repeat(4,1fr);}}
+                            .cm-card{background:#0a0f18;border-radius:1rem;padding:1.5rem;text-align:center;display:flex;flex-direction:column;align-items:center;border:1px solid rgba(30,41,59,0.6);box-shadow:0 20px 25px -5px rgba(0,0,0,0.3);cursor:pointer;transition:transform 0.3s ease;min-width:0;}
+                            .cm-card:hover{transform:translateY(-8px);}
+                            .cm-avatar{width:100px;height:100px;margin-bottom:1rem;border-radius:50%;border:2px solid rgba(71,85,105,0.6);overflow:hidden;flex-shrink:0;}
+                            .cm-avatar img{width:100%;height:100%;object-fit:cover;display:block;}
+                            .cm-initials{width:100%;height:100%;background:linear-gradient(135deg,#334155,#1e293b);display:flex;align-items:center;justify-content:center;font-size:1.5rem;font-weight:900;color:#cbd5e1;}
+                            .cm-name{font-size:1rem;font-weight:700;color:#ffffff;margin-bottom:4px;letter-spacing:0.025em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;}
+                            .cm-role{font-size:0.75rem;font-weight:500;color:#94a3b8;margin-bottom:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;}
+                            .cm-quote{font-size:0.75rem;font-weight:500;color:#67e8f9;font-style:italic;margin-bottom:0.75rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;}
+                            .cm-bio{color:#6b7280;font-style:italic;font-size:0.6875rem;margin-bottom:1rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+                            .cm-socials{display:flex;align-items:center;justify-content:center;gap:1rem;margin-top:auto;}
+                            .cm-social{color:#64748b;display:inline-flex;align-items:center;transition:color 0.2s;}
+                            .cm-social:hover{color:#22d3ee;}
+                            .cm-social svg{width:18px;height:18px;}
+                        </style>
+                        <div class="cm-grid">
                             {% for member in team_members %}
                             {% if member.category == 'member' %}
-                            <div class="bg-[#0a0f18] rounded-2xl p-6 text-center flex flex-col items-center transition-transform duration-300 hover:-translate-y-2 border border-slate-800/60 shadow-xl" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'" style="cursor:pointer;" >
-                                <div class="w-[100px] h-[100px] mb-4 rounded-full border-2 border-slate-600/60 overflow-hidden flex-shrink-0">
+                            <div class="cm-card" onclick="window.location.href='{% url 'landing:member_detail' member.id %}'">
+                                <div class="cm-avatar">
                                     {% if member.profile_image %}
-                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}" class="w-full h-full object-cover">
+                                    <img src="{{ member.profile_image.url }}" alt="{{ member.get_display_name }}"
+                                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                                    <div class="cm-initials" style="display:none;">{{ member.get_display_name|make_list|first|upper }}</div>
                                     {% else %}
-                                    <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center text-2xl font-black text-slate-300">
-                                        {{ member.get_display_name|make_list|first|upper }}
-                                    </div>
+                                    <div class="cm-initials">{{ member.get_display_name|make_list|first|upper }}</div>
                                     {% endif %}
                                 </div>
-                                <h3 class="text-[18px] font-bold text-white mb-1 tracking-wide truncate w-full">{{ member.get_display_name }}</h3>
+                                <div class="cm-name">{{ member.get_display_name }}</div>
                                 {% if member.user.profile.quote %}
-                                <p class="text-cyan-300 font-medium text-[12px] mb-3 italic truncate w-full">&ldquo;{{ member.user.profile.quote }}&rdquo;</p>
+                                <div class="cm-quote">&ldquo;{{ member.user.profile.quote }}&rdquo;</div>
                                 {% else %}
-                                <p class="text-slate-400 font-medium text-[13px] mb-3 tracking-wide truncate w-full">Club Member</p>
+                                <div class="cm-role">Club Member</div>
                                 {% endif %}
-                                {% if member.bio %}<p class="text-slate-500 italic text-[11px] mb-4 line-clamp-2">{{ member.bio }}</p>{% endif %}
-                                <div class="flex items-center justify-center gap-4 mt-auto">
+                                {% if member.bio %}<div class="cm-bio">{{ member.bio }}</div>{% endif %}
+                                <div class="cm-socials">
                                     {% if member.github_url or member.user.profile.github_profile %}
-                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="GitHub">
-                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
+                                    <a href="{{ member.github_url|default:member.user.profile.github_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="cm-social" aria-label="GitHub">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path></svg>
                                     </a>
                                     {% endif %}
                                     {% if member.linkedin_url or member.user.profile.linkedin_profile %}
-                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
-                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="cm-social" aria-label="LinkedIn">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
                                 </div>
