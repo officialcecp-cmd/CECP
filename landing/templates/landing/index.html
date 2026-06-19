@@ -1412,6 +1412,11 @@
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
                                     </a>
                                     {% endif %}
+                                    {% if member.portfolio_url %}
+                                    <a href="{{ member.portfolio_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Portfolio" title="Portfolio Website">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </div>
                             {% endif %}
@@ -1453,6 +1458,11 @@
                                     {% if member.linkedin_url or member.user.profile.linkedin_profile %}
                                     <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.portfolio_url %}
+                                    <a href="{{ member.portfolio_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Portfolio" title="Portfolio Website">
+                                        <svg class="w-[20px] h-[20px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -1497,6 +1507,11 @@
                                     {% if member.linkedin_url or member.user.profile.linkedin_profile %}
                                     <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="LinkedIn">
                                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.portfolio_url %}
+                                    <a href="{{ member.portfolio_url }}" target="_blank" rel="noopener noreferrer" class="text-slate-500 hover:text-cyan-400 transition-colors" aria-label="Portfolio" title="Portfolio Website">
+                                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                                     </a>
                                     {% endif %}
                                 </div>
@@ -1558,6 +1573,11 @@
                                     {% if member.linkedin_url or member.user.profile.linkedin_profile %}
                                     <a href="{{ member.linkedin_url|default:member.user.profile.linkedin_profile }}" target="_blank" rel="noopener" onclick="event.stopPropagation()" class="cm-social" aria-label="LinkedIn">
                                         <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                                    </a>
+                                    {% endif %}
+                                    {% if member.portfolio_url %}
+                                    <a href="{{ member.portfolio_url }}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()" class="cm-social" aria-label="Portfolio" title="Portfolio Website">
+                                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
                                     </a>
                                     {% endif %}
                                 </div>

@@ -130,6 +130,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Kept for compatibility with django-cloudinary-storage (reads this attribute directly)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 WHITENOISE_MANIFEST_STRICT = False
 
@@ -151,7 +152,9 @@ STORAGES = {
         "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        # CompressedStaticFilesStorage: compresses files without a strict manifest.
+        # Avoids MissingFileError for referenced .map files (e.g. adminlte.min.css.map)
+        "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
     },
 }
 

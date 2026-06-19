@@ -22,4 +22,4 @@ whitenoise
 gunicorn
 cloudinary
 django-cloudinary-storage
-supabase
+supabase==2.9.1

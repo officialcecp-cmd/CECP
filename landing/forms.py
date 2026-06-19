@@ -44,7 +44,7 @@ class FacultyProfileForm(forms.ModelForm):
 class ClubMemberFacultyForm(forms.ModelForm):
     class Meta:
         model = ClubMember
-        fields = ['display_name', 'profile_image', 'bio', 'quote', 'phone', 'linkedin_url', 'github_url']
+        fields = ['display_name', 'profile_image', 'bio', 'quote', 'phone', 'linkedin_url', 'github_url', 'portfolio_url']
         widgets = {
             'display_name': forms.TextInput(attrs={'class': 'fi', 'placeholder': 'e.g. Dr. Rahul Sharma'}),
             'bio': forms.Textarea(attrs={'rows': 3, 'class': 'fi', 'placeholder': 'Short bio or specialization...'}),
@@ -52,6 +52,7 @@ class ClubMemberFacultyForm(forms.ModelForm):
             'phone': forms.TextInput(attrs={'class': 'fi', 'placeholder': '+91 XXXXXXXXXX'}),
             'linkedin_url': forms.URLInput(attrs={'class': 'fi', 'placeholder': 'https://linkedin.com/in/...'}),
             'github_url': forms.URLInput(attrs={'class': 'fi', 'placeholder': 'https://github.com/...'}),
+            'portfolio_url': forms.URLInput(attrs={'class': 'fi', 'placeholder': 'https://yourportfolio.com or https://linktr.ee/...'}),
             'profile_image': forms.FileInput(attrs={'class': 'fi'}),
         }
 

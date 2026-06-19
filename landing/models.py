@@ -65,6 +65,7 @@ class ClubMember(models.Model):
     phone = models.CharField(max_length=15, blank=True)
     linkedin_url = models.URLField(blank=True)
     github_url = models.URLField(blank=True)
+    portfolio_url = models.URLField(max_length=500, blank=True, null=True, help_text="Personal portfolio, Linktree, or any other personal website URL")
     
     # --- Profile Detail Fields ---
     core_technologies = models.CharField(max_length=255, blank=True, help_text="Comma-separated skills (e.g., Python, React, IoT)")

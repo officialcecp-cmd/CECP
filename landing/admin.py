@@ -39,7 +39,7 @@ class ClubMemberAdmin(admin.ModelAdmin):
             'description': 'These fields are shown on the individual member profile detail page.'
         }),
         ('Contact & Social', {
-            'fields': ('phone', 'linkedin_url', 'github_url'),
+            'fields': ('phone', 'linkedin_url', 'github_url', 'portfolio_url'),
             'classes': ('collapse',)
         }),
     )

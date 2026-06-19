@@ -40,3 +40,7 @@ local_settings.py
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+# VS Code settings
+.vscode/
+
